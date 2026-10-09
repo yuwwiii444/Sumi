@@ -78,12 +78,24 @@ body{margin:0;background:radial-gradient(ellipse 90% 340px at 50% 0,var(--glow),
 .bars .b{width:min(36px,100%);background:var(--s3);border-radius:4px 4px 0 0;min-height:2px}
 .bars .col:hover .b,.bars .col:focus .b{background:var(--s4)}
 .blabels{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;font-size:12px;color:var(--muted);text-align:center;margin-top:6px}
-.cal{display:grid;grid-template-rows:repeat(7,13px);grid-auto-flow:column;grid-auto-columns:13px;gap:3px;overflow-x:auto;padding-bottom:4px}
-.cal i{border-radius:3px;background:var(--s0)}
-.cal i[data-l="1"]{background:var(--s1)} .cal i[data-l="2"]{background:var(--s2)} .cal i[data-l="3"]{background:var(--s3)} .cal i[data-l="4"]{background:var(--s4)}
-.cal i.future{visibility:hidden}
-.callegend{display:flex;align-items:center;gap:3px;font-size:12px;color:var(--muted);margin-top:10px}
+.calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.calhead b{font-size:16px}
+.calhead .iconbtn:disabled{opacity:.3;cursor:default}
+.month{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;max-width:460px;margin:0 auto}
+.month .dow{font-size:12px;color:var(--muted);text-align:center;padding-bottom:2px}
+.month .day{aspect-ratio:1;border-radius:6px;display:grid;place-items:center;font-size:14px;font-variant-numeric:tabular-nums;background:var(--s0);color:var(--ink)}
+.month .day[data-l="1"]{background:var(--s1)} .month .day[data-l="2"]{background:var(--s2)}
+.month .day[data-l="3"]{background:var(--s3);color:#fff} .month .day[data-l="4"]{background:var(--s4);color:var(--paper)}
+.month .day.today{box-shadow:inset 0 0 0 2px var(--ink);font-weight:700}
+.month .day.future{background:none;color:var(--muted);opacity:.5}
+.calfoot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:13px;color:var(--muted);margin-top:12px}
+.callegend{display:flex;align-items:center;gap:3px;font-size:12px;color:var(--muted)}
 .callegend i{width:13px;height:13px;border-radius:3px}
+.cattog{border:0;background:none;color:inherit;font:inherit;padding:2px 0;display:flex;align-items:center;gap:6px;width:100%;text-align:left}
+.cattog svg{width:16px;height:16px;transition:transform .15s;flex:none}
+.cattog[aria-expanded="true"] svg{transform:rotate(90deg)}
+.cattog span{font-size:12px;font-weight:400;color:var(--muted);margin-left:4px}
+h5{font-size:12px;font-weight:500;color:var(--muted);margin:10px 0 6px;letter-spacing:.03em}
 .dtable{width:100%;border-collapse:collapse;font-size:15px}
 .dtable th{text-align:left;font-size:12px;font-weight:500;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--line)}
 .dtable td{padding:10px 14px;border-bottom:1px solid var(--line)}
@@ -452,241 +464,239 @@ const RAD_RAW = `一|one|一 二 三 下|A single flat stroke, like one finger l
 鳥|bird|鳥|A bird with its eye, feathers and feet. Bird.`;
 
 // ---------- Kanji : kanji|meanings|on'yomi|kun'yomi|example|example reading|translation ----------
-const N5_RAW = `一|one|イチ,イツ|ひと,ひと.つ|一つください。|ひとつください。|One, please.
-二|two|ニ,ジ|ふた,ふた.つ|二人で行きます。|ふたりでいきます。|The two of us will go.
-三|three|サン|み,み.つ,みっ.つ|三月に日本へ行きます。|さんがつににほんへいきます。|I'm going to Japan in March.
+const N5_RAW = `一|one|イチ,イツ|ひと-,ひと.つ|一つください。|ひとつください。|One, please.
+二|two|ニ,ジ|ふた,ふた.つ,ふたたび|二人で行きます。|ふたりでいきます。|The two of us will go.
+三|three|サン,ゾウ|み,み.つ,みっ.つ|三月に日本へ行きます。|さんがつににほんへいきます。|I'm going to Japan in March.
 四|four|シ|よ,よ.つ,よっ.つ,よん|四時に会いましょう。|よじにあいましょう。|Let's meet at four o'clock.
 五|five|ゴ|いつ,いつ.つ|りんごを五つ買いました。|りんごをいつつかいました。|I bought five apples.
-六|six|ロク|む,む.つ,むっ.つ|六月は雨が多いです。|ろくがつはあめがおおいです。|It rains a lot in June.
+六|six|ロク,リク|む,む.つ,むっ.つ,むい|六月は雨が多いです。|ろくがつはあめがおおいです。|It rains a lot in June.
 七|seven|シチ|なな,なな.つ,なの|七時に起きます。|しちじにおきます。|I get up at seven.
-八|eight|ハチ|や,や.つ,やっ.つ|これは八百円です。|これははっぴゃくえんです。|This is 800 yen.
+八|eight|ハチ,ハツ|や,や.つ,やっ.つ,よう|これは八百円です。|これははっぴゃくえんです。|This is 800 yen.
 九|nine|キュウ,ク|ここの,ここの.つ|九時に寝ます。|くじにねます。|I go to bed at nine.
-十|ten|ジュウ,ジッ,ジュッ|とお,と|十分待ってください。|じゅっぷんまってください。|Please wait ten minutes.
-百|hundred|ヒャク||百人が来ました。|ひゃくにんがきました。|A hundred people came.
+十|ten|ジュウ,ジッ,ジュッ|とお,と,そ|十分待ってください。|じゅっぷんまってください。|Please wait ten minutes.
+百|hundred|ヒャク,ビャク|もも|百人が来ました。|ひゃくにんがきました。|A hundred people came.
 千|thousand|セン|ち|千円あります。|せんえんあります。|I have 1,000 yen.
-万|ten thousand|マン,バン||一万円は高いです。|いちまんえんはたかいです。|Ten thousand yen is expensive.
-円|yen,circle|エン|まる.い|このりんごは百円です。|このりんごはひゃくえんです。|This apple is 100 yen.
-日|sun,day|ニチ,ジツ|ひ,か|日曜日に休みます。|にちようびにやすみます。|I rest on Sundays.
+万|ten thousand|マン,バン|よろず|一万円は高いです。|いちまんえんはたかいです。|Ten thousand yen is expensive.
+円|yen,circle|エン|まる.い,まる,まど,まど.か,まろ.やか|このりんごは百円です。|このりんごはひゃくえんです。|This apple is 100 yen.
+日|sun,day|ニチ,ジツ|ひ,-び,-か|日曜日に休みます。|にちようびにやすみます。|I rest on Sundays.
 月|moon,month|ゲツ,ガツ|つき|月がきれいです。|つきがきれいです。|The moon is beautiful.
-火|fire|カ|ひ|火曜日は忙しいです。|かようびはいそがしいです。|Tuesdays are busy.
-水|water|スイ|みず|水を飲みます。|みずをのみます。|I drink water.
-木|tree,wood|ボク,モク|き|木の下で休みます。|きのしたでやすみます。|I rest under the tree.
-金|gold,money|キン,コン|かね,かな|お金がありません。|おかねがありません。|I don't have any money.
+火|fire|カ|ひ,-び,ほ-|火曜日は忙しいです。|かようびはいそがしいです。|Tuesdays are busy.
+水|water|スイ|みず,みず-|水を飲みます。|みずをのみます。|I drink water.
+木|tree,wood|ボク,モク|き,こ-|木の下で休みます。|きのしたでやすみます。|I rest under the tree.
+金|gold,money|キン,コン,ゴン|かね,かな-,-がね|お金がありません。|おかねがありません。|I don't have any money.
 土|soil,earth|ド,ト|つち|土曜日に映画を見ます。|どようびにえいがをみます。|I watch a movie on Saturday.
 年|year|ネン|とし|毎年日本へ行きます。|まいとしにほんへいきます。|I go to Japan every year.
-人|person|ジン,ニン|ひと|あの人は先生です。|あのひとはせんせいです。|That person is a teacher.
-子|child|シ,ス|こ|子どもが公園で遊んでいます。|こどもがこうえんであそんでいます。|Children are playing in the park.
+人|person|ジン,ニン|ひと,-り,-と|あの人は先生です。|あのひとはせんせいです。|That person is a teacher.
+子|child|シ,ス,ツ|こ,-こ,ね|子どもが公園で遊んでいます。|こどもがこうえんであそんでいます。|Children are playing in the park.
 女|woman|ジョ,ニョ,ニョウ|おんな,め|女の人が来ました。|おんなのひとがきました。|A woman came.
-男|man|ダン,ナン|おとこ|男の子が三人います。|おとこのこがさんにんいます。|There are three boys.
-大|big|ダイ,タイ|おお,おお.きい|大きい犬がいます。|おおきいいぬがいます。|There's a big dog.
-小|small|ショウ|ちい.さい,こ,お|小さい家に住んでいます。|ちいさいいえにすんでいます。|I live in a small house.
-中|middle,inside|チュウ,ジュウ|なか|かばんの中に本があります。|かばんのなかにほんがあります。|There's a book in the bag.
-上|up,above|ジョウ,ショウ|うえ,あ.がる,のぼ.る,うわ,かみ,あ.げる|机の上にペンがあります。|つくえのうえにペンがあります。|There's a pen on the desk.
-下|down,below|カ,ゲ|した,さ.がる,くだ.る,お.りる,しも,さ.げる|いすの下に猫がいます。|いすのしたにねこがいます。|There's a cat under the chair.
-左|left|サ|ひだり|左に曲がってください。|ひだりにまがってください。|Please turn left.
+男|man|ダン,ナン|おとこ,お|男の子が三人います。|おとこのこがさんにんいます。|There are three boys.
+大|big|ダイ,タイ|おお-,おお.きい,-おお.いに|大きい犬がいます。|おおきいいぬがいます。|There's a big dog.
+小|small|ショウ|ちい.さい,こ-,お-,さ-|小さい家に住んでいます。|ちいさいいえにすんでいます。|I live in a small house.
+中|middle,inside|チュウ,ジュウ|なか,うち,あた.る|かばんの中に本があります。|かばんのなかにほんがあります。|There's a book in the bag.
+上|up,above|ジョウ,ショウ,シャン|うえ,-うえ,うわ-,かみ,あ.げる,-あ.げる,あ.がる,-あ.がる,あ.がり,-あ.がり,のぼ.る,のぼ.り,のぼ.せる,のぼ.す,たてまつ.る|机の上にペンがあります。|つくえのうえにペンがあります。|There's a pen on the desk.
+下|down,below|カ,ゲ|した,しも,もと,さ.げる,さ.がる,くだ.る,くだ.り,くだ.す,-くだ.す,くだ.さる,お.ろす,お.りる|いすの下に猫がいます。|いすのしたにねこがいます。|There's a cat under the chair.
+左|left|サ,シャ|ひだり|左に曲がってください。|ひだりにまがってください。|Please turn left.
 右|right|ウ,ユウ|みぎ|駅は右にあります。|えきはみぎにあります。|The station is on the right.
-山|mountain|サン|やま|山に登りました。|やまにのぼりました。|I climbed a mountain.
+山|mountain|サン,セン|やま|山に登りました。|やまにのぼりました。|I climbed a mountain.
 川|river|セン|かわ|川で泳ぎます。|かわでおよぎます。|I swim in the river.
-田|rice field|デン|た|田んぼに水があります。|たんぼにみずがあります。|There's water in the rice paddy.
-口|mouth|コウ,ク|くち|口を開けてください。|くちをあけてください。|Please open your mouth.
-目|eye|モク,ボク|め|目が痛いです。|めがいたいです。|My eyes hurt.
-耳|ear|ジ|みみ|祖父は耳が遠いです。|そふはみみがとおいです。|My grandfather is hard of hearing.
-手|hand|シュ|て|手を洗いましょう。|てをあらいましょう。|Let's wash our hands.
-足|foot,leg|ソク|あし,た.りる|足が痛いです。|あしがいたいです。|My feet hurt.
-力|power,strength|リョク,リキ|ちから|兄は力が強いです。|あにはちからがつよいです。|My older brother is strong.
 本|book,origin|ホン|もと|この本はおもしろいです。|このほんはおもしろいです。|This book is interesting.
 学|study,learning|ガク|まな.ぶ|大学で日本語を勉強します。|だいがくでにほんごをべんきょうします。|I study Japanese at university.
-生|life,birth|セイ,ショウ|い.きる,う.まれる,なま,は.える,き|学生は五人です。|がくせいはごにんです。|There are five students.
-先|previous,ahead|セン|さき|先生に聞きます。|せんせいにききます。|I'll ask the teacher.
-名|name|メイ,ミョウ|な|お名前は何ですか。|おなまえはなんですか。|What's your name?
-白|white|ハク,ビャク|しろ,しろ.い,しら|白いシャツを買いました。|しろいシャツをかいました。|I bought a white shirt.
-天|heaven,sky|テン|あめ,あま|今日は天気がいいです。|きょうはてんきがいいです。|The weather is nice today.
-気|spirit,energy|キ,ケ||元気ですか。|げんきですか。|How are you?
-雨|rain|ウ|あめ|雨が降っています。|あめがふっています。|It's raining.
-花|flower|カ|はな|花がきれいです。|はながきれいです。|The flowers are pretty.
-空|sky,empty|クウ|そら,から,あ.く|空が青いです。|そらがあおいです。|The sky is blue.
-犬|dog|ケン|いぬ|犬が好きです。|いぬがすきです。|I like dogs.
-見|see,look|ケン|み.る|テレビを見ます。|テレビをみます。|I watch TV.
-行|go|コウ,ギョウ,アン|い.く,おこな.う,ゆ.く|学校へ行きます。|がっこうへいきます。|I go to school.
-来|come|ライ|く.る|友だちが来ます。|ともだちがきます。|My friend is coming.
-出|exit,leave|シュツ,スイ|で.る,だ.す|八時に家を出ました。|はちじにいえをでました。|I left home at eight.
-入|enter|ニュウ|はい.る,い.れる,い.る|部屋に入ります。|へやにはいります。|I go into the room.
-休|rest|キュウ|やす.む|明日は休みです。|あしたはやすみです。|Tomorrow is a day off.
-言|say|ゲン,ゴン|い.う,こと|もう一度言ってください。|もういちどいってください。|Please say it once more.
+生|life,birth|セイ,ショウ|い.きる,い.かす,い.ける,う.まれる,うま.れる,う.まれ,うまれ,う.む,お.う,は.える,は.やす,き,なま,なま-,な.る,な.す,む.す,-う|学生は五人です。|がくせいはごにんです。|There are five students.
+先|previous,ahead|セン|さき,ま.ず|先生に聞きます。|せんせいにききます。|I'll ask the teacher.
+名|name|メイ,ミョウ|な,-な|お名前は何ですか。|おなまえはなんですか。|What's your name?
+白|white|ハク,ビャク|しろ,しら-,しろ.い|白いシャツを買いました。|しろいシャツをかいました。|I bought a white shirt.
+天|heaven,sky|テン|あまつ,あめ,あま-|今日は天気がいいです。|きょうはてんきがいいです。|The weather is nice today.
+気|spirit,energy|キ,ケ|いき,き|元気ですか。|げんきですか。|How are you?
+雨|rain|ウ|あめ,あま-,-さめ|雨が降っています。|あめがふっています。|It's raining.
+見|see,look|ケン|み.る,み.える,み.せる|テレビを見ます。|テレビをみます。|I watch TV.
+行|go|コウ,ギョウ,アン|い.く,ゆ.く,-ゆ.き,-ゆき,-い.き,-いき,おこな.う,おこ.なう|学校へ行きます。|がっこうへいきます。|I go to school.
+来|come|ライ,タイ|く.る,きた.る,きた.す,き.たす,き.たる,き,こ|友だちが来ます。|ともだちがきます。|My friend is coming.
+出|exit,leave|シュツ,スイ|で.る,-で,だ.す,-だ.す,い.でる,い.だす|八時に家を出ました。|はちじにいえをでました。|I left home at eight.
+入|enter|ニュウ,ジュ|い.る,-い.る,-い.り,い.れる,-い.れ,はい.る|部屋に入ります。|へやにはいります。|I go into the room.
+休|rest|キュウ|やす.む,やす.まる,やす.める|明日は休みです。|あしたはやすみです。|Tomorrow is a day off.
 話|talk,story|ワ|はな.す,はなし|友だちと話します。|ともだちとはなします。|I talk with my friends.
-読|read|ドク,トク,トウ|よ.む|新聞を読みます。|しんぶんをよみます。|I read the newspaper.
-書|write|ショ|か.く|名前を書いてください。|なまえをかいてください。|Please write your name.
-食|eat,food|ショク,ジキ|た.べる|朝ご飯を食べます。|あさごはんをたべます。|I eat breakfast.
-飲|drink|イン|の.む|お茶を飲みます。|おちゃをのみます。|I drink tea.
-買|buy|バイ|か.う|本を買いました。|ほんをかいました。|I bought a book.
-聞|hear,listen|ブン,モン|き.く|音楽を聞きます。|おんがくをききます。|I listen to music.
-立|stand|リツ,リュウ|た.つ,た.てる|立ってください。|たってください。|Please stand up.
+読|read|ドク,トク,トウ|よ.む,-よ.み|新聞を読みます。|しんぶんをよみます。|I read the newspaper.
+書|write|ショ|か.く,-が.き,-がき|名前を書いてください。|なまえをかいてください。|Please write your name.
+食|eat,food|ショク,ジキ|く.う,く.らう,た.べる,は.む|朝ご飯を食べます。|あさごはんをたべます。|I eat breakfast.
+聞|hear,listen|ブン,モン|き.く,き.こえる|音楽を聞きます。|おんがくをききます。|I listen to music.
 今|now|コン,キン|いま|今、何時ですか。|いま、なんじですか。|What time is it now?
-時|time,hour|ジ|とき|時間がありません。|じかんがありません。|I don't have time.
-分|minute,part,understand|ブン,フン,ブ|わ.かる,わ.ける|よく分かりません。|よくわかりません。|I don't really understand.
+時|time,hour|ジ|とき,-どき|時間がありません。|じかんがありません。|I don't have time.
+分|minute,part,understand|ブン,フン,ブ|わ.ける,わ.け,わ.かれる,わ.かる,わ.かつ|よく分かりません。|よくわかりません。|I don't really understand.
 半|half|ハン|なか.ば|三時半に会いましょう。|さんじはんにあいましょう。|Let's meet at 3:30.
-午|noon|ゴ||午後は暇です。|ごごはひまです。|I'm free in the afternoon.
-前|before,front|ゼン|まえ|駅の前で待ちます。|えきのまえでまちます。|I'll wait in front of the station.
-後|after,behind|ゴ,コウ|うし.ろ,あと,のち,おく.れる|後で電話します。|あとででんわします。|I'll call later.
-間|interval,between|カン,ケン|あいだ,ま|一時間勉強しました。|いちじかんべんきょうしました。|I studied for an hour.
-毎|every|マイ||毎日コーヒーを飲みます。|まいにちコーヒーをのみます。|I drink coffee every day.
-週|week|シュウ||来週テストがあります。|らいしゅうテストがあります。|There's a test next week.
-何|what|カ|なに,なん|これは何ですか。|これはなんですか。|What is this?
+午|noon|ゴ|うま|午後は暇です。|ごごはひまです。|I'm free in the afternoon.
+前|before,front|ゼン|まえ,-まえ|駅の前で待ちます。|えきのまえでまちます。|I'll wait in front of the station.
+後|after,behind|ゴ,コウ|のち,うし.ろ,うしろ,あと,おく.れる|後で電話します。|あとででんわします。|I'll call later.
+間|interval,between|カン,ケン|あいだ,ま,あい|一時間勉強しました。|いちじかんべんきょうしました。|I studied for an hour.
+毎|every|マイ|ごと,-ごと.に|毎日コーヒーを飲みます。|まいにちコーヒーをのみます。|I drink coffee every day.
+何|what|カ|なに,なん,なに-,なん-|これは何ですか。|これはなんですか。|What is this?
 国|country|コク|くに|どこの国から来ましたか。|どこのくにからきましたか。|Which country are you from?
-外|outside|ガイ,ゲ|そと,ほか,はず.す|外は寒いです。|そとはさむいです。|It's cold outside.
-語|language,word|ゴ|かた.る|英語を話せますか。|えいごをはなせますか。|Can you speak English?
+外|outside|ガイ,ゲ|そと,ほか,はず.す,はず.れる,と-|外は寒いです。|そとはさむいです。|It's cold outside.
+語|language,word|ゴ|かた.る,かた.らう|英語を話せますか。|えいごをはなせますか。|Can you speak English?
 東|east|トウ|ひがし|東京に住んでいます。|とうきょうにすんでいます。|I live in Tokyo.
-西|west|セイ,サイ|にし|西の空が赤いです。|にしのそらがあかいです。|The western sky is red.
+西|west|セイ,サイ,ス|にし|西の空が赤いです。|にしのそらがあかいです。|The western sky is red.
 南|south|ナン,ナ|みなみ|南の島へ行きたいです。|みなみのしまへいきたいです。|I want to go to a southern island.
 北|north|ホク|きた|北海道は寒いです。|ほっかいどうはさむいです。|Hokkaido is cold.
-長|long,leader|チョウ|なが.い|妹は髪が長いです。|いもうとはかみがながいです。|My younger sister has long hair.
-高|tall,expensive|コウ|たか.い,たか|この時計は高いです。|このとけいはたかいです。|This watch is expensive.
-安|cheap,peaceful|アン|やす.い|この店は安いです。|このみせはやすいです。|This shop is cheap.
-新|new|シン|あたら.しい,あら.た|新しい車を買いました。|あたらしいくるまをかいました。|I bought a new car.
-古|old|コ|ふる.い|古い町を歩きました。|ふるいまちをあるきました。|I walked around an old town.
-多|many|タ|おお.い|人が多いです。|ひとがおおいです。|There are a lot of people.
-少|few,little|ショウ|すく.ない,すこ.し|少し待ってください。|すこしまってください。|Please wait a little.
+長|long,leader|チョウ|なが.い,おさ|妹は髪が長いです。|いもうとはかみがながいです。|My younger sister has long hair.
+高|tall,expensive|コウ|たか.い,たか,-だか,たか.まる,たか.める|この時計は高いです。|このとけいはたかいです。|This watch is expensive.
 電|electricity|デン||電話をかけます。|でんわをかけます。|I make a phone call.
 車|car,vehicle|シャ|くるま|車で行きます。|くるまでいきます。|I'll go by car.
-道|road,way|ドウ,トウ|みち|この道はせまいです。|このみちはせまいです。|This road is narrow.
-駅|station|エキ||駅はどこですか。|えきはどこですか。|Where is the station?
-社|company,shrine|シャ|やしろ|会社で働いています。|かいしゃではたらいています。|I work at a company.
-校|school|コウ||学校は八時からです。|がっこうははちじからです。|School starts at eight.
-店|shop,store|テン|みせ|店は十時に開きます。|みせはじゅうじにあきます。|The shop opens at ten.
+校|school|コウ,キョウ||学校は八時からです。|がっこうははちじからです。|School starts at eight.
 友|friend|ユウ|とも|友だちと遊びます。|ともだちとあそびます。|I hang out with friends.
 父|father|フ|ちち|父は医者です。|ちちはいしゃです。|My father is a doctor.
-母|mother|ボ|はは|母は料理が上手です。|はははりょうりがじょうずです。|My mother is good at cooking.`;
+母|mother|ボ|はは,も|母は料理が上手です。|はははりょうりがじょうずです。|My mother is good at cooking.`;
 
-const N4_RAW = `会|meet,meeting|カイ,エ|あ.う|明日、友だちに会います。|あした、ともだちにあいます。|I'm meeting a friend tomorrow.
+const N4_RAW = `田|rice field|デン|た|田んぼに水があります。|たんぼにみずがあります。|There's water in the rice paddy.
+口|mouth|コウ,ク|くち|口を開けてください。|くちをあけてください。|Please open your mouth.
+目|eye|モク,ボク|め,-め,ま-|目が痛いです。|めがいたいです。|My eyes hurt.
+手|hand|シュ,ズ|て,て-,-て,た-|手を洗いましょう。|てをあらいましょう。|Let's wash our hands.
+足|foot,leg|ソク|あし,た.りる,た.る,た.す|足が痛いです。|あしがいたいです。|My feet hurt.
+力|power,strength|リョク,リキ,リイ|ちから|兄は力が強いです。|あにはちからがつよいです。|My older brother is strong.
+花|flower|カ,ケ|はな|花がきれいです。|はながきれいです。|The flowers are pretty.
+空|sky,empty|クウ|そら,あ.く,あ.き,あ.ける,から,す.く,す.かす,むな.しい|空が青いです。|そらがあおいです。|The sky is blue.
+犬|dog|ケン|いぬ,いぬ-|犬が好きです。|いぬがすきです。|I like dogs.
+言|say|ゲン,ゴン|い.う,こと|もう一度言ってください。|もういちどいってください。|Please say it once more.
+飲|drink|イン,オン|の.む,-の.み|お茶を飲みます。|おちゃをのみます。|I drink tea.
+買|buy|バイ|か.う|本を買いました。|ほんをかいました。|I bought a book.
+立|stand|リツ,リュウ,リットル|た.つ,-た.つ,た.ち-,た.てる,-た.てる,た.て-,たて-,-た.て,-だ.て,-だ.てる|立ってください。|たってください。|Please stand up.
+週|week|シュウ||来週テストがあります。|らいしゅうテストがあります。|There's a test next week.
+安|cheap,peaceful|アン|やす.い,やす.まる,やす,やす.らか|この店は安いです。|このみせはやすいです。|This shop is cheap.
+新|new|シン|あたら.しい,あら.た,あら-,にい-|新しい車を買いました。|あたらしいくるまをかいました。|I bought a new car.
+古|old|コ|ふる.い,ふる-,-ふる.す|古い町を歩きました。|ふるいまちをあるきました。|I walked around an old town.
+多|many|タ|おお.い,まさ.に,まさ.る|人が多いです。|ひとがおおいです。|There are a lot of people.
+少|few,little|ショウ|すく.ない,すこ.し|少し待ってください。|すこしまってください。|Please wait a little.
+道|road,way|ドウ,トウ|みち,いう|この道はせまいです。|このみちはせまいです。|This road is narrow.
+駅|station|エキ||駅はどこですか。|えきはどこですか。|Where is the station?
+社|company,shrine|シャ|やしろ|会社で働いています。|かいしゃではたらいています。|I work at a company.
+店|shop,store|テン|みせ,たな|店は十時に開きます。|みせはじゅうじにあきます。|The shop opens at ten.
+会|meet,meeting|カイ,エ|あ.う,あ.わせる,あつ.まる|明日、友だちに会います。|あした、ともだちにあいます。|I'm meeting a friend tomorrow.
 同|same|ドウ|おな.じ|同じ本を持っています。|おなじほんをもっています。|I have the same book.
-事|thing,matter|ジ,ズ|こと|仕事は何時に終わりますか。|しごとはなんじにおわりますか。|What time does work finish?
-自|self|ジ,シ|みずか.ら|自分で作りました。|じぶんでつくりました。|I made it myself.
-発|departure,emit|ハツ,ホツ||電車は九時に発車します。|でんしゃはくじにはっしゃします。|The train departs at nine.
+事|thing,matter|ジ,ズ|こと,つか.う,つか.える|仕事は何時に終わりますか。|しごとはなんじにおわりますか。|What time does work finish?
+自|self|ジ,シ|みずか.ら,おの.ずから,おの.ずと|自分で作りました。|じぶんでつくりました。|I made it myself.
+発|departure,emit|ハツ,ホツ|た.つ,あば.く,おこ.る,つか.わす,はな.つ|電車は九時に発車します。|でんしゃはくじにはっしゃします。|The train departs at nine.
 者|someone,person|シャ|もの|姉は医者です。|あねはいしゃです。|My older sister is a doctor.
 地|ground,earth|チ,ジ||地図を見てください。|ちずをみてください。|Please look at the map.
 業|business,industry|ギョウ,ゴウ|わざ|授業は九時からです。|じゅぎょうはくじからです。|Class starts at nine.
-方|direction,way,person|ホウ|かた|書き方を教えてください。|かきかたをおしえてください。|Please show me how to write it.
+方|direction,way,person|ホウ|かた,-かた,-がた|書き方を教えてください。|かきかたをおしえてください。|Please show me how to write it.
 場|place|ジョウ,チョウ|ば|駐車場はどこですか。|ちゅうしゃじょうはどこですか。|Where is the parking lot?
 員|member,employee|イン||兄は会社員です。|あにはかいしゃいんです。|My older brother is an office worker.
-開|open|カイ|ひら.く,あ.く,あ.ける,ひら.ける|窓を開けてください。|まどをあけてください。|Please open the window.
-問|question,problem|モン|と.う,とい|この問題は難しいです。|このもんだいはむずかしいです。|This problem is difficult.
-代|substitute,generation,fee|ダイ,タイ|か.わる|電気代が高いです。|でんきだいがたかいです。|The electricity bill is high.
-明|bright,clear|メイ,ミョウ,ミン|あか.るい,あ.ける,あ.かり,あき.らか|この部屋は明るいです。|このへやはあかるいです。|This room is bright.
-動|move|ドウ|うご.く|車が動きません。|くるまがうごきません。|The car won't move.
-京|capital|キョウ,ケイ,キン||京都へ行きました。|きょうとへいきました。|I went to Kyoto.
-通|pass through,commute|ツウ,ツ|とお.る,かよ.う|バスで学校に通っています。|バスでがっこうにかよっています。|I go to school by bus.
-理|reason,logic|リ||料理を作ります。|りょうりをつくります。|I cook.
-体|body|タイ,テイ|からだ|体に気をつけてください。|からだにきをつけてください。|Please take care of yourself.
-主|master,main|シュ,ス|ぬし,おも|主人は今出かけています。|しゅじんはいまでかけています。|My husband is out right now.
+開|open|カイ|ひら.く,ひら.き,-びら.き,ひら.ける,あ.く,あ.ける|窓を開けてください。|まどをあけてください。|Please open the window.
+問|question,problem|モン|と.う,と.い,とん,とい|この問題は難しいです。|このもんだいはむずかしいです。|This problem is difficult.
+代|substitute,generation,fee|ダイ,タイ|か.わる,かわ.る,かわ.り,か.わり,-がわ.り,-が.わり,か.える,よ,しろ|電気代が高いです。|でんきだいがたかいです。|The electricity bill is high.
+明|bright,clear|メイ,ミョウ,ミン|あ.かり,あか.るい,あか.るむ,あか.らむ,あき.らか,あ.ける,-あ.け,あ.く,あ.くる,あ.かす|この部屋は明るいです。|このへやはあかるいです。|This room is bright.
+動|move|ドウ|うご.く,うご.かす|車が動きません。|くるまがうごきません。|The car won't move.
+京|capital|キョウ,ケイ,キン|みやこ|京都へ行きました。|きょうとへいきました。|I went to Kyoto.
+通|pass through,commute|ツウ,ツ|とお.る,とお.り,-とお.り,-どお.り,とお.す,とお.し,-どお.し,かよ.う|バスで学校に通っています。|バスでがっこうにかよっています。|I go to school by bus.
+理|reason,logic|リ|ことわり|料理を作ります。|りょうりをつくります。|I cook.
+体|body|タイ,テイ|からだ,かたち|体に気をつけてください。|からだにきをつけてください。|Please take care of yourself.
+主|master,main|シュ,ス,シュウ|ぬし,おも,あるじ|主人は今出かけています。|しゅじんはいまでかけています。|My husband is out right now.
 題|topic,title|ダイ||宿題が多いです。|しゅくだいがおおいです。|There's a lot of homework.
 意|idea,mind,meaning|イ||この言葉の意味は何ですか。|このことばのいみはなんですか。|What does this word mean?
 不|not,un-|フ,ブ||この町は不便です。|このまちはふべんです。|This town is inconvenient.
-作|make|サク,サ|つく.る|ケーキを作りました。|ケーキをつくりました。|I made a cake.
+作|make|サク,サ|つく.る,つく.り,-づく.り|ケーキを作りました。|ケーキをつくりました。|I made a cake.
 用|use,errand|ヨウ|もち.いる|用事があるので帰ります。|ようじがあるのでかえります。|I have an errand, so I'm going home.
-度|degree,times|ド,ト|たび|もう一度お願いします。|もういちどおねがいします。|Once more, please.
-強|strong|キョウ,ゴウ|つよ.い|風が強いです。|かぜがつよいです。|The wind is strong.
+度|degree,times|ド,ト,タク|たび,-た.い|もう一度お願いします。|もういちどおねがいします。|Once more, please.
+強|strong|キョウ,ゴウ|つよ.い,つよ.まる,つよ.める,し.いる,こわ.い|風が強いです。|かぜがつよいです。|The wind is strong.
 公|public|コウ,ク|おおやけ|公園を散歩します。|こうえんをさんぽします。|I take a walk in the park.
-持|hold,have|ジ|も.つ|かさを持っていますか。|かさをもっていますか。|Do you have an umbrella?
-野|field|ヤ|の|野菜を食べましょう。|やさいをたべましょう。|Let's eat vegetables.
-以|by means of,compared with|イ||十八歳以上の人は入れます。|じゅうはっさいいじょうのひとははいれます。|People 18 and over can enter.
-思|think|シ|おも.う|いい考えだと思います。|いいかんがえだとおもいます。|I think it's a good idea.
+持|hold,have|ジ|も.つ,-も.ち,も.てる|かさを持っていますか。|かさをもっていますか。|Do you have an umbrella?
+野|field|ヤ,ショ|の,の-|野菜を食べましょう。|やさいをたべましょう。|Let's eat vegetables.
+以|by means of,compared with|イ|もっ.て|十八歳以上の人は入れます。|じゅうはっさいいじょうのひとははいれます。|People 18 and over can enter.
+思|think|シ|おも.う,おもえら.く,おぼ.す|いい考えだと思います。|いいかんがえだとおもいます。|I think it's a good idea.
 家|house,home|カ,ケ|いえ,や,うち|家に帰ります。|いえにかえります。|I'm going home.
-世|world,generation|セイ,セ|よ|世界は広いです。|せかいはひろいです。|The world is big.
-正|correct|セイ,ショウ|ただ.しい,まさ|正しい答えを書いてください。|ただしいこたえをかいてください。|Please write the correct answer.
+世|world,generation|セイ,セ,ソウ|よ|世界は広いです。|せかいはひろいです。|The world is big.
+正|correct|セイ,ショウ|ただ.しい,ただ.す,まさ,まさ.に|正しい答えを書いてください。|ただしいこたえをかいてください。|Please write the correct answer.
 院|institution|イン||病院へ行きます。|びょういんへいきます。|I'm going to the hospital.
-心|heart,mind|シン|こころ|心配しないでください。|しんぱいしないでください。|Please don't worry.
+心|heart,mind|シン|こころ,-ごころ|心配しないでください。|しんぱいしないでください。|Please don't worry.
 界|world,boundary|カイ||世界中を旅行したいです。|せかいじゅうをりょこうしたいです。|I want to travel all over the world.
-教|teach|キョウ|おし.える|日本語を教えています。|にほんごをおしえています。|I teach Japanese.
-文|sentence,writing|ブン,モン|ふみ|作文を書きました。|さくぶんをかきました。|I wrote an essay.
+教|teach|キョウ|おし.える,おそ.わる|日本語を教えています。|にほんごをおしえています。|I teach Japanese.
+文|sentence,writing|ブン,モン|ふみ,あや|作文を書きました。|さくぶんをかきました。|I wrote an essay.
 元|origin,former|ゲン,ガン|もと|元の場所に戻してください。|もとのばしょにもどしてください。|Please put it back where it was.
-重|heavy|ジュウ,チョウ|おも.い,かさ.ねる,え|この荷物は重いです。|このにもつはおもいです。|This luggage is heavy.
+重|heavy|ジュウ,チョウ|え,おも.い,おも.り,おも.なう,かさ.ねる,かさ.なる,おも|この荷物は重いです。|このにもつはおもいです。|This luggage is heavy.
 近|near|キン,コン|ちか.い|駅は近いです。|えきはちかいです。|The station is close.
-考|think,consider|コウ|かんが.える|よく考えてください。|よくかんがえてください。|Please think it over carefully.
-画|picture,stroke|ガ,カク||映画を見に行きましょう。|えいがをみにいきましょう。|Let's go see a movie.
+考|think,consider|コウ|かんが.える,かんが.え|よく考えてください。|よくかんがえてください。|Please think it over carefully.
+画|picture,stroke|ガ,カク,エ,カイ|えが.く,かく.する,かぎ.る,はかりごと,はか.る|映画を見に行きましょう。|えいがをみにいきましょう。|Let's go see a movie.
 海|sea|カイ|うみ|夏は海で泳ぎます。|なつはうみでおよぎます。|In summer I swim in the sea.
-売|sell|バイ|う.る|この店で切手を売っています。|このみせできってをうっています。|This shop sells stamps.
-知|know|チ|し.る|その人を知っていますか。|そのひとをしっていますか。|Do you know that person?
-集|gather,collect|シュウ|あつ.まる,あつ.める|切手を集めています。|きってをあつめています。|I collect stamps.
-別|separate,different|ベツ|わか.れる|別の日にしましょう。|べつのひにしましょう。|Let's make it a different day.
-物|thing|ブツ,モツ|もの|買い物に行きます。|かいものにいきます。|I'm going shopping.
-使|use|シ|つか.う|このペンを使ってもいいですか。|このペンをつかってもいいですか。|May I use this pen?
-品|goods,article|ヒン|しな|この品物はいくらですか。|このしなものはいくらですか。|How much is this item?
-計|measure,plan|ケイ|はか.る|時計を見てください。|とけいをみてください。|Please look at the clock.
-死|death,die|シ|し.ぬ|金魚が死んでしまいました。|きんぎょがしんでしまいました。|The goldfish died.
+売|sell|バイ|う.る,う.れる|この店で切手を売っています。|このみせできってをうっています。|This shop sells stamps.
+知|know|チ|し.る,し.らせる|その人を知っていますか。|そのひとをしっていますか。|Do you know that person?
+集|gather,collect|シュウ|あつ.まる,あつ.める,つど.う|切手を集めています。|きってをあつめています。|I collect stamps.
+別|separate,different|ベツ|わか.れる,わ.ける|別の日にしましょう。|べつのひにしましょう。|Let's make it a different day.
+物|thing|ブツ,モツ|もの,もの-|買い物に行きます。|かいものにいきます。|I'm going shopping.
+使|use|シ|つか.う,つか.い,-つか.い,-づか.い|このペンを使ってもいいですか。|このペンをつかってもいいですか。|May I use this pen?
+品|goods,article|ヒン,ホン|しな|この品物はいくらですか。|このしなものはいくらですか。|How much is this item?
+計|measure,plan|ケイ|はか.る,はか.らう|時計を見てください。|とけいをみてください。|Please look at the clock.
+死|death,die|シ|し.ぬ,し.に-|金魚が死んでしまいました。|きんぎょがしんでしまいました。|The goldfish died.
 特|special|トク||特に問題はありません。|とくにもんだいはありません。|There's no particular problem.
-私|I,private|シ|わたし,わたくし|私は学生です。|わたしはがくせいです。|I'm a student.
-始|begin|シ|はじ.める,はじ.まる|授業が始まります。|じゅぎょうがはじまります。|Class is starting.
+私|I,private|シ|わたくし,わたし|私は学生です。|わたしはがくせいです。|I'm a student.
+始|begin|シ|はじ.める,-はじ.める,はじ.まる|授業が始まります。|じゅぎょうがはじまります。|Class is starting.
 朝|morning|チョウ|あさ|毎朝六時に起きます。|まいあさろくじにおきます。|I get up at six every morning.
 運|carry,luck|ウン|はこ.ぶ|この箱を運んでください。|このはこをはこんでください。|Please carry this box.
-終|end|シュウ|お.わる,お.える|映画は十時に終わります。|えいがはじゅうじにおわります。|The movie ends at ten.
-台|stand,counter for machines|ダイ,タイ||車が二台あります。|くるまがにだいあります。|There are two cars.
-広|wide,spacious|コウ|ひろ.い|この公園は広いです。|このこうえんはひろいです。|This park is big.
-住|live,reside|ジュウ|す.む|大阪に住んでいます。|おおさかにすんでいます。|I live in Osaka.
-無|nothing,without|ム,ブ|な.い|無理をしないでください。|むりをしないでください。|Please don't overdo it.
-真|true,reality|シン|ま|写真を撮りましょう。|しゃしんをとりましょう。|Let's take a photo.
+終|end|シュウ|お.わる,-お.わる,おわ.る,お.える,つい,つい.に|映画は十時に終わります。|えいがはじゅうじにおわります。|The movie ends at ten.
+台|stand,counter for machines|ダイ,タイ|うてな,われ,つかさ|車が二台あります。|くるまがにだいあります。|There are two cars.
+広|wide,spacious|コウ|ひろ.い,ひろ.まる,ひろ.める,ひろ.がる,ひろ.げる|この公園は広いです。|このこうえんはひろいです。|This park is big.
+住|live,reside|ジュウ,ヂュウ,チュウ|す.む,す.まう,-ず.まい|大阪に住んでいます。|おおさかにすんでいます。|I live in Osaka.
+真|true,reality|シン|ま,ま-,まこと|写真を撮りましょう。|しゃしんをとりましょう。|Let's take a photo.
 有|have,exist|ユウ,ウ|あ.る|この店は有名です。|このみせはゆうめいです。|This shop is famous.
 町|town|チョウ|まち|静かな町です。|しずかなまちです。|It's a quiet town.
 料|fee,materials|リョウ||料金はいくらですか。|りょうきんはいくらですか。|How much is the fee?
-工|craft,construction|コウ,ク||工場で働いています。|こうじょうではたらいています。|I work at a factory.
-建|build|ケン,コン|た.てる|新しい家を建てました。|あたらしいいえをたてました。|We built a new house.
-急|hurry,sudden|キュウ|いそ.ぐ|急いでください。|いそいでください。|Please hurry.
-止|stop|シ|と.まる,と.める|ここで止まってください。|ここでとまってください。|Please stop here.
+工|craft,construction|コウ,ク,グ||工場で働いています。|こうじょうではたらいています。|I work at a factory.
+建|build|ケン,コン|た.てる,た.て,-だ.て,た.つ|新しい家を建てました。|あたらしいいえをたてました。|We built a new house.
+急|hurry,sudden|キュウ|いそ.ぐ,いそ.ぎ,せ.く|急いでください。|いそいでください。|Please hurry.
+止|stop|シ|と.まる,-ど.まり,と.める,-と.める,-ど.め,とど.める,とど.め,とど.まる,や.める,や.む,-や.む,よ.す,-さ.す,-さ.し|ここで止まってください。|ここでとまってください。|Please stop here.
 送|send|ソウ|おく.る|手紙を送りました。|てがみをおくりました。|I sent a letter.
-切|cut|セツ,サイ|き.る|はさみで紙を切ります。|はさみでかみをきります。|I cut the paper with scissors.
-転|turn,roll|テン|ころ.ぶ|自転車で行きます。|じてんしゃでいきます。|I'll go by bicycle.
+切|cut|セツ,サイ|き.る,-き.る,き.り,-き.り,-ぎ.り,き.れる,-き.れる,き.れ,-き.れ,-ぎ.れ|はさみで紙を切ります。|はさみでかみをきります。|I cut the paper with scissors.
+転|turn,roll|テン|ころ.がる,ころ.げる,ころ.がす,ころ.ぶ,まろ.ぶ,うたた,うつ.る,くる.めく|自転車で行きます。|じてんしゃでいきます。|I'll go by bicycle.
 研|polish,study|ケン|と.ぐ|研究室にいます。|けんきゅうしつにいます。|I'm in the lab.
-究|research|キュウ|きわ.める|日本の歴史を研究しています。|にほんのれきしをけんきゅうしています。|I research Japanese history.
-楽|fun,music,comfort|ガク,ラク|たの.しい,たの.しむ|旅行は楽しかったです。|りょこうはたのしかったです。|The trip was fun.
-起|wake up,rise|キ|お.きる,お.こす|明日は早く起きます。|あしたははやくおきます。|I'll get up early tomorrow.
-着|arrive,wear|チャク,ジャク|き.る,つ.く,き.せる,つ.ける|駅に着きました。|えきにつきました。|I arrived at the station.
-病|illness|ビョウ,ヘイ|や.む|病気で学校を休みました。|びょうきでがっこうをやすみました。|I missed school because I was sick.
-質|quality|シツ,シチ,チ||質問はありますか。|しつもんはありますか。|Do you have any questions?
-待|wait|タイ|ま.つ|ちょっと待ってください。|ちょっとまってください。|Please wait a moment.
-試|test,try|シ|ため.す,こころ.みる|明日試験があります。|あしたしけんがあります。|I have an exam tomorrow.
+究|research|キュウ,ク|きわ.める|日本の歴史を研究しています。|にほんのれきしをけんきゅうしています。|I research Japanese history.
+楽|fun,music,comfort|ガク,ラク,ゴウ|たの.しい,たの.しむ,この.む|旅行は楽しかったです。|りょこうはたのしかったです。|The trip was fun.
+起|wake up,rise|キ|お.きる,お.こる,お.こす,おこ.す,た.つ|明日は早く起きます。|あしたははやくおきます。|I'll get up early tomorrow.
+着|arrive,wear|チャク,ジャク|き.る,き.せる,つ.く,つ.ける|駅に着きました。|えきにつきました。|I arrived at the station.
+病|illness|ビョウ,ヘイ|や.む,-や.み,やまい|病気で学校を休みました。|びょうきでがっこうをやすみました。|I missed school because I was sick.
+質|quality|シツ,シチ,チ|たち,ただ.す,もと,わりふ|質問はありますか。|しつもんはありますか。|Do you have any questions?
+待|wait|タイ|ま.つ,-ま.ち|ちょっと待ってください。|ちょっとまってください。|Please wait a moment.
+試|test,try|シ|こころ.みる,ため.す|明日試験があります。|あしたしけんがあります。|I have an exam tomorrow.
 族|family,tribe|ゾク||家族は四人です。|かぞくはよにんです。|There are four people in my family.
-銀|silver|ギン||銀行でお金を下ろします。|ぎんこうでおかねをおろします。|I take money out at the bank.
-早|early,fast|ソウ,サッ|はや.い,はや.める|早く寝ましょう。|はやくねましょう。|Let's go to bed early.
-映|reflect,project|エイ|うつ.る|映画が好きです。|えいががすきです。|I like movies.
-親|parent,intimate|シン|おや,した.しい|親に電話しました。|おやにでんわしました。|I called my parents.
-験|test,effect|ケン,ゲン||経験がありますか。|けいけんがありますか。|Do you have experience?
-英|England,brilliant|エイ||英語を勉強しています。|えいごをべんきょうしています。|I'm studying English.
-医|doctor,medicine|イ||医者に行きました。|いしゃにいきました。|I went to the doctor.
+銀|silver|ギン|しろがね|銀行でお金を下ろします。|ぎんこうでおかねをおろします。|I take money out at the bank.
+早|early,fast|ソウ,サッ|はや.い,はや,はや-,はや.まる,はや.める,さ-|早く寝ましょう。|はやくねましょう。|Let's go to bed early.
+映|reflect,project|エイ|うつ.る,うつ.す,は.える,-ば.え|映画が好きです。|えいががすきです。|I like movies.
+親|parent,intimate|シン|おや,おや-,した.しい,した.しむ|親に電話しました。|おやにでんわしました。|I called my parents.
+験|test,effect|ケン,ゲン|あかし,しるし,ため.す,ためし|経験がありますか。|けいけんがありますか。|Do you have experience?
+英|England,brilliant|エイ|はなぶさ|英語を勉強しています。|えいごをべんきょうしています。|I'm studying English.
+医|doctor,medicine|イ|い.やす,い.する,くすし|医者に行きました。|いしゃにいきました。|I went to the doctor.
 仕|serve,do|シ,ジ|つか.える|仕事が忙しいです。|しごとがいそがしいです。|Work is busy.
-去|past,leave|キョ,コ|さ.る|去年日本に来ました。|きょねんにほんにきました。|I came to Japan last year.
-味|taste|ミ|あじ|このスープは味が薄いです。|このスープはあじがうすいです。|This soup is bland.
-写|copy,photograph|シャ,ジャ|うつ.す|ノートを写します。|ノートをうつします。|I copy the notes.
-字|character,letter|ジ|あざ|字がきれいですね。|じがきれいですね。|Your handwriting is neat.
+去|past,leave|キョ,コ|さ.る,-さ.る|去年日本に来ました。|きょねんにほんにきました。|I came to Japan last year.
+味|taste|ミ|あじ,あじ.わう|このスープは味が薄いです。|このスープはあじがうすいです。|This soup is bland.
+写|copy,photograph|シャ,ジャ|うつ.す,うつ.る,うつ-,うつ.し|ノートを写します。|ノートをうつします。|I copy the notes.
+字|character,letter|ジ|あざ,あざな,-な|字がきれいですね。|じがきれいですね。|Your handwriting is neat.
 答|answer|トウ|こた.える,こた.え|質問に答えてください。|しつもんにこたえてください。|Please answer the question.
 夜|night|ヤ|よ,よる|夜は静かです。|よるはしずかです。|It's quiet at night.
-音|sound|オン,イン|おと,ね|変な音がします。|へんなおとがします。|I hear a strange sound.
-注|pour,attention|チュウ|そそ.ぐ|車に注意してください。|くるまにちゅういしてください。|Watch out for cars.
-帰|return home|キ|かえ.る|七時に家に帰ります。|しちじにいえにかえります。|I go home at seven.
+音|sound|オン,イン,-ノン|おと,ね|変な音がします。|へんなおとがします。|I hear a strange sound.
+注|pour,attention|チュウ|そそ.ぐ,さ.す,つ.ぐ|車に注意してください。|くるまにちゅういしてください。|Watch out for cars.
+帰|return home|キ|かえ.る,かえ.す,おく.る,とつ.ぐ|七時に家に帰ります。|しちじにいえにかえります。|I go home at seven.
 歌|song,sing|カ|うた,うた.う|歌を歌いましょう。|うたをうたいましょう。|Let's sing a song.
-悪|bad|アク,オ|わる.い|天気が悪いです。|てんきがわるいです。|The weather is bad.
-図|map,drawing|ズ,ト|はか.る|図書館で本を借ります。|としょかんでほんをかります。|I borrow books at the library.
+悪|bad|アク,オ|わる.い,わる-,あ.し,にく.い,-にく.い,ああ,いずくに,いずくんぞ,にく.む|天気が悪いです。|てんきがわるいです。|The weather is bad.
+図|map,drawing|ズ,ト|え,はか.る|図書館で本を借ります。|としょかんでほんをかります。|I borrow books at the library.
 室|room|シツ|むろ|教室に入ってください。|きょうしつにはいってください。|Please go into the classroom.
 歩|walk|ホ,ブ,フ|ある.く,あゆ.む|駅まで歩きます。|えきまであるきます。|I walk to the station.
-風|wind,style|フウ,フ|かぜ|風が気持ちいいです。|かぜがきもちいいです。|The breeze feels nice.
+風|wind,style|フウ,フ|かぜ,かざ-|風が気持ちいいです。|かぜがきもちいいです。|The breeze feels nice.
 紙|paper|シ|かみ|紙に名前を書いてください。|かみになまえをかいてください。|Please write your name on the paper.
-黒|black|コク|くろ,くろ.い|黒いかばんを持っています。|くろいかばんをもっています。|I have a black bag.
+黒|black|コク|くろ,くろ.ずむ,くろ.い|黒いかばんを持っています。|くろいかばんをもっています。|I have a black bag.
 春|spring|シュン|はる|春になると花が咲きます。|はるになるとはながさきます。|When spring comes, flowers bloom.
-赤|red|セキ,シャク|あか,あか.い|赤いりんごを食べました。|あかいりんごをたべました。|I ate a red apple.
-青|blue|セイ,ショウ|あお,あお.い|青い海を見ました。|あおいうみをみました。|I saw the blue sea.
-館|building,hall|カン|やかた|美術館に行きました。|びじゅつかんにいきました。|I went to an art museum.
+赤|red|セキ,シャク|あか,あか-,あか.い,あか.らむ,あか.らめる|赤いりんごを食べました。|あかいりんごをたべました。|I ate a red apple.
+青|blue|セイ,ショウ|あお,あお-,あお.い|青い海を見ました。|あおいうみをみました。|I saw the blue sea.
+館|building,hall|カン|やかた,たて|美術館に行きました。|びじゅつかんにいきました。|I went to an art museum.
 屋|roof,shop|オク|や|本屋で雑誌を買いました。|ほんやでざっしをかいました。|I bought a magazine at the bookstore.
 色|color|ショク,シキ|いろ|好きな色は何ですか。|すきないろはなんですか。|What's your favorite color?
 走|run|ソウ|はし.る|公園を走ります。|こうえんをはしります。|I run in the park.
-秋|autumn,fall|シュウ|あき|秋は涼しいです。|あきはすずしいです。|Autumn is cool.
-夏|summer|カ,ゲ|なつ|夏休みに海へ行きます。|なつやすみにうみへいきます。|I'm going to the beach during summer vacation.
-習|learn|シュウ|なら.う|ピアノを習っています。|ピアノをならっています。|I'm taking piano lessons.
+秋|autumn,fall|シュウ|あき,とき|秋は涼しいです。|あきはすずしいです。|Autumn is cool.
+夏|summer|カ,ガ,ゲ|なつ|夏休みに海へ行きます。|なつやすみにうみへいきます。|I'm going to the beach during summer vacation.
+習|learn|シュウ,ジュ|なら.う,なら.い|ピアノを習っています。|ピアノをならっています。|I'm taking piano lessons.
 洋|ocean,Western|ヨウ||洋服を買いに行きます。|ようふくをかいにいきます。|I'm going to buy clothes.
 旅|trip,travel|リョ|たび|一人で旅をしました。|ひとりでたびをしました。|I traveled alone.
 服|clothes|フク||新しい服を着ます。|あたらしいふくをきます。|I'll wear new clothes.
 夕|evening|セキ|ゆう|夕ご飯は何ですか。|ゆうごはんはなんですか。|What's for dinner?
 借|borrow|シャク|か.りる|友だちにペンを借りました。|ともだちにペンをかりました。|I borrowed a pen from a friend.
 曜|day of the week|ヨウ||今日は何曜日ですか。|きょうはなんようびですか。|What day of the week is it today?
-肉|meat|ニク||肉と魚とどちらが好きですか。|にくとさかなとどちらがすきですか。|Which do you like better, meat or fish?
-貸|lend|タイ|か.す|本を貸してください。|ほんをかしてください。|Please lend me the book.
+肉|meat|ニク|しし|肉と魚とどちらが好きですか。|にくとさかなとどちらがすきですか。|Which do you like better, meat or fish?
+貸|lend|タイ|か.す,か.し-,かし-|本を貸してください。|ほんをかしてください。|Please lend me the book.
 堂|hall|ドウ||食堂で昼ご飯を食べます。|しょくどうでひるごはんをたべます。|I eat lunch in the cafeteria.
 鳥|bird|チョウ|とり|鳥が鳴いています。|とりがないています。|A bird is singing.
 飯|meal,cooked rice|ハン|めし|ご飯を食べましょう。|ごはんをたべましょう。|Let's eat.
@@ -696,111 +706,230 @@ const N4_RAW = `会|meet,meeting|カイ,エ|あ.う|明日、友だちに会い�
 茶|tea|チャ,サ||お茶をどうぞ。|おちゃをどうぞ。|Please have some tea.
 弟|younger brother|テイ,ダイ,デ|おとうと|弟は高校生です。|おとうとはこうこうせいです。|My younger brother is a high school student.
 牛|cow|ギュウ|うし|牛乳を飲みます。|ぎゅうにゅうをのみます。|I drink milk.
-魚|fish|ギョ|さかな,うお|魚が好きです。|さかながすきです。|I like fish.
+魚|fish|ギョ|うお,さかな,-ざかな|魚が好きです。|さかながすきです。|I like fish.
 兄|older brother|ケイ,キョウ|あに|兄は東京に住んでいます。|あにはとうきょうにすんでいます。|My older brother lives in Tokyo.
 妹|younger sister|マイ|いもうと|妹は十歳です。|いもうとはじゅっさいです。|My younger sister is ten.
-姉|older sister|シ|あね|姉と買い物に行きます。|あねとかいものにいきます。|I go shopping with my older sister.
+姉|older sister|シ|あね,はは|姉と買い物に行きます。|あねとかいものにいきます。|I go shopping with my older sister.
 漢|China,Chinese|カン||漢字を書く練習をします。|かんじをかくれんしゅうをします。|I practice writing kanji.
-部|part,section,department|ブ||部長は会議中です。|ぶちょうはかいぎちゅうです。|The department head is in a meeting.
-頭|head|トウ,ズ,ト|あたま|頭が痛いです。|あたまがいたいです。|I have a headache.
+無|nothing,without|ム,ブ|な.い|無理をしないでください。|むりをしないでください。|Please don't overdo it.`;
+
+// Kanji jisho.org lists above N4 (kept so no progress is lost)
+const X_RAW = `耳|ear|ジ|みみ|祖父は耳が遠いです。|そふはみみがとおいです。|My grandfather is hard of hearing.
+部|part,section,department|ブ|-べ|部長は会議中です。|ぶちょうはかいぎちゅうです。|The department head is in a meeting.
+頭|head|トウ,ズ,ト|あたま,かしら,-がしら,かぶり|頭が痛いです。|あたまがいたいです。|I have a headache.
 顔|face|ガン|かお|顔を洗います。|かおをあらいます。|I wash my face.
-声|voice|セイ,ショウ|こえ|大きい声で話してください。|おおきいこえではなしてください。|Please speak in a loud voice.
+声|voice|セイ,ショウ|こえ,こわ-|大きい声で話してください。|おおきいこえではなしてください。|Please speak in a loud voice.
 晩|evening,night|バン||今晩、映画を見ます。|こんばん、えいがをみます。|I'm watching a movie tonight.
-好|like,fond|コウ|す.き,この.む|日本の料理が好きです。|にほんのりょうりがすきです。|I like Japanese food.
+好|like,fond|コウ|この.む,す.く,よ.い,い.い,す.き|日本の料理が好きです。|にほんのりょうりがすきです。|I like Japanese food.
 林|grove,woods|リン|はやし|林の中を歩きました。|はやしのなかをあるきました。|I walked through the woods.
 森|forest|シン|もり|森に鳥がたくさんいます。|もりにとりがたくさんいます。|There are many birds in the forest.
 遠|far|エン,オン|とお.い|学校は家から遠いです。|がっこうはいえからとおいです。|School is far from my house.
-低|low,short|テイ|ひく.い|この山は低いです。|このやまはひくいです。|This mountain is low.
-暗|dark|アン|くら.い|外はもう暗いです。|そとはもうくらいです。|It's already dark outside.
-弱|weak|ジャク|よわ.い|私はお酒に弱いです。|わたしはおさけによわいです。|I can't hold my alcohol.
+低|low,short|テイ|ひく.い,ひく.める,ひく.まる|この山は低いです。|このやまはひくいです。|This mountain is low.
+暗|dark|アン|くら.い,くら.む,くれ.る|外はもう暗いです。|そとはもうくらいです。|It's already dark outside.
+弱|weak|ジャク|よわ.い,よわ.る,よわ.まる,よわ.める|私はお酒に弱いです。|わたしはおさけによわいです。|I can't hold my alcohol.
 太|fat,thick|タイ,タ|ふと.い,ふと.る|最近少し太りました。|さいきんすこしふとりました。|I've put on a little weight recently.
-軽|light (weight)|ケイ|かる.い|このかばんは軽いです。|このかばんはかるいです。|This bag is light.
-回|times,turn around|カイ,エ|まわ.る,まわ.す|一日に三回薬を飲みます。|いちにちにさんかいくすりをのみます。|I take medicine three times a day.
-引|pull|イン|ひ.く|ドアを引いてください。|ドアをひいてください。|Please pull the door.
-光|light,shine|コウ|ひかり,ひか.る|星が光っています。|ほしがひかっています。|The stars are shining.`;
+軽|light (weight)|ケイ,キョウ,キン|かる.い,かろ.やか,かろ.んじる|このかばんは軽いです。|このかばんはかるいです。|This bag is light.
+回|times,turn around|カイ,エ|まわ.る,-まわ.る,-まわ.り,まわ.す,-まわ.す,まわ.し-,-まわ.し,もとお.る,か.える|一日に三回薬を飲みます。|いちにちにさんかいくすりをのみます。|I take medicine three times a day.
+引|pull|イン|ひ.く,ひ.ける|ドアを引いてください。|ドアをひいてください。|Please pull the door.
+光|light,shine|コウ|ひか.る,ひかり|星が光っています。|ほしがひかっています。|The stars are shining.`;
 
-// ---------- Grammar : pattern|meanings|explanation|example|reading|translation|example with ＿＿ blank|accepted answers ----------
-const G5_RAW = `〜は〜です|is,X is Y,am,are|は marks the topic and です ends the sentence politely: "X is Y".|私は学生です。|わたしはがくせいです。|I am a student.|私は学生＿＿。|です
-〜じゃありません|is not,isn't,am not,are not|The negative of です. ではありません is the more formal version.|これは私のかばんじゃありません。|これはわたしのかばんじゃありません。|This isn't my bag.|これは私のかばん＿＿。|じゃありません,ではありません,じゃないです,ではないです
-〜か|question marker,question|Put か at the end of a sentence to turn it into a question.|田中さんは先生ですか。|たなかさんはせんせいですか。|Is Tanaka-san a teacher?|田中さんは先生です＿＿。|か
-〜の|possessive,of,'s|の links two nouns: A の B means "A's B" or "B of A".|これは私の本です。|これはわたしのほんです。|This is my book.|これは私＿＿本です。|の
-〜も|also,too|も replaces は or が to mean "also" or "too".|私も学生です。|わたしもがくせいです。|I'm a student too.|私＿＿学生です。|も
-〜を|object marker,object|を marks the direct object, the thing the verb acts on.|パンを食べます。|パンをたべます。|I eat bread.|パン＿＿食べます。|を
-〜に (time)|at,on,time marker|に marks a specific time or day when something happens.|七時に起きます。|しちじにおきます。|I get up at seven.|七時＿＿起きます。|に
-〜へ (direction)|to,toward,direction|へ (pronounced "e") shows where you are heading. に also works.|学校へ行きます。|がっこうへいきます。|I go to school.|学校＿＿行きます。|へ,に
-〜で (place)|at,in,place of action|で marks the place where an action happens.|図書館で勉強します。|としょかんでべんきょうします。|I study at the library.|図書館＿＿勉強します。|で
-〜で (means)|by,with,by means of|で marks the tool or method you use.|バスで行きます。|バスでいきます。|I go by bus.|バス＿＿行きます。|で
-〜と|and,with|と joins nouns ("A and B") or marks who you do something with.|友だちと映画を見ます。|ともだちとえいがをみます。|I watch a movie with a friend.|友だち＿＿映画を見ます。|と
-あります / います|there is,have,exist|あります is for things, います is for people and animals.|公園に犬がいます。|こうえんにいぬがいます。|There's a dog in the park.|公園に犬が＿＿。|います
-〜ます / 〜ません|polite verb,do,don't,do not|ます is the polite present or future form; ません is its negative.|私はお酒を飲みません。|わたしはおさけをのみません。|I don't drink alcohol.|私はお酒を飲み＿＿。|ません
-〜ました|did,past tense,past|The polite past form. The negative is ませんでした.|昨日、映画を見ました。|きのう、えいがをみました。|I watched a movie yesterday.|昨日、映画を見＿＿。|ました
-〜ましょう|let's,shall we|ましょう suggests doing something together.|一緒に食べましょう。|いっしょにたべましょう。|Let's eat together.|一緒に食べ＿＿。|ましょう
-〜ませんか|won't you,would you like to,invitation|A polite invitation: "Won't you...?" or "Would you like to...?"|一緒に行きませんか。|いっしょにいきませんか。|Would you like to go together?|一緒に行き＿＿。|ませんか
-〜たい|want to|Add たい to the verb's ます-stem to say you want to do it.|日本へ行きたいです。|にほんへいきたいです。|I want to go to Japan.|日本へ行き＿＿です。|たい
-〜てください|please do,please|て-form + ください makes a polite request.|ここに名前を書いてください。|ここになまえをかいてください。|Please write your name here.|ここに名前を書いて＿＿。|ください
-〜ています|is doing,doing,ongoing|て-form + います shows an action in progress or an ongoing state.|今、本を読んでいます。|いま、ほんをよんでいます。|I'm reading a book now.|今、本を読んで＿＿。|います
-〜てもいいです|may,it's ok to,permission,can|て-form + もいいです gives or asks for permission.|写真を撮ってもいいですか。|しゃしんをとってもいいですか。|May I take a photo?|写真を撮って＿＿ですか。|もいい
-〜てはいけません|must not,may not,not allowed|て-form + はいけません says something is not allowed.|ここでたばこを吸ってはいけません。|ここでたばこをすってはいけません。|You must not smoke here.|ここでたばこを吸って＿＿。|はいけません
-〜ないでください|please don't,please do not|ない-form + でください is a polite "please don't".|ここで写真を撮らないでください。|ここでしゃしんをとらないでください。|Please don't take photos here.|ここで写真を撮ら＿＿ください。|ないで
-〜から (reason)|because,so,since|から after a reason means "because" or "so".|雨ですから、家にいます。|あめですから、いえにいます。|It's raining, so I'll stay home.|雨です＿＿、家にいます。|から
-〜から〜まで|from to,from until,until|から means "from" and まで means "until" or "as far as".|九時から五時まで働きます。|くじからごじまではたらきます。|I work from nine to five.|九時から五時＿＿働きます。|まで
-〜より〜のほうが|more than,comparison,than|A より B のほうが means "B is more ... than A".|犬より猫のほうが好きです。|いぬよりねこのほうがすきです。|I like cats more than dogs.|犬＿＿猫のほうが好きです。|より
-〜が好きです|like|Use が to mark the thing you like.|私は音楽が好きです。|わたしはおんがくがすきです。|I like music.|私は音楽＿＿好きです。|が
-〜が分かります|understand|分かります takes が for the thing you understand.|日本語が少し分かります。|にほんごがすこしわかります。|I understand a little Japanese.|日本語が少し＿＿。|わかります
-〜ね|isn't it,right,agreement|ね at the end looks for agreement: "isn't it?"|いい天気ですね。|いいてんきですね。|Nice weather, isn't it?|いい天気です＿＿。|ね
-〜よ|you know,emphasis|よ at the end tells the listener something they may not know.|この映画はおもしろいですよ。|このえいがはおもしろいですよ。|This movie is interesting, you know.|この映画はおもしろいです＿＿。|よ
-〜かったです|was,past adjective|For い-adjectives, drop い and add かったです for the past.|昨日は寒かったです。|きのうはさむかったです。|It was cold yesterday.|昨日は寒＿＿です。|かった
-〜くないです|not,is not,negative adjective|For い-adjectives, drop い and add くないです for the negative.|このカレーは辛くないです。|このカレーはからくないです。|This curry isn't spicy.|このカレーは辛＿＿です。|くない
-〜が (but)|but,however|が between two sentences means "but". けど is the casual version.|日本語は難しいですが、おもしろいです。|にほんごはむずかしいですが、おもしろいです。|Japanese is hard, but interesting.|日本語は難しいです＿＿、おもしろいです。|が,けど
-〜てから|after doing,after|て-form + から: do A, and after that do B.|手を洗ってから食べます。|てをあらってからたべます。|I eat after washing my hands.|手を洗って＿＿食べます。|から
-〜前に|before|Dictionary form or noun + の + 前に means "before".|寝る前に歯をみがきます。|ねるまえにはをみがきます。|I brush my teeth before going to bed.|寝る＿＿歯をみがきます。|まえに
-〜ながら|while,while doing|ます-stem + ながら: doing two things at the same time.|音楽を聞きながら勉強します。|おんがくをききながらべんきょうします。|I study while listening to music.|音楽を聞き＿＿勉強します。|ながら
-〜でしょう|probably,I think,right|でしょう means "probably", or "right?" with rising tone.|明日は雨でしょう。|あしたはあめでしょう。|It'll probably rain tomorrow.|明日は雨＿＿。|でしょう
-〜に行きます|go to do,in order to,go and do|ます-stem + に行きます: go somewhere in order to do something.|デパートへ服を買いに行きます。|デパートへふくをかいにいきます。|I'm going to the department store to buy clothes.|デパートへ服を買い＿＿行きます。|に
-〜なります|become,get|Noun + になります, い-adjective (drop い) + くなります: "become".|暖かくなりました。|あたたかくなりました。|It's gotten warm.|暖かく＿＿。|なりました
-〜だけ|only,just|だけ means "only" or "just".|百円だけあります。|ひゃくえんだけあります。|I only have 100 yen.|百円＿＿あります。|だけ
-〜ぐらい|about,approximately,around|くらい or ぐらい after a number means "about".|駅まで十分ぐらいです。|えきまでじゅっぷんぐらいです。|It's about ten minutes to the station.|駅まで十分＿＿です。|ぐらい,くらい`;
+// ---------- Grammar : pattern|meanings|explanation|example|reading|translation|example with ＿＿ blank|accepted answers|category ----------
+const G5_RAW = `〜は〜です|is,X is Y,am,are|は marks the topic and です ends the sentence politely: "X is Y".|私は学生です。|わたしはがくせいです。|I am a student.|私は学生＿＿。|です|Basics
+〜じゃありません|is not,isn't,am not,are not|The negative of です. ではありません is the more formal version.|これは私のかばんじゃありません。|これはわたしのかばんじゃありません。|This isn't my bag.|これは私のかばん＿＿。|じゃありません,ではありません,じゃないです,ではないです|Basics
+〜か|question marker,question|Put か at the end of a sentence to turn it into a question.|田中さんは先生ですか。|たなかさんはせんせいですか。|Is Tanaka-san a teacher?|田中さんは先生です＿＿。|か|Basics
+〜の|possessive,of,'s|の links two nouns: A の B means "A's B" or "B of A".|これは私の本です。|これはわたしのほんです。|This is my book.|これは私＿＿本です。|の|Particles
+〜も|also,too|も replaces は or が to mean "also" or "too".|私も学生です。|わたしもがくせいです。|I'm a student too.|私＿＿学生です。|も|Particles
+これ / それ / あれ|this,that,that over there,this one,that one|これ (near me), それ (near you) and あれ (over there) stand alone as nouns. どれ asks "which one?"|それは何ですか。|それはなんですか。|What is that?|＿＿は何ですか。|それ,これ,あれ|Pointing & question words
+この / その / あの|this,that,that over there|この, その and あの always come right before a noun. どの asks "which?"|この本は高いです。|このほんはたかいです。|This book is expensive.|＿＿本は高いです。|この,その,あの|Pointing & question words
+ここ / そこ / あそこ|here,there,over there|Place words: ここ (here), そこ (there), あそこ (over there). どこ asks "where?"|トイレはあそこです。|トイレはあそこです。|The toilet is over there.|トイレは＿＿です。|あそこ,ここ,そこ|Pointing & question words
+〜だ|is,plain copula|だ is the casual version of です.|今日は日曜日だ。|きょうはにちようびだ。|Today is Sunday.|今日は日曜日＿＿。|だ|Basics
+〜じゃない|isn't,is not,not|じゃない is the casual negative of だ.|これは私のじゃない。|これはわたしのじゃない。|This isn't mine.|これは私の＿＿。|じゃない|Basics
+〜でした|was,were,past copula|でした is the past of です. The negative is じゃありませんでした.|昨日は雨でした。|きのうはあめでした。|It was rainy yesterday.|昨日は雨＿＿。|でした|Basics
+〜たち|plural,-s|たち after a word for people makes it plural.|子どもたちが遊んでいます。|こどもたちがあそんでいます。|The children are playing.|子ども＿＿が遊んでいます。|たち|Basics
+〜が (subject)|subject marker,subject|が marks the subject. It is used for new information and after question words like だれ.|だれが来ましたか。|だれがきましたか。|Who came?|だれ＿＿来ましたか。|が|Particles
+〜を|object marker,object|を marks the direct object, the thing the verb acts on.|パンを食べます。|パンをたべます。|I eat bread.|パン＿＿食べます。|を|Particles
+あります / います|there is,have,exist|あります is for things, います is for people and animals.|公園に犬がいます。|こうえんにいぬがいます。|There's a dog in the park.|公園に犬が＿＿。|います|Verbs
+〜に (location)|in,at,location|に marks where something or someone is, with あります and います.|部屋にテレビがあります。|へやにテレビがあります。|There's a TV in the room.|部屋＿＿テレビがあります。|に|Particles
+〜ます / 〜ません|polite verb,do,don't,do not|ます is the polite present or future form; ません is its negative.|私はお酒を飲みません。|わたしはおさけをのみません。|I don't drink alcohol.|私はお酒を飲み＿＿。|ません|Verbs
+〜ました|did,past tense,past|ました is the polite past form.|昨日、映画を見ました。|きのう、えいがをみました。|I watched a movie yesterday.|昨日、映画を見＿＿。|ました|Verbs
+〜ませんでした|didn't,did not,past negative|ませんでした is the polite past negative.|昨日は勉強しませんでした。|きのうはべんきょうしませんでした。|I didn't study yesterday.|昨日は勉強し＿＿。|ませんでした|Verbs
+〜に (time)|at,on,time marker|に marks a specific time or day when something happens.|七時に起きます。|しちじにおきます。|I get up at seven.|七時＿＿起きます。|に|Particles
+〜へ (direction)|to,toward,direction|へ (pronounced "e") shows where you are heading. に also works.|学校へ行きます。|がっこうへいきます。|I go to school.|学校＿＿行きます。|へ,に|Particles
+〜で (place)|at,in,place of action|で marks the place where an action happens.|図書館で勉強します。|としょかんでべんきょうします。|I study at the library.|図書館＿＿勉強します。|で|Particles
+〜で (means)|by,with,by means of|で marks the tool or method you use.|バスで行きます。|バスでいきます。|I go by bus.|バス＿＿行きます。|で|Particles
+〜と|and,with|と joins nouns ("A and B") or marks who you do something with.|友だちと映画を見ます。|ともだちとえいがをみます。|I watch a movie with a friend.|友だち＿＿映画を見ます。|と|Particles
+〜や|and,and so on,such as|や lists examples: "A, B and so on". と lists everything; や lists only some.|かばんの中に本やノートがあります。|かばんのなかにほんやノートがあります。|There are books, notebooks and so on in the bag.|かばんの中に本＿＿ノートがあります。|や|Particles
+〜から (from)|from|から marks a starting point in place or time.|どこから来ましたか。|どこからきましたか。|Where are you from?|どこ＿＿来ましたか。|から|Particles
+〜から〜まで|from to,from until,until|から means "from" and まで means "until" or "as far as".|九時から五時まで働きます。|くじからごじまではたらきます。|I work from nine to five.|九時から五時＿＿働きます。|まで|Particles
+〜に (target)|to,indirect object|に marks the person who receives something or who you do something to.|友だちに手紙を書きます。|ともだちにてがみをかきます。|I write a letter to a friend.|友だち＿＿手紙を書きます。|に|Particles
+〜を (through)|through,along|を with movement verbs marks the place you move through.|毎朝公園を散歩します。|まいあさこうえんをさんぽします。|I walk through the park every morning.|毎朝公園＿＿散歩します。|を|Particles
+〜か (or)|or|か between nouns means "or".|お茶かコーヒーを飲みます。|おちゃかコーヒーをのみます。|I'll drink tea or coffee.|お茶＿＿コーヒーを飲みます。|か|Particles
+〜も〜も|both,both and,neither|A も B も means "both A and B", or "neither" with a negative.|兄も姉も医者です。|あにもあねもいしゃです。|Both my brother and sister are doctors.|兄＿＿姉も医者です。|も|Particles
+〜で (total)|in total,altogether|で after an amount means "in total".|全部で千円です。|ぜんぶでせんえんです。|It's 1,000 yen altogether.|全部＿＿千円です。|で|Particles
+〜だけ|only,just|だけ means "only" or "just".|百円だけあります。|ひゃくえんだけあります。|I only have 100 yen.|百円＿＿あります。|だけ|Particles
+〜ぐらい|about,approximately,around|くらい or ぐらい after an amount means "about".|駅まで十分ぐらいです。|えきまでじゅっぷんぐらいです。|It's about ten minutes to the station.|駅まで十分＿＿です。|ぐらい,くらい|Particles
+〜かったです|was,past adjective|For い-adjectives, drop い and add かったです for the past.|昨日は寒かったです。|きのうはさむかったです。|It was cold yesterday.|昨日は寒＿＿です。|かった|Adjectives
+〜くないです|not,is not,negative adjective|For い-adjectives, drop い and add くないです for the negative.|このカレーは辛くないです。|このカレーはからくないです。|This curry isn't spicy.|このカレーは辛＿＿です。|くない|Adjectives
+〜な (before a noun)|na-adjective,before a noun|な-adjectives take な when they come before a noun.|静かな町が好きです。|しずかなまちがすきです。|I like quiet towns.|静か＿＿町が好きです。|な|Adjectives
+〜くて / 〜で|and,te-form adjective|Join adjectives with the て-form: い-adjectives use くて; な-adjectives and nouns use で.|この部屋は広くて明るいです。|このへやはひろくてあかるいです。|This room is big and bright.|この部屋は広＿＿明るいです。|くて|Adjectives
+〜く / 〜に (adverb)|adverb,-ly|い-adjectives become adverbs with く; な-adjectives with に.|静かに話してください。|しずかにはなしてください。|Please speak quietly.|静か＿＿話してください。|に|Adjectives
+〜が好きです|like|Use が to mark the thing you like.|私は音楽が好きです。|わたしはおんがくがすきです。|I like music.|私は音楽＿＿好きです。|が|Adjectives
+〜がほしい|want,want something|Noun + がほしいです: I want (a thing). For actions, use たい.|新しいパソコンがほしいです。|あたらしいパソコンがほしいです。|I want a new computer.|新しいパソコンが＿＿です。|ほしい|Adjectives
+〜より〜のほうが|more than,comparison,than|A より B のほうが means "B is more ... than A".|犬より猫のほうが好きです。|いぬよりねこのほうがすきです。|I like cats more than dogs.|犬＿＿猫のほうが好きです。|より|Adjectives
+〜と〜とどちらが|which,which is more|A と B とどちらが…ですか asks which of two is more.|犬と猫とどちらが好きですか。|いぬとねことどちらがすきですか。|Which do you like better, dogs or cats?|犬と猫と＿＿が好きですか。|どちら,どっち|Adjectives
+〜は〜が|as for,topic and subject|X は Y が…: "as for X, its Y is…".|象は鼻が長いです。|ぞうははながながいです。|Elephants have long noses.|象は鼻＿＿長いです。|が|Adjectives
+あまり〜ない|not very,not much|あまり + negative: not very, not much.|このりんごはあまりおいしくないです。|このりんごはあまりおいしくないです。|This apple isn't very tasty.|このりんごは＿＿おいしくないです。|あまり|Adjectives
+〜ましょう|let's,shall we|ましょう suggests doing something together.|一緒に食べましょう。|いっしょにたべましょう。|Let's eat together.|一緒に食べ＿＿。|ましょう|Verbs
+〜ませんか|won't you,would you like to,invitation|A polite invitation: "Won't you...?" or "Would you like to...?"|一緒に行きませんか。|いっしょにいきませんか。|Would you like to go together?|一緒に行き＿＿。|ませんか|Verbs
+〜ましょうか|shall I,shall we|ましょうか offers to do something: "Shall I...?"|窓を開けましょうか。|まどをあけましょうか。|Shall I open the window?|窓を開け＿＿。|ましょうか|Verbs
+〜たい|want to|Add たい to the verb's ます-stem to say you want to do it.|日本へ行きたいです。|にほんへいきたいです。|I want to go to Japan.|日本へ行き＿＿です。|たい|Verbs
+〜をください|please give me,I'll have|Noun + をください: please give me. Handy when ordering.|水をください。|みずをください。|Water, please.|水を＿＿。|ください|Verbs
+〜てください|please do,please|て-form + ください makes a polite request.|ここに名前を書いてください。|ここになまえをかいてください。|Please write your name here.|ここに名前を書いて＿＿。|ください|Verbs
+〜ています|is doing,doing,ongoing|て-form + います shows an action in progress or an ongoing state.|今、本を読んでいます。|いま、ほんをよんでいます。|I'm reading a book now.|今、本を読んで＿＿。|います|Verbs
+〜てもいいです|may,it's ok to,permission,can|て-form + もいいです gives or asks for permission.|写真を撮ってもいいですか。|しゃしんをとってもいいですか。|May I take a photo?|写真を撮って＿＿ですか。|もいい|Verbs
+〜てはいけません|must not,may not,not allowed|て-form + はいけません says something is not allowed.|ここでたばこを吸ってはいけません。|ここでたばこをすってはいけません。|You must not smoke here.|ここでたばこを吸って＿＿。|はいけません|Verbs
+〜ないでください|please don't,please do not|ない-form + でください is a polite "please don't".|ここで写真を撮らないでください。|ここでしゃしんをとらないでください。|Please don't take photos here.|ここで写真を撮ら＿＿ください。|ないで|Verbs
+〜ない (plain negative)|don't,not,plain negative|The ない-form is the casual negative of verbs.|今日は学校に行かない。|きょうはがっこうにいかない。|I'm not going to school today.|今日は学校に行か＿＿。|ない|Verbs
+〜た (plain past)|did,plain past|The た-form is the casual past of verbs.|昨日、映画を見た。|きのう、えいがをみた。|I watched a movie yesterday.|昨日、映画を見＿＿。|た|Verbs
+〜てから|after doing,after|て-form + から: do A, and after that do B.|手を洗ってから食べます。|てをあらってからたべます。|I eat after washing my hands.|手を洗って＿＿食べます。|から|Verbs
+〜た後で|after,after doing|た-form + 後で, or noun + の後で: after.|ご飯を食べた後で、散歩します。|ごはんをたべたあとで、さんぽします。|After eating, I take a walk.|ご飯を食べた＿＿、散歩します。|あとで|Verbs
+〜前に|before|Dictionary form, or noun + の, + 前に means "before".|寝る前に歯をみがきます。|ねるまえにはをみがきます。|I brush my teeth before going to bed.|寝る＿＿歯をみがきます。|まえに|Verbs
+〜ながら|while,while doing|ます-stem + ながら: doing two things at the same time.|音楽を聞きながら勉強します。|おんがくをききながらべんきょうします。|I study while listening to music.|音楽を聞き＿＿勉強します。|ながら|Verbs
+〜に行きます|go to do,in order to,go and do|ます-stem + に行きます: go somewhere in order to do something.|デパートへ服を買いに行きます。|デパートへふくをかいにいきます。|I'm going to the department store to buy clothes.|デパートへ服を買い＿＿行きます。|に|Verbs
+〜なります|become,get|Noun + になります, い-adjective (drop い) + くなります: "become".|暖かくなりました。|あたたかくなりました。|It's gotten warm.|暖かく＿＿。|なりました|Verbs
+〜にします|decide on,choose,I'll have|Noun + にします: choose or decide on something.|私はコーヒーにします。|わたしはコーヒーにします。|I'll have coffee.|私はコーヒー＿＿します。|に|Verbs
+〜が分かります|understand|分かります takes が for the thing you understand.|日本語が少し分かります。|にほんごがすこしわかります。|I understand a little Japanese.|日本語が少し＿＿。|わかります|Verbs
+〜のが好き|like doing,like to|Dictionary form + のが好き: like doing something. の turns the verb into a noun.|私は泳ぐのが好きです。|わたしはおよぐのがすきです。|I like swimming.|私は泳ぐ＿＿好きです。|のが|Verbs
+〜から (reason)|because,so,since|から after a reason means "because" or "so".|雨ですから、家にいます。|あめですから、いえにいます。|It's raining, so I'll stay home.|雨です＿＿、家にいます。|から|Expressions
+〜が (but)|but,however|が between two sentences means "but". けど is the casual version.|日本語は難しいですが、おもしろいです。|にほんごはむずかしいですが、おもしろいです。|Japanese is hard, but interesting.|日本語は難しいです＿＿、おもしろいです。|が,けど|Expressions
+〜ね|isn't it,right,agreement|ね at the end looks for agreement: "isn't it?"|いい天気ですね。|いいてんきですね。|Nice weather, isn't it?|いい天気です＿＿。|ね|Expressions
+〜よ|you know,emphasis|よ at the end tells the listener something they may not know.|この映画はおもしろいですよ。|このえいがはおもしろいですよ。|This movie is interesting, you know.|この映画はおもしろいです＿＿。|よ|Expressions
+〜でしょう|probably,I think,right|でしょう means "probably", or "right?" with a rising tone.|明日は雨でしょう。|あしたはあめでしょう。|It'll probably rain tomorrow.|明日は雨＿＿。|でしょう|Expressions
+〜とき|when,at the time|Plain form, or noun + の, + とき: when.|子どものとき、東京に住んでいました。|こどものとき、とうきょうにすんでいました。|When I was a child, I lived in Tokyo.|子どもの＿＿、東京に住んでいました。|とき|Expressions
+もう / まだ|already,not yet,still|もう means "already"; まだ means "still", or "not yet" with a negative.|もう宿題をしました。|もうしゅくだいをしました。|I already did my homework.|＿＿宿題をしました。|もう|Expressions
+〜でも (or something)|or something,or the like|Noun + でも softens a suggestion: "...or something".|お茶でも飲みませんか。|おちゃでものみませんか。|How about some tea or something?|お茶＿＿飲みませんか。|でも|Expressions
+〜に〜回|times,per,frequency|Period + に + number + 回: how many times in that period.|週に二回ジムに行きます。|しゅうににかいジムにいきます。|I go to the gym twice a week.|週＿＿二回ジムに行きます。|に|Expressions
+どうして|why|どうして asks "why". なぜ is more formal. Answer with から or んです.|どうして遅れたんですか。|どうしておくれたんですか。|Why were you late?|＿＿遅れたんですか。|どうして,なぜ|Pointing & question words
+いくら / いくつ|how much,how many|いくら asks a price; いくつ asks how many (or how old).|このかばんはいくらですか。|このかばんはいくらですか。|How much is this bag?|このかばんは＿＿ですか。|いくら|Pointing & question words`;
 
-const G4_RAW = `〜たことがあります|have done,have ever,experience|た-form + ことがあります: you have done something before.|富士山に登ったことがあります。|ふじさんにのぼったことがあります。|I've climbed Mt. Fuji.|富士山に登った＿＿があります。|こと
-〜たり〜たりします|do things like,and so on,such as|List a few example actions: "do things like A and B".|週末は掃除をしたり洗濯をしたりします。|しゅうまつはそうじをしたりせんたくをしたりします。|On weekends I do things like cleaning and laundry.|週末は掃除をし＿＿洗濯をしたりします。|たり
-〜ほうがいいです|should,had better,better|た-form + ほうがいい gives advice: "you'd better".|早く寝たほうがいいですよ。|はやくねたほうがいいですよ。|You'd better go to bed early.|早く寝た＿＿いいですよ。|ほうが
-〜なければなりません|must,have to|ない-form, drop い, add ければなりません: "must".|明日は早く起きなければなりません。|あしたははやくおきなければなりません。|I have to get up early tomorrow.|明日は早く起き＿＿なりません。|なければ
-〜なくてもいいです|don't have to,need not,do not have to|ない-form, drop い, add くてもいい: it's not necessary.|明日は来なくてもいいです。|あしたはこなくてもいいです。|You don't have to come tomorrow.|明日は来＿＿もいいです。|なくて
-〜つもりです|intend to,plan to,going to|Dictionary form + つもり: what you intend to do.|来年日本へ行くつもりです。|らいねんにほんへいくつもりです。|I plan to go to Japan next year.|来年日本へ行く＿＿です。|つもり
-〜ようと思います|thinking of,going to,plan to|Volitional form + と思います: "I'm thinking of doing".|週末、映画を見ようと思います。|しゅうまつ、えいがをみようとおもいます。|I'm thinking of seeing a movie this weekend.|週末、映画を見＿＿と思います。|よう
-〜ことができます|can,able to,be able to|Dictionary form + ことができる: "can do".|私は泳ぐことができます。|わたしはおよぐことができます。|I can swim.|私は泳ぐ＿＿できます。|ことが
-Potential form|can,able to,potential|る-verbs: られる. う-verbs: change the last sound to the え-row + る.|漢字が読めます。|かんじがよめます。|I can read kanji.|漢字が＿＿。|よめます
-〜と (whenever)|when,whenever,if|Plain form + と: whenever A happens, B naturally follows.|春になると花が咲きます。|はるになるとはながさきます。|When spring comes, flowers bloom.|春になる＿＿花が咲きます。|と
-〜たら|if,when,after|た-form + ら: "if" or "when (after) A happens".|雨が降ったら、行きません。|あめがふったら、いきません。|If it rains, I won't go.|雨が降っ＿＿、行きません。|たら
-〜ば|if,provided that|The ば conditional: "if". い-adjectives use ければ.|安ければ買います。|やすければかいます。|If it's cheap, I'll buy it.|安＿＿買います。|ければ
-〜なら|if,if it's,when it comes to|Noun + なら: "if it's about X" or "as for X".|日本料理なら、すしが好きです。|にほんりょうりなら、すしがすきです。|When it comes to Japanese food, I like sushi.|日本料理＿＿、すしが好きです。|なら
-〜ても|even if,even though|て-form + も: "even if".|雨が降っても行きます。|あめがふってもいきます。|I'll go even if it rains.|雨が降って＿＿行きます。|も
-〜てしまいます|end up,completely,unfortunately|て-form + しまう: finish completely, or something regrettable happened.|財布をなくしてしまいました。|さいふをなくしてしまいました。|I lost my wallet (unfortunately).|財布をなくして＿＿。|しまいました
-〜ておきます|do in advance,prepare,in advance|て-form + おく: do something ahead of time.|旅行の前にホテルを予約しておきます。|りょこうのまえにホテルをよやくしておきます。|I'll book a hotel before the trip.|旅行の前にホテルを予約して＿＿。|おきます
-〜てみます|try,try doing|て-form + みる: try doing something to see what it's like.|このケーキを食べてみてください。|このケーキをたべてみてください。|Please try this cake.|このケーキを食べて＿＿ください。|みて
-〜てあります|has been done,is done,state|Transitive て-form + ある: someone did it on purpose and the result remains.|窓が開けてあります。|まどがあけてあります。|The window has been left open.|窓が開けて＿＿。|あります
-〜そう (looks like)|looks like,seems,looks|Stem + そう: it looks like (from appearance).|このケーキはおいしそうです。|このケーキはおいしそうです。|This cake looks delicious.|このケーキはおいし＿＿です。|そう
-〜そうです (hearsay)|I heard,they say,apparently|Plain form + そうです: you heard it from someone.|明日は雨が降るそうです。|あしたはあめがふるそうです。|I heard it will rain tomorrow.|明日は雨が降る＿＿。|そうです
-〜ようです|seems,appears,it seems|ようです or みたいです: it seems so, based on what you notice.|誰もいないようです。|だれもいないようです。|It seems nobody is here.|誰もいない＿＿。|ようです,みたいです
-〜らしいです|apparently,I hear,seems|らしい: apparently, based on what you've heard.|彼は来月結婚するらしいです。|かれはらいげつけっこんするらしいです。|Apparently he's getting married next month.|彼は来月結婚する＿＿です。|らしい
-〜すぎる|too much,too,excessively|Stem + すぎる: do or be "too much".|食べすぎました。|たべすぎました。|I ate too much.|食べ＿＿ました。|すぎ
-〜やすい / 〜にくい|easy to,hard to|Stem + やすい means "easy to"; stem + にくい means "hard to".|このペンは書きやすいです。|このペンはかきやすいです。|This pen is easy to write with.|このペンは書き＿＿です。|やすい
-〜ために|in order to,for,for the sake of|Dictionary form or noun + の + ために: in order to.|日本で働くために日本語を勉強しています。|にほんではたらくためににほんごをべんきょうしています。|I'm studying Japanese to work in Japan.|日本で働く＿＿日本語を勉強しています。|ために,ため
-〜ように|so that,in order that|ように: so that something happens (or doesn't).|忘れないようにメモします。|わすれないようにメモします。|I'll write a note so I don't forget.|忘れない＿＿メモします。|ように
-〜ようになる|come to,become able to,start to|Dictionary or potential form + ようになる: a change in ability or habit.|日本語が話せるようになりました。|にほんごがはなせるようになりました。|I've become able to speak Japanese.|日本語が話せる＿＿なりました。|ように
-〜ことにする|decide to|Dictionary form + ことにする: decide to do something.|毎日運動することにしました。|まいにちうんどうすることにしました。|I decided to exercise every day.|毎日運動する＿＿しました。|ことに
-あげる|give|あげる: I (or someone) give to someone else.|友だちにプレゼントをあげました。|ともだちにプレゼントをあげました。|I gave my friend a present.|友だちにプレゼントを＿＿。|あげました
-くれる|give to me,give me|くれる: someone gives to me or my group.|母がセーターをくれました。|ははがセーターをくれました。|My mother gave me a sweater.|母がセーターを＿＿。|くれました
-もらう|receive,get|もらう: receive something from someone.|先生に本をもらいました。|せんせいにほんをもらいました。|I got a book from my teacher.|先生に本を＿＿。|もらいました
-〜てもらう|have someone do,get someone to do|て-form + もらう: receive a favor; someone does something for you.|友だちに宿題を手伝ってもらいました。|ともだちにしゅくだいをてつだってもらいました。|My friend helped me with my homework.|友だちに宿題を手伝って＿＿。|もらいました
-〜のに|even though,despite,although|のに: even though (with surprise or disappointment).|たくさん勉強したのに、試験に落ちました。|たくさんべんきょうしたのに、しけんにおちました。|Even though I studied a lot, I failed the exam.|たくさん勉強した＿＿、試験に落ちました。|のに
-〜し|and also,what's more,and|し lists reasons: "A, and also B".|この店は安いし、おいしいです。|このみせはやすいし、おいしいです。|This place is cheap, and it's tasty too.|この店は安い＿＿、おいしいです。|し
-〜かどうか|whether or not,whether,if|かどうか embeds a yes/no question: "whether or not".|明日来るかどうか分かりません。|あしたくるかどうかわかりません。|I don't know whether they'll come tomorrow.|明日来る＿＿分かりません。|かどうか
-Passive form|passive,was done,be done|る-verbs: られる. う-verbs: change to the あ-row + れる. "Was done (by someone)".|先生にほめられました。|せんせいにほめられました。|I was praised by the teacher.|先生にほめ＿＿。|られました
-Causative form|make,let,causative|る-verbs: させる. う-verbs: あ-row + せる. "Make or let someone do".|母は弟に野菜を食べさせました。|はははおとうとにやさいをたべさせました。|My mother made my brother eat vegetables.|母は弟に野菜を食べ＿＿。|させました
-〜まま|as it is,unchanged,while still|た-form + まま: leave something as it is.|窓を開けたまま寝ました。|まどをあけたままねました。|I slept with the window open.|窓を開けた＿＿寝ました。|まま
-〜はずです|should be,expected,supposed to|はず: it should be so (you have good reason to expect it).|彼はもう着いたはずです。|かれはもうついたはずです。|He should have arrived already.|彼はもう着いた＿＿です。|はず
-〜ところです|about to,just did,in the middle of|ところ: about to do (dictionary form), doing (ている), or just did (た).|今から出かけるところです。|いまからでかけるところです。|I'm just about to go out.|今から出かける＿＿です。|ところ`;
+const G4_RAW = `ようになる|come to,become able to,start to|Potential or dictionary form + ようになる: a change in ability or situation.|毎日練習すれば、話せるようになります。|まいにちれんしゅうすれば、はなせるようになります。|If you practice every day, you'll become able to speak.|毎日練習すれば、話せる＿＿なります。|ように|Aspect
+ているところだ|in the middle of,currently doing|て-form + いるところ: right in the middle of doing something.|今、パソコンを使っているところです。|いま、パソコンをつかっているところです。|I'm using the computer right now.|今、パソコンを使っている＿＿です。|ところ|Aspect
+ところだ|about to,just about to|Dictionary form + ところ: just about to do something.|ちょうど学校へ行くところです。|ちょうどがっこうへいくところです。|I'm just about to go to school.|ちょうど学校へ行く＿＿です。|ところ|Aspect
+まだ〜ていない|not yet,have not yet|まだ + て-form + いない: you haven't done it yet.|まだ電車は来ていません。|まだでんしゃはきていません。|The train hasn't come yet.|＿＿電車は来ていません。|まだ|Aspect
+てある|has been done,is done,resulting state|Transitive て-form + ある: someone did it on purpose and the result remains.|あそこに本が置いてあります。|あそこにほんがおいてあります。|Some books have been placed over there.|あそこに本が置いて＿＿。|あります|Aspect
+ている|is doing,ongoing,state,habit|て-form + いる: an action in progress, a current state, or a habit.|いつも自転車で通勤している。|いつもじてんしゃでつうきんしている。|I always commute by bicycle.|いつも自転車で通勤して＿＿。|いる|Aspect
+ようと思う|thinking of,going to,plan to|Volitional form + と思う: what you're thinking of doing.|大学で働こうと思っています。|だいがくではたらこうとおもっています。|I'm thinking of working at a university.|大学で＿＿と思っています。|はたらこう|Aspect
+続く / 続ける|continue,keep on|Stem + 続ける: keep doing (you do it). Stem + 続く: keep happening (it happens by itself).|昨日から雨が降り続いている。|きのうからあめがふりつづいている。|It's been raining nonstop since yesterday.|昨日から雨が降り＿＿いる。|つづいて|Aspect
+そうだ (about to)|looks like,seems,about to|ます-stem or adjective stem + そう: it looks like (from what you can see), or it's about to happen.|ろうそくの火が消えそうです。|ろうそくのひがきえそうです。|The candle looks like it's about to go out.|ろうそくの火が消え＿＿です。|そう|Aspect
+たばかり|just did,have just done|た-form + ばかり: you did it just now. たばっか is more casual.|コーヒーを飲んだばかりなので、今は眠くない。|コーヒーをのんだばかりなので、いまはねむくない。|I just had coffee, so I'm not sleepy now.|コーヒーを飲んだ＿＿なので、今は眠くない。|ばかり|Aspect
+〜出す|start suddenly,burst into,out|ます-stem + 出す: suddenly start doing. It can also mean "out" (飛び出す, jump out).|赤ちゃんが突然泣き出した。|あかちゃんがとつぜんなきだした。|The baby suddenly burst into tears.|赤ちゃんが突然泣き＿＿。|だした|Aspect
+ていく|going to,keep changing,go and|て-form + いく: a change that continues into the future, or movement away from the speaker.|私の日本語はだんだん上手になっていくと思う。|わたしのにほんごはだんだんじょうずになっていくとおもう。|I think my Japanese will keep getting better.|私の日本語はだんだん上手になって＿＿と思う。|いく|Aspect
+〜始める|start,begin to|ます-stem + 始める: start doing.|手紙を書き始めました。|てがみをかきはじめました。|I started writing a letter.|手紙を書き＿＿。|はじめました|Aspect
+たことがある|have done,have ever,experience|た-form + ことがある: you have done it before. たことがない: you never have.|新幹線に乗ったことがない。|しんかんせんにのったことがない。|I have never ridden the Shinkansen.|新幹線に乗った＿＿がない。|こと|Aspect
+ておく|do in advance,prepare|て-form + おく: do something ahead of time.|明日はテストがあるので、勉強しておきます。|あしたはテストがあるので、べんきょうしておきます。|I have a test tomorrow, so I'll study in advance.|明日はテストがあるので、勉強して＿＿。|おきます|Aspect
+つもりだ|intend to,plan to|Dictionary form + つもり: what you intend to do.|パーティーにケーキを持っていくつもりです。|パーティーにケーキをもっていくつもりです。|I'm planning to bring a cake to the party.|パーティーにケーキを持っていく＿＿です。|つもり|Aspect
+〜終わる|finish,finish doing|ます-stem + 終わる: finish doing something.|もう自分の部屋を掃除し終わった？|もうじぶんのへやをそうじしおわった？|Have you finished cleaning your room yet?|もう自分の部屋を掃除し＿＿？|おわった|Aspect
+てくる|come to,start to,go and come back|て-form + くる: go do something and come back, or a change that has been happening up to now.|ちょっとトイレに行ってきます。|ちょっとトイレにいってきます。|I'll just pop to the restroom.|ちょっとトイレに行って＿＿。|きます|Aspect
+予定だ|plan to,scheduled to,supposed to|Dictionary form, or noun + の, + 予定: a scheduled plan.|十二月に東京に帰る予定です。|じゅうにがつにとうきょうにかえるよていです。|I plan to return to Tokyo in December.|十二月に東京に帰る＿＿です。|よてい|Aspect
+てみる|try,try doing|て-form + みる: try doing something to see what it's like.|このケーキを食べてみてください。|このケーキをたべてみてください。|Please try this cake.|このケーキを食べて＿＿ください。|みて|Aspect
+ようにしている|try to,make a habit of|Dictionary or ない-form + ようにしている: you make an effort to do it regularly.|毎日日本語の単語を勉強するようにしています。|まいにちにほんごのたんごをべんきょうするようにしています。|I make a point of studying Japanese words every day.|毎日日本語の単語を勉強するように＿＿。|しています|Modality
+ようにする|try to,make sure to|Dictionary or ない-form + ようにする: try to make it happen.|毎日早起きをするようにします。|まいにちはやおきをするようにします。|I'll try to get up early every day.|毎日早起きをするように＿＿。|します|Modality
+ことができる|can,able to|Dictionary form + ことができる: can do.|速く泳ぐことができます。|はやくおよぐことができます。|I can swim fast.|速く泳ぐ＿＿できます。|ことが|Modality
+そうだ (hearsay)|I heard,they say,apparently|Plain form + そうだ: you heard it from someone.|彼はお金持ちだそうだ。|かれはおかねもちだそうだ。|I heard he's rich.|彼はお金持ちだ＿＿。|そうだ|Modality
+たらどうですか|why don't you,how about|た-form + らどうですか: a suggestion. More direct than ほうがいい.|ユーチューブを見る時間を減らしたらどうですか。|ユーチューブをみるじかんをへらしたらどうですか。|Why don't you cut down the time you spend watching YouTube?|ユーチューブを見る時間を減らし＿＿どうですか。|たら|Modality
+と言ってもいい|you could say,one might say|〜と言ってもいい (ほど / くらい): so much that you could call it X.|外は地獄と言ってもいいほど暑いです。|そとはじごくといってもいいほどあついです。|It's so hot outside you could call it hell.|外は地獄と言っても＿＿ほど暑いです。|いい|Modality
+といいな|I hope,it would be nice if|Plain form + といいな(あ) / といいね: hoping something will happen.|明日晴れるといいな。|あしたはれるといいな。|I hope it's sunny tomorrow.|明日晴れると＿＿。|いいな,いいね,いいなあ|Modality
+はずだ|should be,must be,expected|はず: it should be so; you have good reason to expect it.|世界の経済は来年からよくなるはずです。|せかいのけいざいはらいねんからよくなるはずです。|The world economy should improve from next year.|世界の経済は来年からよくなる＿＿です。|はず|Modality
+するな / しないで|don't,negative command|Dictionary form + な: a blunt "don't!". ない-form + で: a softer "don't".|仕事をしているから、邪魔をするな。|しごとをしているから、じゃまをするな。|I'm working, so don't bother me.|仕事をしているから、邪魔をする＿＿。|な|Modality
+だろう / でしょう|probably,I think,right|だろう (casual) and でしょう (polite): probably, or asking for agreement.|授業は延期になるだろう。|じゅぎょうはえんきになるだろう。|The class will probably be postponed.|授業は延期になる＿＿。|だろう,でしょう|Modality
+たらいいですか|what should I,should I|た-form + らいいですか: asking for advice or instructions.|どうしたらいいですか。|どうしたらいいですか。|What should I do?|どうし＿＿いいですか。|たら|Modality
+てよかった|glad that,it's good that|て-form + よかった: you're glad you did it or that it happened.|君に会えてよかった。|きみにあえてよかった。|I'm glad I got to meet you.|君に会えて＿＿。|よかった|Modality
+なくてもいい|don't have to,need not|ない-form (drop い) + くてもいい: it's not necessary.|明日は休みなので、学校に行かなくてもいい。|あしたはやすみなので、がっこうにいかなくてもいい。|Tomorrow's a day off, so I don't have to go to school.|明日は休みなので、学校に行か＿＿もいい。|なくて|Modality
+らしい|apparently,I hear,seems,typical of|Plain form + らしい: apparently (from what you heard). Noun + らしい can also mean "typical of" (君らしい, like you).|彼は来月結婚するらしいです。|かれはらいげつけっこんするらしいです。|Apparently he's getting married next month.|彼は来月結婚する＿＿です。|らしい|Modality
+ほうがいい|should,had better|た-form (or ない-form) + ほうがいい: advice.|疲れたなら、早く寝たほうがいい。|つかれたなら、はやくねたほうがいい。|If you're tired, you'd better go to bed early.|疲れたなら、早く寝た＿＿いい。|ほうが|Modality
+てしまう / ちゃう|end up,completely,by accident,regret|て-form + しまう (casual ちゃう): finish completely, or something regrettable happened.|寝坊しちゃった。|ねぼうしちゃった。|I overslept (oops).|寝坊し＿＿。|ちゃった,てしまった|Modality
+みたいだ|seems,looks like|Plain form or noun + みたいだ: it seems. A casual ようだ.|彼は少し疲れているみたいだ。|かれはすこしつかれているみたいだ。|He seems a little tired.|彼は少し疲れている＿＿。|みたいだ|Modality
+ようだ|seems,appears|Plain form, or noun + の, + ようだ: it seems, based on what you notice.|今日は落ち込んでいるようですね。|きょうはおちこんでいるようですね。|You seem down today.|今日は落ち込んでいる＿＿ね。|ようです,みたいです|Modality
+たがっている|wants to,someone else wants|ます-stem + たがっている: someone else wants to do something. (Use たい for yourself.)|友人が私のために夕食を作りたがっている。|ゆうじんがわたしのためにゆうしょくをつくりたがっている。|My friend wants to cook dinner for me.|友人が私のために夕食を作り＿＿。|たがっている|Modality
+がる|show signs of,act,seem|Adjective stem + がる: someone else shows a feeling (恥ずかしがる, act shy).|恥ずかしがらないで、どうぞ食べてください。|はずかしがらないで、どうぞたべてください。|Don't be shy, please eat.|恥ずかし＿＿ないで、どうぞ食べてください。|がら|Modality
+必要がある|need to,necessary|Dictionary form + 必要がある: need to do.|ゴミを捨てる必要があります。|ゴミをすてるひつようがあります。|I need to throw out the trash.|ゴミを捨てる＿＿があります。|ひつよう|Modality
+ことがある|sometimes,there are times when|Dictionary form + ことがある: it sometimes happens.|週末は料理をすることがあります。|しゅうまつはりょうりをすることがあります。|I sometimes cook on weekends.|週末は料理をする＿＿があります。|こと|Modality
+ないといけない|must,have to|ない-form + といけない (casual なきゃいけない): must.|薬を飲まないといけない。|くすりをのまないといけない。|I have to take my medicine.|薬を飲ま＿＿いけない。|ないと,なきゃ|Modality
+なければならない|must,have to|ない-form, drop い, + ければならない: must. More formal than ないといけない.|明日は早く起きなければなりません。|あしたははやくおきなければなりません。|I have to get up early tomorrow.|明日は早く起き＿＿なりません。|なければ|Modality
+ことになる|it's been decided,turns out that|Dictionary form + ことになる: it's been decided (often not by you).|来月旅行することになった。|らいげつりょこうすることになった。|It's been decided that I'll go on a trip next month.|来月旅行する＿＿なった。|ことに|Modality
+なさい|do it,command|ます-stem + なさい: a firm command, used by parents and teachers.|まず、質問に答えなさい。|まず、しつもんにこたえなさい。|First, answer the question.|まず、質問に答え＿＿。|なさい|Modality
+ことにする|decide to,make it a rule|Dictionary form + ことにする: decide to do. ことにしている: do something as a rule.|今月は日本語を勉強することにした。|こんげつはにほんごをべんきょうすることにした。|I've decided to study Japanese this month.|今月は日本語を勉強する＿＿した。|ことに|Modality
+と言われている|it is said that|Plain form + と言われている: people generally say so.|日本の夏は暑いと言われている。|にほんのなつはあついといわれている。|Summer in Japan is said to be hot.|日本の夏は暑いと＿＿。|いわれている|Modality
+てはいけない|must not,may not|て-form + はいけない: not allowed.|嘘をついてはいけない。|うそをついてはいけない。|You must not tell lies.|嘘をついて＿＿。|はいけない|Modality
+それでも|even so,but still,yet|それでも at the start of a sentence: even so, still.|ダイエットしている。それでもアイスクリームを食べてしまう。|ダイエットしている。それでもアイスクリームをたべてしまう。|I'm on a diet. Even so, I end up eating ice cream.|ダイエットしている。＿＿アイスクリームを食べてしまう。|それでも|Conjunction
+かどうか|whether or not,whether|Plain form + かどうか: whether or not.|それが正しいかどうか分からない。|それがただしいかどうかわからない。|I'm not sure whether that's correct.|それが正しい＿＿分からない。|かどうか|Conjunction
+たって / だって|even if,no matter how|Casual "even if": い-adjective くたって, verb たって, noun or な-adjective だって.|いくらかわいくたって、いらない。|いくらかわいくたって、いらない。|No matter how cute it is, I don't need it.|いくらかわいく＿＿、いらない。|たって|Conjunction
+頃|around,about,when|ごろ after a time means "around". ころ means "the time when".|今日の八時ごろに駅まで迎えに来て。|きょうのはちじごろにえきまでむかえにきて。|Pick me up at the station around eight today.|今日の八時＿＿に駅まで迎えに来て。|ごろ|Conjunction
+の中で|among,in,inside|Noun + の中で: among (a group) or inside.|彼女は友だちの中でいちばんきれいです。|かのじょはともだちのなかでいちばんきれいです。|She's the prettiest of all my friends.|彼女は友だちの＿＿いちばんきれいです。|なかで|Conjunction
+または / それとも|or|または: "or" (formal, between nouns). それとも: "or" between two questions.|コーヒーにしますか、それとも紅茶にしますか。|コーヒーにしますか、それともこうちゃにしますか。|Would you like coffee, or tea?|コーヒーにしますか、＿＿紅茶にしますか。|それとも|Conjunction
+ために|in order to,for,because of|Dictionary form, or noun + の, + ために: for the purpose of. It can also mean "because of".|日本へ旅行するために、貯金しています。|にほんへりょこうするために、ちょきんしています。|I'm saving money to travel to Japan.|日本へ旅行する＿＿、貯金しています。|ために|Conjunction
+ように (so that)|so that,in order that|ように: so that something happens (or doesn't), often with ない or potential forms.|忘れないようにメモします。|わすれないようにメモします。|I'll write a note so I don't forget.|忘れない＿＿メモします。|ように|Conjunction
+間に|while,during,between|間: during the whole time. 間に: at some point during.|春休みの間に、姉が日本へ来ます。|はるやすみのあいだに、あねがにほんへきます。|My sister is coming to Japan during spring break.|春休みの＿＿、姉が日本へ来ます。|あいだに|Conjunction
+だけで|just by,just|Plain form or noun + だけで: just by doing.|あの車を見るだけで、古いと分かる。|あのくるまをみるだけで、ふるいとわかる。|Just by looking at that car, you can tell it's old.|あの車を見る＿＿、古いと分かる。|だけで|Conjunction
+場合は|in case,if,when|Plain form, or noun + の, + 場合は: in the case that.|分からない場合は、手を上げてください。|わからないばあいは、てをあげてください。|If you don't understand, please raise your hand.|分からない＿＿、手を上げてください。|ばあいは|Conjunction
+し〜し|and,what's more|し lists reasons: "A, and B, and…".|この店は安いし、おいしいし、よく来ます。|このみせはやすいし、おいしいし、よくきます。|This place is cheap and tasty, so I come often.|この店は安い＿＿、おいしいし、よく来ます。|し|Conjunction
+それに / しかも|besides,in addition,moreover|それに and しかも: besides, on top of that.|オンラインショッピングは安いです。それに便利です。|オンラインショッピングはやすいです。それにべんりです。|Online shopping is cheap. Besides, it's convenient.|オンラインショッピングは安いです。＿＿便利です。|それに,しかも|Conjunction
+たり〜たりする|do things like,and so on,such as|List a few example actions: "do things like A and B".|週末は掃除をしたり洗濯をしたりします。|しゅうまつはそうじをしたりせんたくをしたりします。|On weekends I do things like cleaning and laundry.|週末は掃除をし＿＿洗濯をしたりします。|たり|Conjunction
+〜ば|if,provided that|The ば conditional means "if". い-adjectives use ければ.|安ければ買います。|やすければかいます。|If it's cheap, I'll buy it.|安＿＿買います。|ければ|Conjunction
+どうか|please,somehow|どうか: a heartfelt "please" in requests or wishes.|どうか無事に着きますように。|どうかぶじにつきますように。|Please let them arrive safely.|＿＿無事に着きますように。|どうか|Adverb
+さすが|as expected,indeed,naturally|さすが: just as you'd expect (often impressed). さすがに: as you'd expect, even so.|十二時間も働いたので、さすがに疲れました。|じゅうにじかんもはたらいたので、さすがにつかれました。|I worked twelve hours, so naturally I'm exhausted.|十二時間も働いたので、＿＿疲れました。|さすがに,さすが|Adverb
+そんなに〜ない|not that much,not so|そんなに or それほど + negative: not that much.|夏はそんなに外に出たくないです。|なつはそんなにそとにでたくないです。|I don't want to go out that much in summer.|夏は＿＿外に出たくないです。|そんなに,それほど|Adverb
+てばかり|nothing but,only,always|て-form + ばかりいる: doing nothing but. Noun + ばかり: nothing but that thing.|弟はゲームをしてばかりいる。|おとうとはゲームをしてばかりいる。|My little brother does nothing but play games.|弟はゲームをして＿＿いる。|ばかり|Adverb
+きっと|surely,certainly|きっと: surely, I'm confident.|来週はきっと暑くなる。|らいしゅうはきっとあつくなる。|It'll surely get hot next week.|来週は＿＿暑くなる。|きっと|Adverb
+急に / 突然|suddenly|急に, 突然 (とつぜん) and いきなり all mean "suddenly".|急にお腹が痛くなった。|きゅうにおなかがいたくなった。|Suddenly my stomach started hurting.|＿＿お腹が痛くなった。|きゅうに,とつぜん,いきなり|Adverb
+やっと|finally,at last|やっと: finally, after a long wait or effort.|やっとオンラインで買った物を受け取った。|やっとオンラインでかったものをうけとった。|I finally received what I bought online.|＿＿オンラインで買った物を受け取った。|やっと|Adverb
+さっき|a moment ago,earlier,just now|さっき: a little while ago.|さっき勉強した文法をもう忘れてしまいました。|さっきべんきょうしたぶんぽうをもうわすれてしまいました。|I've already forgotten the grammar I studied earlier.|＿＿勉強した文法をもう忘れてしまいました。|さっき|Adverb
+なかなか〜ない|not easily,just won't|なかなか + negative: it just won't happen easily.|毎朝なかなか早く起きられません。|まいあさなかなかはやくおきられません。|I just can't get up early in the mornings.|毎朝＿＿早く起きられません。|なかなか|Adverb
+全然〜ない|not at all|全然 (ぜんぜん) or 全く (まったく) + negative: not at all.|今日は全然働きたくないです。|きょうはぜんぜんはたらきたくないです。|I don't want to work at all today.|今日は＿＿働きたくないです。|ぜんぜん,まったく|Adverb
+すぎる|too much,too,excessively|ます-stem or adjective stem + すぎる: too much.|先月は忙しすぎて、休めませんでした。|せんげつはいそがしすぎて、やすめませんでした。|Last month I was too busy to take time off.|先月は忙し＿＿、休めませんでした。|すぎて|Adverb
+にくい / づらい|hard to,difficult to|ます-stem + にくい or づらい: hard to do.|漢字は覚えにくい。|かんじはおぼえにくい。|Kanji are hard to remember.|漢字は覚え＿＿。|にくい,づらい|Adverb
+やすい|easy to,likely to|ます-stem + やすい: easy to do, or likely to happen.|この車は運転しやすい。|このくるまはうんてんしやすい。|This car is easy to drive.|この車は運転し＿＿。|やすい|Adverb
+ほど〜ない|not as as|A は B ほど〜ない: A is not as … as B.|抹茶は思ったほどおいしくない。|まっちゃはおもったほどおいしくない。|Matcha isn't as tasty as I thought.|抹茶は思った＿＿おいしくない。|ほど|Adverb
+ても / でも|even if,even though|て-form + も (noun or な-adjective + でも): even if.|必要なので、高くても買います。|ひつようなので、たかくてもかいます。|I need it, so I'll buy it even if it's expensive.|必要なので、高く＿＿買います。|ても|Particle
+なら|if,if it's,in that case|Plain form or noun + なら: if (that's the case).|やるなら今しかない。|やるならいましかない。|If you're going to do it, it's now or never.|やる＿＿今しかない。|なら|Particle
+たら|if,when,after|た-form + ら: if, or when (after) it happens. もし can be added before for "if".|分からないことがあったら、言ってください。|わからないことがあったら、いってください。|If there's anything you don't understand, please tell me.|分からないことがあっ＿＿、言ってください。|たら|Particle
+わ|soft ending,mild emphasis|わ: a soft sentence ending, traditionally feminine. Rare among young people.|いいわ。|いいわ。|All right.|いい＿＿。|わ|Particle
+な / なあ|how,wow,don't|な or なあ shows emotion (きれいだなあ, how beautiful). After a dictionary form, な is a blunt "don't" (さわるな).|ああ、きれいだなあ。|ああ、きれいだなあ。|Oh, how beautiful.|ああ、きれいだ＿＿。|なあ,なぁ,な|Particle
+ぞ|strong emphasis|ぞ: strong, rough emphasis, mostly used by men.|僕はあきらめないぞ。|ぼくはあきらめないぞ。|I'm not giving up!|僕はあきらめない＿＿。|ぞ|Particle
+さ|mild assertion|さ: a casual, blunt, mild assertion.|まあ、いいさ。|まあ、いいさ。|Well, it's fine.|まあ、いい＿＿。|さ|Particle
+かな|I wonder|Plain form + かな: I wonder.|明日は晴れるかな。|あしたははれるかな。|I wonder if it'll be sunny tomorrow.|明日は晴れる＿＿。|かな|Particle
+しか〜ない|only,nothing but|しか + negative: only (and nothing else).|私はひらがなとカタカナしか書けない。|わたしはひらがなとカタカナしかかけない。|I can only write hiragana and katakana.|私はひらがなとカタカナ＿＿書けない。|しか|Particle
+より〜ほうが|more than,than|A より B のほうが: B is more … than A.|あの靴よりこっちの靴のほうが高い。|あのくつよりこっちのくつのほうがたかい。|These shoes are more expensive than those.|あの靴よりこっちの靴の＿＿高い。|ほうが|Particle
+けど / けれども|but,although|けど, けれど and けれども: but, although.|眠かったけど、頑張りました。|ねむかったけど、がんばりました。|I was sleepy, but I did my best.|眠かった＿＿、頑張りました。|けど,けれど,けれども|Particle
+のに|even though,despite|Plain form (noun or な-adjective + な) + のに: even though, with surprise or frustration.|今日は日曜日なのに、働かなければなりません。|きょうはにちようびなのに、はたらかなければなりません。|Even though it's Sunday, I have to work.|今日は日曜日な＿＿、働かなければなりません。|のに|Particle
+〜が (although)|but,although|が joins two contrasting sentences: "A, but B".|私はお酒を飲むが、タバコは吸わない。|わたしはおさけをのむが、タバコはすわない。|I drink, but I don't smoke.|私はお酒を飲む＿＿、タバコは吸わない。|が|Particle
+までに|by,by the time|までに: by (a deadline). Compare まで, "until".|この本、来週までに返してくださいね。|このほん、らいしゅうまでにかえしてくださいね。|Please return this book by next week.|この本、来週＿＿返してくださいね。|までに|Particle
+と (whenever)|when,whenever,if|Plain form + と: whenever A happens, B naturally follows.|春になると、暖かくなります。|はるになると、あたたかくなります。|When spring comes, it gets warm.|春になる＿＿、暖かくなります。|と|Particle
+ので|because,so|Plain form (noun or な-adjective + な) + ので: because. Softer than から.|聞こえないので、もっと大きな声で話してください。|きこえないので、もっとおおきなこえではなしてください。|I can't hear you, so please speak louder.|聞こえない＿＿、もっと大きな声で話してください。|ので|Particle
+など|and so on,etc,such as|など: and so on. It also softens a suggestion (お茶などいかがですか).|机の上に本などがあります。|つくえのうえにほんなどがあります。|There are books and such on the desk.|机の上に本＿＿があります。|など|Particle
+て (connecting)|and,and then|The て-form joins clauses: do A and then B.|朝起きて、顔を洗います。|あさおきて、かおをあらいます。|I get up in the morning and wash my face.|朝起き＿＿、顔を洗います。|て|Particle
+られる|can,passive,be done|られる is both the potential form (can) and the passive form (be done) of る-verbs.|そんなこと、信じられない。|そんなこと、しんじられない。|I can't believe such a thing.|そんなこと、信じ＿＿。|られない|Voice
+Potential form|can,able to,potential|る-verbs: られる. う-verbs: change the last sound to the え-row + る.|漢字が読めます。|かんじがよめます。|I can read kanji.|漢字が＿＿。|よめます|Voice
+Passive form|passive,was done,be done|る-verbs: られる. う-verbs: change to the あ-row + れる. "Was done (by someone)".|先生にほめられました。|せんせいにほめられました。|I was praised by the teacher.|先生にほめ＿＿。|られました|Voice
+させる|make,let,causative|る-verbs: させる. う-verbs: あ-row + せる. "Make or let someone do".|母は私に自分の部屋を片付けさせた。|はははわたしにじぶんのへやをかたづけさせた。|My mother made me clean my own room.|母は私に自分の部屋を片付け＿＿。|させた|Voice
+させられる|made to do,forced to|Causative-passive: be made to do something.|彼女にご飯を二杯食べさせられた。|かのじょにごはんをにはいたべさせられた。|She made me eat two bowls of rice.|彼女にご飯を二杯食べ＿＿。|させられた|Voice
+させてください|please let me|Causative て-form + ください: please let me do.|質問させてください。|しつもんさせてください。|Please let me ask a question.|質問＿＿ください。|させて|Keigo
+ていただく|have someone do (humble)|て-form + いただく: humble version of てもらう, receiving a favor.|先生に作文を直していただきました。|せんせいにさくぶんをなおしていただきました。|My teacher kindly corrected my essay.|先生に作文を直して＿＿。|いただきました|Keigo
+ていただけませんか|could you please|て-form + いただけませんか / いただけますか: a very polite request.|お金を貸していただけませんか。|おかねをかしていただけませんか。|Could you please lend me some money?|お金を貸して＿＿。|いただけませんか,いただけますか|Keigo
+てくださる|kindly do,do for me (honorific)|て-form + くださる: honorific version of てくれる.|先生が駅まで送ってくださいました。|せんせいがえきまでおくってくださいました。|My teacher kindly took me to the station.|先生が駅まで送って＿＿。|くださいました|Keigo
+あげる|give|あげる: you (or someone) give to someone else.|友だちにプレゼントをあげました。|ともだちにプレゼントをあげました。|I gave my friend a present.|友だちにプレゼントを＿＿。|あげました|Giving & receiving
+くれる|give to me,give me|くれる: someone gives to me or my group.|母がセーターをくれました。|ははがセーターをくれました。|My mother gave me a sweater.|母がセーターを＿＿。|くれました|Giving & receiving
+もらう|receive,get|もらう: receive something from someone.|先生に本をもらいました。|せんせいにほんをもらいました。|I got a book from my teacher.|先生に本を＿＿。|もらいました|Giving & receiving
+てもらう|have someone do,get someone to do|て-form + もらう: someone does something for you (you receive the favor).|友だちに宿題を手伝ってもらいました。|ともだちにしゅくだいをてつだってもらいました。|My friend helped me with my homework.|友だちに宿題を手伝って＿＿。|もらいました|Giving & receiving
+くする / にする|make,make it|い-adjective (drop い) + くする, な-adjective + にする: make something that way.|公園をきれいにしましょう。|こうえんをきれいにしましょう。|Let's make the park clean.|公園をきれい＿＿しましょう。|に|Others
+がする|smell,sound,taste,feel|におい, かおり, あじ, おと, こえ or かんじ + がする: you sense something.|この食べ物はケーキの味がする。|このたべものはケーキのあじがする。|This food tastes like cake.|この食べ物はケーキの味が＿＿。|する|Others
+まま|as it is,unchanged,leave as is|た-form, ない-form, or noun + の, + まま: leave something as it is.|このテレビをつけたままにしないでください。|このテレビをつけたままにしないでください。|Please don't leave this TV on.|このテレビをつけた＿＿にしないでください。|まま|Others
+ように / ような (like)|like,as,similar to|Noun + の + ように (how something is done) / ような (before a noun): like.|東京はニューヨークのような町です。|とうきょうはニューヨークのようなまちです。|Tokyo is a city like New York.|東京はニューヨークの＿＿町です。|ような|Others
+という|called,named|Name + という + noun: called.|昨日、トムという人に会いました。|きのう、トムというひとにあいました。|Yesterday I met someone called Tom.|昨日、トム＿＿人に会いました。|という|Others
+みたいに / みたいな|like|Noun + みたいに / みたいな: like. The casual version of ように / ような.|スーパーモデルみたいに服を着てみたい。|スーパーモデルみたいにふくをきてみたい。|I want to dress like a supermodel.|スーパーモデル＿＿服を着てみたい。|みたいに|Others
+がり|someone who easily feels|Adjective stem + がり: a person who easily feels that way (寒がり, someone who feels the cold).|私は寒がりなので、冬はあまり好きじゃない。|わたしはさむがりなので、ふゆはあまりすきじゃない。|I feel the cold easily, so I don't like winter much.|私は寒＿＿なので、冬はあまり好きじゃない。|がり|Others
+のだ / んです|explanation,emphasis|Plain form + んです / のだ: gives or asks for an explanation, or adds emphasis.|頭が痛いんです。|あたまがいたいんです。|(The thing is,) I have a headache.|頭が痛い＿＿。|んです,のです|Others
+に気がつく|notice,realize|(こと) に気がつく or 気づく: notice, realize.|財布がないことに気がついた。|さいふがないことにきがついた。|I realized I didn't have my wallet.|財布がないことに気が＿＿。|ついた|Others`;
 
 // ---------- Build items ----------
 const CATS = [
@@ -814,6 +943,7 @@ const DECKS = [
   {id:"rad",  cat:"found", name:"Radicals",   tag:"Radical"},
   {id:"n5",   cat:"kanji", name:"N5 kanji",   tag:"N5 kanji"},
   {id:"n4",   cat:"kanji", name:"N4 kanji",   tag:"N4 kanji"},
+  {id:"nx",   cat:"kanji", name:"Extra kanji", tag:"Extra kanji"},
   {id:"g5",   cat:"gram",  name:"N5 grammar", tag:"N5 grammar"},
   {id:"g4",   cat:"gram",  name:"N4 grammar", tag:"N4 grammar"},
 ];
@@ -827,10 +957,10 @@ const parseKanji = (raw, deck) => raw.trim().split("\n").map(l=>{
   return {id:k, deck, type:"kanji", k, meanings:m.split(","), on:on?on.split(","):[], kun:kun?kun.split(","):[], ex: jp?{jp,rd,en}:null};
 });
 const parseGrammar = (raw, deck) => raw.trim().split("\n").map(l=>{
-  const [p,m,expl,jp,rd,en,cloze,ans]=l.split("|");
+  const [p,m,expl,jp,rd,en,cloze,ans,gcat]=l.split("|");
   const i=cloze.indexOf("＿＿"), pre=cloze.slice(0,i), suf=cloze.slice(i+2);
   const blankJp = jp.startsWith(pre) && jp.endsWith(suf) ? jp.slice(pre.length, jp.length-suf.length) : "";
-  return {id:"g:"+p, deck, type:"grammar", k:p, meanings:m.split(","), expl, ex:{jp,rd,en}, cloze, answers:ans.split(","), blankJp};
+  return {id:"g:"+p, deck, type:"grammar", k:p, meanings:m.split(","), expl, ex:{jp,rd,en}, cloze, answers:ans.split(","), blankJp, gcat:gcat||"Other"};
 });
 const ITEMS = [];
 KANA_PAIRS.forEach(p=>ITEMS.push({id:"h:"+p.k, deck:"hira", type:"kana", k:p.k, romaji:p.romaji, other:hira2kata(p.k)}));
@@ -839,6 +969,7 @@ RAD_RAW.trim().split("\n").forEach(l=>{ const [k,m,ex,mn]=l.split("|"); ITEMS.pu
 const n5 = parseKanji(N5_RAW,"n5"); ITEMS.push(...n5);
 const n5set = new Set(n5.map(x=>x.id));
 ITEMS.push(...parseKanji(N4_RAW,"n4").filter(x=>!n5set.has(x.id)));
+ITEMS.push(...parseKanji(X_RAW,"nx"));
 ITEMS.push(...parseGrammar(G5_RAW,"g5"), ...parseGrammar(G4_RAW,"g4"));
 const BY = Object.fromEntries(ITEMS.map(x=>[x.id,x]));
 
@@ -866,6 +997,8 @@ function load(){
       : Object.fromEntries(DECKS.map(d=>[d.id,true]));
   }
   if(!state.log) state.log={};
+  // v2 moved some kanji from N5 to N4 / Extra to match jisho.org; keep reviewing anything already learned
+  if(!state.v){ if(state.decks.n5){ state.decks.n4=true; state.decks.nx=true; } state.v=2; }
 }
 
 // ---------- Activity log (for streaks and stats) ----------
@@ -1015,20 +1148,44 @@ function render(){
     : R ? "You have reviews waiting. Reviewing on time keeps the intervals working."
     : upcoming.length ? `Next review ${fmtWhen(upcoming[0])}.`
     : L ? "Start with a lesson. Each item comes back for review 4 hours later." : "Everything in your decks is mastered. Nicely done.";
-  $("decks").innerHTML = CATS.map(c=>`<h3 class="cath">${c.name}</h3><div class="decks">${DECKS.filter(d=>d.cat===c.id).map(d=>{
-    const all=ITEMS.filter(x=>x.deck===d.id), learned=all.filter(x=>state.items[x.id]).length;
-    return `<button class="deck" data-d="${d.id}" aria-pressed="${deckOn(d.id)}"><span class="dn">${d.name}<i>${deckOn(d.id)?"On":"Off"}</i></span><span class="dc">${learned} / ${all.length} started</span></button>`;
-  }).join("")}</div>`).join("");
+  $("decks").innerHTML = CATS.map(c=>{
+    const ds=DECKS.filter(d=>d.cat===c.id), on=ds.filter(d=>deckOn(d.id)).length, key="d-"+c.id;
+    return catHead(c.name, key, `${on} of ${ds.length} on`) + `<div class="decks"${isCollapsed(key)?" hidden":""}>${ds.map(d=>{
+      const all=ITEMS.filter(x=>x.deck===d.id), learned=all.filter(x=>state.items[x.id]).length;
+      return `<button class="deck" data-d="${d.id}" aria-pressed="${deckOn(d.id)}"><span class="dn">${d.name}<i>${deckOn(d.id)?"On":"Off"}</i></span><span class="dc">${learned} / ${all.length} started</span></button>`;
+    }).join("")}</div>`;
+  }).join("");
   const shown = ITEMS.filter(x=>deckOn(x.deck));
   const counts=[0,0,0,0,0,0]; shown.forEach(x=>counts[GROUP(st(x.id))]++);
   $("stages").innerHTML = GROUPS.slice(1).map((g,i)=>`<div class="stage"><b>${counts[i+1]}</b><span><i class="dot" style="background:var(${g[1]})"></i>${g[0]}</span></div>`).join("");
   $("grids").innerHTML = CATS.map(c=>{
     const ds=DECKS.filter(d=>d.cat===c.id && deckOn(d.id)); if(!ds.length) return "";
-    return `<h3 class="cath">${c.name}</h3>` + ds.map(d=>`<h4>${d.name}</h4><div class="grid${c.id==="gram"?" gram":""}">${ITEMS.filter(x=>x.deck===d.id).map(tileHTML).join("")}</div>`).join("");
+    const key="g-"+c.id, n=ds.reduce((a,d)=>a+ITEMS.filter(x=>x.deck===d.id).length,0);
+    return catHead(c.name, key, `${n} items`) + `<div${isCollapsed(key)?" hidden":""}>` + ds.map(d=>{
+      const items=ITEMS.filter(x=>x.deck===d.id);
+      if(c.id!=="gram") return `<h4>${d.name}</h4><div class="grid">${items.map(tileHTML).join("")}</div>`;
+      // grammar: one sub-group per grammar category, in list order
+      const gcats=[...new Set(items.map(x=>x.gcat))];
+      return `<h4>${d.name}</h4>` + gcats.map(g=>`<h5>${g}</h5><div class="grid gram">${items.filter(x=>x.gcat===g).map(tileHTML).join("")}</div>`).join("");
+    }).join("") + `</div>`;
   }).join("") || `<p class="hint">No decks are on.</p>`;
   $("legend").innerHTML = GROUPS.map(g=>`<span><i class="dot" style="background:var(${g[1]})"></i>${g[0]}</span>`).join("");
 }
 
+// collapsible category headings (remembered in this browser)
+let ui = {collapsed:{}};
+try{ Object.assign(ui, JSON.parse(localStorage.getItem("sumi-ui")||"{}")); }catch(e){}
+const isCollapsed = key => !!ui.collapsed[key];
+function catHead(name, key, note){
+  const open=!isCollapsed(key);
+  return `<h3 class="cath"><button class="cattog" data-key="${key}" aria-expanded="${open}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>${name}<span>${note}</span></button></h3>`;
+}
+document.addEventListener("click", e=>{
+  const b=e.target.closest(".cattog"); if(!b) return;
+  ui.collapsed[b.dataset.key]=!isCollapsed(b.dataset.key);
+  try{ localStorage.setItem("sumi-ui", JSON.stringify(ui)); }catch(err){}
+  render();
+});
 $("decks").addEventListener("click", e=>{
   const b=e.target.closest(".deck"); if(!b) return;
   state.decks[b.dataset.d] = !deckOn(b.dataset.d); save(); render();
@@ -1111,8 +1268,9 @@ $("qForm").addEventListener("submit", e=>{
   if(t==="on"){
     ans=hira2kata(toKana(ans,true)); inp.value=ans;
     if(/[a-z]/i.test(ans)){ nudge("Use kana for the reading."); return; }
-    if(x.kun.length && checkKun(x, kata2hira(ans))){ nudge("That's a kun'yomi. This one asks for the on'yomi."); return; }
+    // a correct on'yomi always wins, even if it sounds like part of a kun'yomi (死: シ vs し.ぬ)
     ok = checkOn(x, ans);
+    if(!ok && x.kun.length && checkKun(x, kata2hira(ans))){ nudge("That's a kun'yomi. This one asks for the on'yomi."); return; }
   } else if(t==="kun"){
     ans=toKana(ans,true); inp.value=ans;
     if(/[a-z]/i.test(ans)){ nudge("Use kana for the reading."); return; }
@@ -1120,8 +1278,8 @@ $("qForm").addEventListener("submit", e=>{
       if(checkOn(x, ans)){ nudge("That's the on'yomi. This one asks for the kun'yomi."); return; }
       nudge("Kun'yomi is written in hiragana."); return;
     }
-    if(checkOn(x, hira2kata(ans))){ nudge("That's the on'yomi. This one asks for the kun'yomi."); return; }
     ok = checkKun(x, ans);
+    if(!ok && checkOn(x, hira2kata(ans))){ nudge("That's the on'yomi. This one asks for the kun'yomi."); return; }
   } else if(t==="cloze"){
     if(x.blankJp && ans===x.blankJp) ok=true;   // typed with a Japanese keyboard, kanji included
     else {
@@ -1238,18 +1396,7 @@ function renderStats(){
     <div class="bars">${days.map((n,i)=>`<div class="col" tabindex="0" data-tip="${label(i)}: ${n} review${n===1?"":"s"}" aria-label="${label(i)}: ${n} reviews"><div class="b" style="height:${n/max*100}%"></div></div>`).join("")}</div>
     <div class="blabels">${days.map((_,i)=>`<span>${i===1?"Tmrw":label(i)}</span>`).join("")}</div>`;
 
-  // study calendar: last 18 weeks, one column per week starting Sunday
-  const weeks=18, first=new Date(start); first.setDate(first.getDate()-first.getDay()-7*(weeks-1));
-  const lvl = n => n===0?0 : n<10?1 : n<30?2 : n<60?3 : 4;
-  let cells="";
-  for(let i=0;i<weeks*7;i++){
-    const d=new Date(first); d.setDate(first.getDate()+i);
-    const v=state.log[dayKey(d)]||{a:0,l:0}, n=v.a+v.l, fut=d>start && dayKey(d)!==dayKey(start);
-    const when=d.toLocaleDateString([], {month:"short",day:"numeric"});
-    cells += `<i class="${fut?"future":""}" data-l="${lvl(n)}" data-tip="${when}: ${n?`${v.a} answers, ${v.l} lessons`:"no study"}"></i>`;
-  }
-  $("calendar").innerHTML = `<div class="cal" role="img" aria-label="Study activity over the last ${weeks} weeks">${cells}</div>
-    <div class="callegend">Less ${[0,1,2,3,4].map(l=>`<i style="background:var(--s${l})"></i>`).join("")} More</div>`;
+  renderCalendar();
 
   // per deck
   $("deckStats").innerHTML = `<table class="dtable"><thead><tr><th>Deck</th><th class="num">Started</th><th class="num">Mastered</th><th>Progress</th></tr></thead><tbody>${
@@ -1257,7 +1404,35 @@ function renderStats(){
       return `<tr><td>${d.name}</td><td class="num">${started} / ${all.length}</td><td class="num">${mast}</td><td><div class="meter"><i style="width:${started/all.length*100}%"></i></div></td></tr>`; }).join("")
   }</tbody></table>`;
 }
-$("statsBtn").onclick=()=>{ renderStats(); show("stats"); };
+// study calendar: one month at a time, each day shaded by how much you studied
+let calMonth = new Date(); calMonth.setDate(1);
+const LVL = n => n===0?0 : n<10?1 : n<30?2 : n<60?3 : 4;
+function renderCalendar(){
+  const y=calMonth.getFullYear(), m=calMonth.getMonth(), today=dayKey();
+  const firstDow=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
+  const now=new Date(), isCurrent = y===now.getFullYear() && m===now.getMonth();
+  let studied=0, cells="";
+  for(let i=0;i<firstDow;i++) cells += `<span class="blank"></span>`;
+  for(let d=1; d<=days; d++){
+    const date=new Date(y,m,d), k=dayKey(date), v=state.log[k]||{a:0,l:0}, n=v.a+v.l;
+    if(n) studied++;
+    const fut = date>now && k!==today;
+    const when = date.toLocaleDateString([], {weekday:"short", month:"short", day:"numeric"});
+    cells += `<span class="day${k===today?" today":""}${fut?" future":""}" data-l="${LVL(n)}" data-tip="${when}: ${n?`${v.a} answers, ${v.l} lessons`:"no study"}">${d}</span>`;
+  }
+  const dows=[...Array(7)].map((_,i)=>new Date(2024,8,1+i).toLocaleDateString([], {weekday:"short"}));
+  $("calendar").innerHTML = `<div class="calhead">
+      <button class="iconbtn" id="calPrev" aria-label="Previous month"><svg viewBox="0 0 24 24"><path d="m15 6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <b>${calMonth.toLocaleDateString([], {month:"long", year:"numeric"})}</b>
+      <button class="iconbtn" id="calNext" aria-label="Next month"${isCurrent?" disabled":""}><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="month">${dows.map(d=>`<span class="dow">${d}</span>`).join("")}${cells}</div>
+    <div class="calfoot"><span>Studied ${studied} day${studied===1?"":"s"} this month</span>
+      <span class="callegend">Less ${[0,1,2,3,4].map(l=>`<i style="background:var(--s${l})"></i>`).join("")} More</span></div>`;
+  $("calPrev").onclick=()=>{ calMonth.setMonth(calMonth.getMonth()-1); renderCalendar(); };
+  $("calNext").onclick=()=>{ if(!isCurrent){ calMonth.setMonth(calMonth.getMonth()+1); renderCalendar(); } };
+}
+$("statsBtn").onclick=()=>{ calMonth=new Date(); calMonth.setDate(1); renderStats(); show("stats"); };
 
 // shared hover tooltip for chart marks
 const tip=$("tip");
