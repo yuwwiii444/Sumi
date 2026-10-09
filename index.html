@@ -38,6 +38,23 @@ input:focus-visible,button:focus-visible,a:focus-visible,summary:focus-visible{o
 @keyframes fall{0%{transform:translate(0,-24px) rotate(0)}50%{transform:translate(50px,50vh) rotate(260deg)}100%{transform:translate(10px,105vh) rotate(520deg)}}
 @media (prefers-reduced-motion: reduce){:root:not([data-petals="on"]) .petals{display:none}}
 :root[data-petals="off"] .petals{display:none}
+.tl{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(9,1fr);position:relative}
+.tl::before{content:"";position:absolute;left:calc(100% / 18);right:calc(100% / 18);top:21px;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--s2),var(--s4))}
+.tl li{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;position:relative}
+.tl .dot{width:44px;height:44px;display:grid;place-items:center;flex:none}
+.tl .dot::after{content:"";width:var(--d);height:var(--d);border-radius:50%;background:color-mix(in srgb,var(--s4) var(--c),var(--s2));box-shadow:0 0 0 5px var(--surface)}
+.tl b{font-size:15px;white-space:nowrap}
+.tl small{font-size:13px;color:var(--muted);min-height:1.2em}
+.tl .done .dot{background:var(--surface);border-radius:50%;box-shadow:0 0 0 2px var(--s2)}
+.tl .done .dot::after{display:none}
+.tl .done svg{width:34px;height:34px}
+.tl .done b{color:var(--accent)}
+@media (max-width:700px){
+  .tl{grid-template-columns:1fr;gap:4px}
+  .tl::before{left:20.5px;right:auto;top:22px;bottom:22px;width:3px;height:auto;background:linear-gradient(180deg,var(--s2),var(--s4))}
+  .tl li{flex-direction:row;gap:16px;text-align:left}
+  .tl small{min-height:0}
+}
 .flower{width:26px;height:26px;align-self:center;flex:none}
 </style>
 <script>
@@ -112,56 +129,17 @@ try{ var st=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
       </div>
 
       <!-- Interval line -->
-      <div style="overflow-x: auto; padding-bottom: 8px">
-        <div style="min-width: 760px; position: relative; height: 110px">
-          <div style="position: absolute; left: 0; right: 0; top: 30px; height: 2px; background: var(--line2)"></div>
-                      <div style="position: absolute; top: 0; left: 0%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 10px">
-              <span style="font-size: 13px; color: var(--muted); white-space: nowrap; height: 18px">Learn</span>
-              <span style="width: 12px; height: 12px; border-radius: 50%; background: color-mix(in srgb, var(--s4) 0%, var(--s2)); display: block"></span>
-              <span style="font-size: 14px; font-weight: 700; white-space: nowrap">now</span>
-            </div>
-            <div style="position: absolute; top: 0; left: 9%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 10px">
-              <span style="font-size: 13px; color: var(--muted); white-space: nowrap; height: 18px"></span>
-              <span style="width: 14px; height: 14px; border-radius: 50%; background: color-mix(in srgb, var(--s4) 14%, var(--s2)); display: block"></span>
-              <span style="font-size: 14px; font-weight: 700; white-space: nowrap">4 hours</span>
-            </div>
-            <div style="position: absolute; top: 0; left: 18%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 10px">
-              <span style="font-size: 13px; color: var(--muted); white-space: nowrap; height: 18px"></span>
-              <span style="width: 16px; height: 16px; border-radius: 50%; background: color-mix(in srgb, var(--s4) 29%, var(--s2)); display: block"></span>
-              <span style="font-size: 14px; font-weight: 700; white-space: nowrap">8 hours</span>
-            </div>
-            <div style="position: absolute; top: 0; left: 28%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 10px">
-              <span style="font-size: 13px; color: var(--muted); white-space: nowrap; height: 18px"></span>
-              <span style="width: 18px; height: 18px; border-radius: 50%; background: color-mix(in srgb, var(--s4) 43%, var(--s2)); display: block"></span>
-              <span style="font-size: 14px; font-weight: 700; white-space: nowrap">1 day</span>
-            </div>
-            <div style="position: absolute; top: 0; left: 38%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 10px">
-              <span style="font-size: 13px; color: var(--muted); white-space: nowrap; height: 18px"></span>
-              <span style="width: 20px; height: 20px; border-radius: 50%; background: color-mix(in srgb, var(--s4) 57%, var(--s2)); display: block"></span>
-              <span style="font-size: 14px; font-weight: 700; white-space: nowrap">2 days</span>
-            </div>
-            <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 10px">
-              <span style="font-size: 13px; color: var(--muted); white-space: nowrap; height: 18px"></span>
-              <span style="width: 22px; height: 22px; border-radius: 50%; background: color-mix(in srgb, var(--s4) 71%, var(--s2)); display: block"></span>
-              <span style="font-size: 14px; font-weight: 700; white-space: nowrap">1 week</span>
-            </div>
-            <div style="position: absolute; top: 0; left: 63%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 10px">
-              <span style="font-size: 13px; color: var(--muted); white-space: nowrap; height: 18px"></span>
-              <span style="width: 24px; height: 24px; border-radius: 50%; background: color-mix(in srgb, var(--s4) 86%, var(--s2)); display: block"></span>
-              <span style="font-size: 14px; font-weight: 700; white-space: nowrap">2 weeks</span>
-            </div>
-            <div style="position: absolute; top: 0; left: 78%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 10px">
-              <span style="font-size: 13px; color: var(--muted); white-space: nowrap; height: 18px"></span>
-              <span style="width: 26px; height: 26px; border-radius: 50%; background: color-mix(in srgb, var(--s4) 100%, var(--s2)); display: block"></span>
-              <span style="font-size: 14px; font-weight: 700; white-space: nowrap">1 month</span>
-            </div>
-            <div style="position: absolute; top: 0; left: 96%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 10px">
-              <span style="font-size: 13px; color: var(--muted); white-space: nowrap; height: 18px">Mastered</span>
-              <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--accent); display: block"></span>
-              <span style="font-size: 14px; font-weight: 700; white-space: nowrap">4 months</span>
-            </div>
-        </div>
-      </div>
+      <ol class="tl" aria-label="How long Sumi waits before each review">
+        <li><span class="dot" style="--d: 12px; --c: 0%"></span><b>now</b><small>Learn</small></li>
+        <li><span class="dot" style="--d: 14px; --c: 14%"></span><b>4 hours</b><small></small></li>
+        <li><span class="dot" style="--d: 16px; --c: 29%"></span><b>8 hours</b><small></small></li>
+        <li><span class="dot" style="--d: 18px; --c: 43%"></span><b>1 day</b><small></small></li>
+        <li><span class="dot" style="--d: 20px; --c: 57%"></span><b>2 days</b><small></small></li>
+        <li><span class="dot" style="--d: 22px; --c: 71%"></span><b>1 week</b><small></small></li>
+        <li><span class="dot" style="--d: 24px; --c: 86%"></span><b>2 weeks</b><small></small></li>
+        <li><span class="dot" style="--d: 26px; --c: 100%"></span><b>1 month</b><small></small></li>
+        <li class="done"><span class="dot"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="var(--accent)"><use href="#pt"/><use href="#pt" transform="rotate(72 50 50)"/><use href="#pt" transform="rotate(144 50 50)"/><use href="#pt" transform="rotate(216 50 50)"/><use href="#pt" transform="rotate(288 50 50)"/></g><circle cx="50" cy="50" r="8" fill="var(--s4)"/></svg></span><b>4 months</b><small>Mastered</small></li>
+      </ol>
     </div>
   </section>
 
