@@ -53,6 +53,12 @@ body{margin:0;background:radial-gradient(ellipse 90% 340px at 50% 0,var(--glow),
 .nav{display:flex;align-items:center;gap:6px}
 .iconbtn{border:0;background:none;color:var(--muted);padding:6px;border-radius:6px;line-height:0}
 .iconbtn svg{width:22px;height:22px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:20;width:min(520px,calc(100vw - 32px));background:var(--ink);color:var(--paper);font-size:14px;padding:12px 16px;border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,.18)}
+.acctrow{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.acctrow input{flex:1 1 200px;min-width:0;font:inherit;font-size:15px;padding:9px 12px;border-radius:6px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink)}
+.acctrow .btn{padding:8px 14px}
+.acctline{margin:0 0 2px;font-size:15px;overflow-wrap:anywhere}
+#acctBtn{max-width:16em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tip{position:fixed;z-index:10;pointer-events:none;background:var(--ink);color:var(--paper);font-size:13px;padding:5px 9px;border-radius:5px;white-space:nowrap;transform:translate(-50%,-100%)}
 
 /* Grammar */
@@ -235,16 +241,20 @@ try{ const s=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
   if(s.theme==="light"||s.theme==="dark") document.documentElement.dataset.theme=s.theme;
   if(s.petals==="on"||s.petals==="off") document.documentElement.dataset.petals=s.petals; }catch(e){}
 </script>
+<!-- Optional account sync. Pinned version; loads async so guest mode never waits on it. -->
+<script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
 </head>
 <body>
 <div class="scene" id="scene" aria-hidden="true"></div>
 <div class="petals" id="petals" aria-hidden="true"></div>
 <div class="tip" id="tip" hidden></div>
+<div class="toast" id="toast" role="status" hidden></div>
 <div class="wrap">
   <header>
     <a class="brand" href="../" title="Back to the Sumi home page"><svg class="flower" viewBox="0 0 100 100" aria-hidden="true"><g fill="var(--s2)"><path id="pt" d="M50 50C38 36 36 18 44 8l6 7 6-7c8 10 6 28-6 42z"/><use href="#pt" transform="rotate(72 50 50)"/><use href="#pt" transform="rotate(144 50 50)"/><use href="#pt" transform="rotate(216 50 50)"/><use href="#pt" transform="rotate(288 50 50)"/></g><circle cx="50" cy="50" r="7" fill="var(--s4)"/></svg>墨 Sumi <small>kanji with spaced repetition</small></a>
     <nav class="nav">
       <button class="linkbtn hidden" id="homeBtn">Back to home</button>
+      <button class="linkbtn" id="acctBtn">Sign in to sync</button>
       <button class="linkbtn" id="statsBtn">Stats</button>
       <button class="iconbtn" id="setBtn" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
     </nav>
@@ -336,6 +346,7 @@ try{ const s=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
 <dialog id="setDlg" aria-labelledby="setTitle">
   <form class="setbody" method="dialog">
     <h2 id="setTitle">Settings</h2>
+    <fieldset id="acct"></fieldset>
     <fieldset>
       <legend>Theme</legend>
       <div class="seg">
@@ -1026,10 +1037,15 @@ const deckOn = d => !!state.decks[d];
 const lessonsAvail = () => ITEMS.filter(x=>deckOn(x.deck) && !state.items[x.id]);
 const dueNow = () => ITEMS.filter(x=>{const it=state.items[x.id]; return deckOn(x.deck) && it && it.stage>0 && it.stage<9 && it.next<=Date.now();});
 
-// ---------- Saving (this browser only) ----------
-function save(){ state.updatedAt = Date.now(); try{ localStorage.setItem("sumi-srs", JSON.stringify(state)); }catch(e){} }
+// ---------- Saving: always to this browser first, then to the account if signed in ----------
+function saveLocal(){ try{ localStorage.setItem("sumi-srs", JSON.stringify(state)); }catch(e){} }
+function save(){ state.updatedAt = Date.now(); saveLocal(); queueSync(); }
 function load(){
   try{ const v=localStorage.getItem("sumi-srs"); if(v){ const s=JSON.parse(v); if(s && s.items) state=s; } }catch(e){}
+  normalizeState();
+}
+function normalizeState(){
+  if(!state.items) state.items={};
   if(!state.decks){
     // Existing learners keep their current N5 path; new learners start with everything on
     state.decks = Object.keys(state.items).length ? {hira:false,kata:false,rad:false,n5:true,n4:false,g5:false,g4:false}
@@ -1413,6 +1429,7 @@ function finishQuiz(){
     <button class="btn primary" id="sumHome">Back to home</button>`;
   $("sumHome").onclick=goHome;
   Q=null; show("summary"); render();
+  syncNow();   // lesson/review finished: already saved locally, now push to the account
 }
 $("wrapUp").onclick=()=>{
   if(!Q) return goHome();
@@ -1517,7 +1534,7 @@ $("setBtn").onclick=()=>{
   document.querySelectorAll('#setDlg input').forEach(i=>i.checked = settings[i.name]===i.value);
   $("setDlg").showModal();
 };
-$("setDlg").addEventListener("change", e=>{ settings[e.target.name]=e.target.value; applySettings(); if(e.target.name==="batch") render(); });
+$("setDlg").addEventListener("change", e=>{ if(e.target.type!=="radio") return; settings[e.target.name]=e.target.value; applySettings(); if(e.target.name==="batch") render(); });
 
 // ---------- Background: temple and cherry tree silhouettes, falling petals ----------
 (function(){
@@ -1546,11 +1563,184 @@ $("setDlg").addEventListener("change", e=>{ settings[e.target.name]=e.target.val
   }).join("");
 })();
 
+// ---------- Optional account sync (Supabase) ----------
+// Guest mode needs none of this: if the library can't load or nobody signs in, everything stays in localStorage.
+const SB_URL = "https://tigtqkljovbzjcberzda.supabase.co";
+const SB_KEY = "sb_publishable_erfsyer-_0i-g6uxrsv_0w_qZ_P91Iz";   // publishable key: safe in the browser, the table is protected by RLS
+let sb = null, sbUser = null, syncTimer = null, syncBusy = false, syncState = "";
+let syncMeta = {};   // {userId, lastSync, pending, msg} — remembers which account this browser last synced with
+try{ syncMeta = JSON.parse(localStorage.getItem("sumi-sync")||"{}"); }catch(e){}
+const saveSyncMeta = () => { try{ localStorage.setItem("sumi-sync", JSON.stringify(syncMeta)); }catch(e){} };
+const snapshot = () => ({items:state.items, decks:state.decks, log:state.log, v:state.v, updatedAt:state.updatedAt||0});
+const hasProgress = p => !!p && (Object.keys(p.items||{}).length>0 || Object.keys(p.log||{}).length>0);
+const fmtStamp = ms => ms ? new Date(ms).toLocaleString([], {month:"short", day:"numeric", hour:"numeric", minute:"2-digit"}) : "never";
+
+function initSync(){
+  if(!window.supabase || !window.supabase.createClient){ syncState="unavailable"; renderAccount(); return; }
+  sb = window.supabase.createClient(SB_URL, SB_KEY, {
+    auth:{flowType:"implicit", persistSession:true, autoRefreshToken:true, detectSessionInUrl:true}
+  });
+  sb.auth.onAuthStateChange((event, session)=>{
+    const u = session?.user || null, changed = (u?.id||null) !== (sbUser?.id||null);
+    sbUser = u;
+    if(location.hash.includes("access_token")) history.replaceState(null, "", location.pathname + location.search);
+    renderAccount();
+    // don't call Supabase inside this callback (it can deadlock); run on the next tick instead
+    if(u && changed) setTimeout(()=>reconcile(), 0);
+  });
+}
+
+async function fetchRemote(){
+  const {data, error} = await sb.from("progress").select("progress, updated_at").eq("user_id", sbUser.id).maybeSingle();
+  if(error) throw error;
+  return data;
+}
+async function pushRemote(){
+  const {error} = await sb.from("progress").upsert({
+    user_id: sbUser.id, progress: snapshot(), updated_at: new Date(state.updatedAt||Date.now()).toISOString()
+  });
+  if(error) throw error;
+}
+const remoteTime = row => row?.progress?.updatedAt || Date.parse(row?.updated_at) || 0;
+// keep the copy we did NOT use, so a wrong guess can be undone from Settings
+function keepBackup(from, progress){
+  try{ localStorage.setItem("sumi-backup", JSON.stringify({from, savedAt:progress.updatedAt||0, progress})); }catch(e){}
+}
+function adopt(p){
+  state = {items:p.items||{}, decks:p.decks||null, log:p.log||{}, v:p.v, updatedAt:p.updatedAt||Date.now()};
+  normalizeState(); saveLocal();
+  if(!Q) render();
+}
+
+// Compare this browser with the account and keep whichever was saved more recently.
+async function reconcile({quiet=false}={}){
+  if(!sb || !sbUser || syncBusy) return;
+  syncBusy = true; syncState = "syncing"; renderAccount();
+  try{
+    const first = syncMeta.userId !== sbUser.id;          // first sign-in with this account in this browser
+    const unsynced = !first && syncMeta.pending;          // local changes that never reached the account
+    const remote = await fetchRemote();
+    const local = snapshot(), localT = local.updatedAt, localHas = hasProgress(local);
+    let msg = "";
+    if(!remote){
+      if(!state.updatedAt){ state.updatedAt = Date.now(); saveLocal(); }
+      await pushRemote();
+      msg = localHas ? "Uploaded this browser's progress to your account." : "Your account is ready. Progress will sync from now on.";
+    } else {
+      const rT = remoteTime(remote);
+      if(rT > localT){
+        if(localHas && (first || unsynced)) keepBackup("this browser", local);
+        adopt(remote.progress);
+        if(first || unsynced) msg = `Kept the progress from your account (saved ${fmtStamp(rT)}). This browser's progress was older` +
+          (localHas ? ` (saved ${fmtStamp(localT)}); you can restore it below.` : ".");
+      } else if(localT > rT){
+        if(first && hasProgress(remote.progress)) keepBackup("your account", remote.progress);
+        await pushRemote();
+        if(first) msg = `Kept this browser's progress (saved ${fmtStamp(localT)}) because it was newer, and uploaded it to your account.` +
+          (hasProgress(remote.progress) ? ` The account's older copy (saved ${fmtStamp(rT)}) can be restored below.` : "");
+      } else if(first) msg = "This browser and your account already match.";
+    }
+    Object.assign(syncMeta, {userId:sbUser.id, lastSync:Date.now(), pending:false});
+    if(msg){ syncMeta.msg = msg; if(!quiet || first) toast(msg); }
+    syncState = "ok";
+  }catch(e){
+    syncMeta.pending = true; syncState = navigator.onLine ? "error" : "offline";
+    console.warn("Sumi sync:", e);
+  }
+  saveSyncMeta(); syncBusy = false; renderAccount();
+}
+
+// After a save: wait a moment (answers come in quick bursts), then push.
+function queueSync(){
+  if(!sbUser) return;
+  syncMeta.pending = true; saveSyncMeta();
+  clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, 2000);
+}
+async function syncNow(){
+  clearTimeout(syncTimer);
+  if(!sb || !sbUser || !syncMeta.pending) return;
+  if(!navigator.onLine){ syncState = "offline"; renderAccount(); return; }   // stays pending; pushed when back online
+  if(syncBusy){ syncTimer = setTimeout(syncNow, 1500); return; }
+  syncBusy = true; syncState = "syncing"; renderAccount();
+  try{
+    // another device may have saved since we last looked: never overwrite newer progress blindly
+    const remote = await fetchRemote();
+    if(remote && remoteTime(remote) > (state.updatedAt||0)){ syncBusy = false; return reconcile(); }
+    await pushRemote();
+    Object.assign(syncMeta, {userId:sbUser.id, lastSync:Date.now(), pending:false});
+    syncState = "ok";
+  }catch(e){
+    syncState = navigator.onLine ? "error" : "offline";
+    console.warn("Sumi sync:", e);
+  }
+  saveSyncMeta(); syncBusy = false; renderAccount();
+}
+window.addEventListener("online", ()=>{ if(sbUser) syncMeta.pending ? syncNow() : reconcile({quiet:true}); });
+window.addEventListener("offline", ()=>{ if(sbUser){ syncState="offline"; renderAccount(); } });
+// coming back to the tab: pick up anything studied on another device (not mid-quiz)
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden && sbUser && !Q) reconcile({quiet:true}); });
+
+async function sendLink(){
+  const email = ($("acctEmail")?.value||"").trim();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ setAcctMsg("Enter a valid email address."); return; }
+  setAcctMsg("Sending…");
+  const {error} = await sb.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin + location.pathname}});
+  setAcctMsg(error ? `Couldn't send the link: ${error.message}` : `Check ${email} for a sign-in link, and open it in this browser.`);
+}
+function setAcctMsg(t){ const m=$("acctMsg"); if(m) m.textContent=t; }
+async function signOut(){
+  await sb.auth.signOut();
+  syncMeta = {}; saveSyncMeta(); syncState = "";
+  toast("Signed out. Your progress stays in this browser.");
+  renderAccount();
+}
+function restoreBackup(){
+  let b=null; try{ b=JSON.parse(localStorage.getItem("sumi-backup")||"null"); }catch(e){}
+  if(!b || !confirm(`Replace your current progress with the copy from ${b.from} (saved ${fmtStamp(b.savedAt)})?`)) return;
+  keepBackup("before restoring", snapshot());   // the restore itself can be undone too
+  adopt(b.progress); save();
+  toast(`Restored the copy from ${b.from}.`); renderAccount();
+}
+
+function renderAccount(){
+  const btn=$("acctBtn"), box=$("acct"), foot=$("saveState");
+  const statusText = {syncing:"Syncing…", ok:`Synced ${fmtStamp(syncMeta.lastSync)}`, offline:"Offline: saved here, will sync when you're back online",
+    error:"Couldn't reach the server: saved here, will retry", "":syncMeta.pending?"Waiting to sync":""}[syncState] ?? "";
+  if(btn){ btn.textContent = sbUser ? (sbUser.email||"Account") : "Sign in to sync"; btn.classList.toggle("hidden", syncState==="unavailable"); }
+  if(foot) foot.textContent = sbUser ? `Progress is saved in this browser and synced to ${sbUser.email}` : "Progress is saved in this browser";
+  if(!box) return;
+  let backup=null; try{ backup=JSON.parse(localStorage.getItem("sumi-backup")||"null"); }catch(e){}
+  if(syncState==="unavailable"){ box.innerHTML = `<legend>Account</legend><p class="note">Sign-in isn't available right now. You can keep studying: progress is saved in this browser.</p>`; return; }
+  box.innerHTML = sbUser
+    ? `<legend>Account</legend>
+       <p class="acctline">Signed in as <b>${sbUser.email||"you"}</b></p>
+       <p class="note">${statusText}</p>
+       ${syncMeta.msg?`<p class="note">${syncMeta.msg}</p>`:""}
+       <div class="acctrow"><button type="button" class="btn" id="acctSync">Sync now</button><button type="button" class="btn" id="acctOut">Sign out</button></div>
+       ${backup?`<p class="note">A copy from ${backup.from} (saved ${fmtStamp(backup.savedAt)}) was kept. <button type="button" class="linkbtn" id="acctRestore">Restore it</button></p>`:""}`
+    : `<legend>Sign in to sync (optional)</legend>
+       <p class="note">Get a sign-in link by email to sync your progress across devices. Without an account, progress stays in this browser.</p>
+       <div class="acctrow"><input type="email" id="acctEmail" placeholder="you@example.com" autocomplete="email" aria-label="Email address"><button type="button" class="btn primary" id="acctSend">Email me a link</button></div>
+       <p class="note" id="acctMsg" role="status"></p>`;
+  $("acctSend")?.addEventListener("click", sendLink);
+  $("acctEmail")?.addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); sendLink(); } });
+  $("acctOut")?.addEventListener("click", signOut);
+  $("acctSync")?.addEventListener("click", ()=>reconcile({quiet:false}));
+  $("acctRestore")?.addEventListener("click", restoreBackup);
+}
+
+let toastTimer=null;
+function toast(t){ const el=$("toast"); el.textContent=t; el.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(()=>{ el.hidden=true; }, 9000); }
+$("acctBtn").onclick=()=>{ $("setBtn").click(); };
+
 // refresh counts when reviews become due
 setInterval(()=>{ if(!$("home").classList.contains("hidden")) render(); }, 60e3);
 
 load();
 render();
+renderAccount();
+// the Supabase script loads async so it never slows down or blocks guest mode
+if(window.supabase) initSync(); else window.addEventListener("load", initSync);
 </script>
 </body>
 </html>
