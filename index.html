@@ -13,6 +13,7 @@
   --indigo:#B0466C; --indigo-ink:#FFF5F8; --meaning:#FFFFFF; --kun:#6A3D6E;
   --ok:#3C7F52; --bad:#B23A48; --accent:#E07A9B; --petal:#F5B5C8; --glow:#FCE1EA;
   --s0:#F1E4E9; --s1:#F9D3DE; --s2:#F2A7BE; --s3:#D46F93; --s4:#A84467; --s5:#4E2236;
+  --scene:#EBD7DF; --bloom:#F7CCD9; color-scheme:light;
   --kanji:"Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", serif;
   --ui:"Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
   box-sizing:border-box;
@@ -24,6 +25,7 @@
     --indigo:#9E3D62; --indigo-ink:#FFF0F5; --meaning:#2C2027; --kun:#5C3762;
     --ok:#5DB07A; --bad:#E2697A; --accent:#F19AB6; --petal:#B5627F; --glow:#2E1C25;
     --s0:#33252C; --s1:#6E3F52; --s2:#9A4F6C; --s3:#C76A8D; --s4:#E9A3BC; --s5:#FBE3EB;
+    --scene:#2B1F25; --bloom:#42272F; color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
@@ -31,6 +33,7 @@
   --indigo:#9E3D62; --indigo-ink:#FFF0F5; --meaning:#2C2027; --kun:#5C3762;
   --ok:#5DB07A; --bad:#E2697A; --accent:#F19AB6; --petal:#B5627F; --glow:#2E1C25;
   --s0:#33252C; --s1:#6E3F52; --s2:#9A4F6C; --s3:#C76A8D; --s4:#E9A3BC; --s5:#FBE3EB;
+  --scene:#2B1F25; --bloom:#42272F; color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:inherit}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
@@ -38,7 +41,67 @@ body{margin:0;background:radial-gradient(ellipse 90% 340px at 50% 0,var(--glow),
 .petals{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
 .petal{position:absolute;top:-24px;width:12px;height:9px;background:var(--petal);border-radius:12px 2px 12px 2px;opacity:.75;animation:fall linear infinite}
 @keyframes fall{0%{transform:translate(0,-24px) rotate(0)}50%{transform:translate(50px,50vh) rotate(260deg)}100%{transform:translate(10px,105vh) rotate(520deg)}}
-@media (prefers-reduced-motion: reduce){.petals{display:none}}
+@media (prefers-reduced-motion: reduce){:root:not([data-petals="on"]) .petals{display:none}}
+:root[data-petals="off"] .petals{display:none}
+.scene{position:fixed;left:0;right:0;bottom:0;height:min(44vh,360px);pointer-events:none;z-index:0}
+.scene svg{position:absolute;bottom:0;height:100%;width:auto}
+.scene .tree{left:-30px}
+.scene .pagoda{right:3%}
+.scene .ink{fill:var(--scene);stroke:var(--scene)}
+.scene .bloom{fill:var(--bloom)}
+@media (max-width:560px){.scene{height:220px}.scene .pagoda{right:-10px}}
+.nav{display:flex;align-items:center;gap:6px}
+.iconbtn{border:0;background:none;color:var(--muted);padding:6px;border-radius:6px;line-height:0}
+.iconbtn svg{width:22px;height:22px}
+.tip{position:fixed;z-index:10;pointer-events:none;background:var(--ink);color:var(--paper);font-size:13px;padding:5px 9px;border-radius:5px;white-space:nowrap;transform:translate(-50%,-100%)}
+
+/* Grammar */
+.face.small{font-size:clamp(40px,10vw,68px);padding:46px 16px 36px;text-align:center}
+.face.cloze{font-size:clamp(24px,5.4vw,34px);font-weight:600;line-height:1.6;padding:46px 20px 28px;text-align:center}
+.face.cloze small{display:block;font-family:var(--ui);font-size:15px;font-weight:400;opacity:.85;margin-top:8px;line-height:1.4}
+.face.cloze u{text-decoration:none;border-bottom:2px solid currentColor;display:inline-block;min-width:3em;padding:0 4px}
+.grid.gram{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.tile.g{aspect-ratio:auto;font-size:16px;padding:10px 8px;min-height:44px}
+.expl{margin:14px 0 0;font-size:16px}
+
+/* Stats + settings */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:28px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px}
+.kpi b{display:block;font-family:var(--kanji);font-size:32px;line-height:1.15}
+.kpi span{font-size:13px;color:var(--muted)}
+.pad{padding:16px 18px;margin-bottom:28px}
+.fc-head{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:16px}
+.fc-head div{font-size:13px;color:var(--muted)}
+.fc-head b{display:block;font-family:var(--kanji);font-size:26px;color:var(--ink)}
+.bars{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;height:130px;align-items:end;border-bottom:1px solid var(--line)}
+.bars .col{height:100%;display:flex;align-items:flex-end;justify-content:center;outline-offset:2px}
+.bars .b{width:min(36px,100%);background:var(--s3);border-radius:4px 4px 0 0;min-height:2px}
+.bars .col:hover .b,.bars .col:focus .b{background:var(--s4)}
+.blabels{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;font-size:12px;color:var(--muted);text-align:center;margin-top:6px}
+.cal{display:grid;grid-template-rows:repeat(7,13px);grid-auto-flow:column;grid-auto-columns:13px;gap:3px;overflow-x:auto;padding-bottom:4px}
+.cal i{border-radius:3px;background:var(--s0)}
+.cal i[data-l="1"]{background:var(--s1)} .cal i[data-l="2"]{background:var(--s2)} .cal i[data-l="3"]{background:var(--s3)} .cal i[data-l="4"]{background:var(--s4)}
+.cal i.future{visibility:hidden}
+.callegend{display:flex;align-items:center;gap:3px;font-size:12px;color:var(--muted);margin-top:10px}
+.callegend i{width:13px;height:13px;border-radius:3px}
+.dtable{width:100%;border-collapse:collapse;font-size:15px}
+.dtable th{text-align:left;font-size:12px;font-weight:500;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--line)}
+.dtable td{padding:10px 14px;border-bottom:1px solid var(--line)}
+.dtable tr:last-child td{border-bottom:0}
+.dtable .num{text-align:right;font-variant-numeric:tabular-nums}
+.meter{height:6px;border-radius:3px;background:var(--s0);overflow:hidden;min-width:60px}
+.meter i{display:block;height:100%;background:var(--s3);border-radius:3px}
+.setbody{padding:20px 22px 18px}
+.setbody fieldset{border:0;padding:0;margin:0 0 18px}
+.setbody legend{font-weight:700;margin-bottom:8px;padding:0}
+.seg{display:flex;border:1.5px solid var(--line);border-radius:6px;overflow:hidden}
+.seg label{flex:1;text-align:center;padding:8px 6px;cursor:pointer;font-size:15px}
+.seg label+label{border-left:1.5px solid var(--line)}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label:has(input:checked){background:var(--ink);color:var(--paper)}
+.seg label:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:-3px}
+.setbody .note{font-size:13px;color:var(--muted);margin:6px 0 0}
+@media (max-width:560px){.kpis{grid-template-columns:1fr 1fr}}
 .flower{width:26px;height:26px;align-self:center;flex:none}
 .say{border:0;background:none;color:var(--accent);padding:2px 4px;margin-left:6px;vertical-align:middle;border-radius:4px;line-height:0}
 .say svg{width:18px;height:18px}
@@ -142,14 +205,29 @@ dialog .close{display:block;margin:0 20px 18px auto}
   .actions{gap:10px}
   .big .n{font-size:42px}
 }
+h4{font-size:13px;margin:14px 0 8px;font-weight:500;color:var(--muted)}
+.cath{font-size:15px;color:var(--ink);margin:26px 0 4px}
+#decks .cath:first-child{margin-top:0}
 </style>
+<script>
+// apply saved theme before the page paints
+try{ const s=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
+  if(s.theme==="light"||s.theme==="dark") document.documentElement.dataset.theme=s.theme;
+  if(s.petals==="on"||s.petals==="off") document.documentElement.dataset.petals=s.petals; }catch(e){}
+</script>
 </head>
 <body>
+<div class="scene" id="scene" aria-hidden="true"></div>
 <div class="petals" id="petals" aria-hidden="true"></div>
+<div class="tip" id="tip" hidden></div>
 <div class="wrap">
   <header>
     <div class="brand"><svg class="flower" viewBox="0 0 100 100" aria-hidden="true"><g fill="var(--s2)"><path id="pt" d="M50 50C38 36 36 18 44 8l6 7 6-7c8 10 6 28-6 42z"/><use href="#pt" transform="rotate(72 50 50)"/><use href="#pt" transform="rotate(144 50 50)"/><use href="#pt" transform="rotate(216 50 50)"/><use href="#pt" transform="rotate(288 50 50)"/></g><circle cx="50" cy="50" r="7" fill="var(--s4)"/></svg>墨 Sumi <small>kanji with spaced repetition</small></div>
-    <button class="linkbtn hidden" id="homeBtn">Back to home</button>
+    <nav class="nav">
+      <button class="linkbtn hidden" id="homeBtn">Back to home</button>
+      <button class="linkbtn" id="statsBtn">Stats</button>
+      <button class="iconbtn" id="setBtn" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+    </nav>
   </header>
 
   <!-- HOME -->
@@ -160,7 +238,7 @@ dialog .close{display:block;margin:0 20px 18px auto}
     </div>
     <p class="next" id="nextLine"></p>
     <h2>Decks</h2>
-    <div class="decks" id="decks"></div>
+    <div id="decks"></div>
     <p class="hint">Tap a deck to turn it on or off. Decks that are off are paused: no new lessons and no reviews.</p>
     <h2>Progress</h2>
     <div class="stages" id="stages"></div>
@@ -215,12 +293,49 @@ dialog .close{display:block;margin:0 20px 18px auto}
   <section id="summary" class="hidden">
     <div class="card summary" id="sumBody"></div>
   </section>
+
+  <!-- STATS -->
+  <section id="stats" class="hidden">
+    <div class="kpis" id="kpis"></div>
+    <h2>Review forecast</h2>
+    <div class="card pad" id="forecast"></div>
+    <h2>Study calendar</h2>
+    <div class="card pad" id="calendar"></div>
+    <h2>By deck</h2>
+    <div class="card" id="deckStats" style="margin-bottom:12px"></div>
+    <p class="hint">Streaks, the calendar and accuracy are counted from the day this stats page was added. Reviews only count for decks that are on.</p>
+  </section>
 </div>
 
 <dialog id="dlg">
   <div class="face" id="dFace"></div>
   <div class="info" id="dInfo"></div>
   <button class="btn close" id="dClose">Close</button>
+</dialog>
+
+<dialog id="setDlg" aria-labelledby="setTitle">
+  <form class="setbody" method="dialog">
+    <h2 id="setTitle">Settings</h2>
+    <fieldset>
+      <legend>Theme</legend>
+      <div class="seg">
+        <label><input type="radio" name="theme" value="auto">Auto</label>
+        <label><input type="radio" name="theme" value="light">Light</label>
+        <label><input type="radio" name="theme" value="dark">Dark</label>
+      </div>
+      <p class="note">Auto follows your device's light or dark mode.</p>
+    </fieldset>
+    <fieldset>
+      <legend>Falling petals</legend>
+      <div class="seg">
+        <label><input type="radio" name="petals" value="auto">Auto</label>
+        <label><input type="radio" name="petals" value="on">On</label>
+        <label><input type="radio" name="petals" value="off">Off</label>
+      </div>
+      <p class="note">Auto hides them if your device is set to reduce motion.</p>
+    </fieldset>
+    <button class="btn primary" style="display:block;margin-left:auto">Done</button>
+  </form>
 </dialog>
 
 <script>
@@ -604,13 +719,103 @@ const N4_RAW = `会|meet,meeting|カイ,エ|あ.う|明日、友だちに会い�
 引|pull|イン|ひ.く|ドアを引いてください。|ドアをひいてください。|Please pull the door.
 光|light,shine|コウ|ひかり,ひか.る|星が光っています。|ほしがひかっています。|The stars are shining.`;
 
+// ---------- Grammar : pattern|meanings|explanation|example|reading|translation|example with ＿＿ blank|accepted answers ----------
+const G5_RAW = `〜は〜です|is,X is Y,am,are|は marks the topic and です ends the sentence politely: "X is Y".|私は学生です。|わたしはがくせいです。|I am a student.|私は学生＿＿。|です
+〜じゃありません|is not,isn't,am not,are not|The negative of です. ではありません is the more formal version.|これは私のかばんじゃありません。|これはわたしのかばんじゃありません。|This isn't my bag.|これは私のかばん＿＿。|じゃありません,ではありません,じゃないです,ではないです
+〜か|question marker,question|Put か at the end of a sentence to turn it into a question.|田中さんは先生ですか。|たなかさんはせんせいですか。|Is Tanaka-san a teacher?|田中さんは先生です＿＿。|か
+〜の|possessive,of,'s|の links two nouns: A の B means "A's B" or "B of A".|これは私の本です。|これはわたしのほんです。|This is my book.|これは私＿＿本です。|の
+〜も|also,too|も replaces は or が to mean "also" or "too".|私も学生です。|わたしもがくせいです。|I'm a student too.|私＿＿学生です。|も
+〜を|object marker,object|を marks the direct object, the thing the verb acts on.|パンを食べます。|パンをたべます。|I eat bread.|パン＿＿食べます。|を
+〜に (time)|at,on,time marker|に marks a specific time or day when something happens.|七時に起きます。|しちじにおきます。|I get up at seven.|七時＿＿起きます。|に
+〜へ (direction)|to,toward,direction|へ (pronounced "e") shows where you are heading. に also works.|学校へ行きます。|がっこうへいきます。|I go to school.|学校＿＿行きます。|へ,に
+〜で (place)|at,in,place of action|で marks the place where an action happens.|図書館で勉強します。|としょかんでべんきょうします。|I study at the library.|図書館＿＿勉強します。|で
+〜で (means)|by,with,by means of|で marks the tool or method you use.|バスで行きます。|バスでいきます。|I go by bus.|バス＿＿行きます。|で
+〜と|and,with|と joins nouns ("A and B") or marks who you do something with.|友だちと映画を見ます。|ともだちとえいがをみます。|I watch a movie with a friend.|友だち＿＿映画を見ます。|と
+あります / います|there is,have,exist|あります is for things, います is for people and animals.|公園に犬がいます。|こうえんにいぬがいます。|There's a dog in the park.|公園に犬が＿＿。|います
+〜ます / 〜ません|polite verb,do,don't,do not|ます is the polite present or future form; ません is its negative.|私はお酒を飲みません。|わたしはおさけをのみません。|I don't drink alcohol.|私はお酒を飲み＿＿。|ません
+〜ました|did,past tense,past|The polite past form. The negative is ませんでした.|昨日、映画を見ました。|きのう、えいがをみました。|I watched a movie yesterday.|昨日、映画を見＿＿。|ました
+〜ましょう|let's,shall we|ましょう suggests doing something together.|一緒に食べましょう。|いっしょにたべましょう。|Let's eat together.|一緒に食べ＿＿。|ましょう
+〜ませんか|won't you,would you like to,invitation|A polite invitation: "Won't you...?" or "Would you like to...?"|一緒に行きませんか。|いっしょにいきませんか。|Would you like to go together?|一緒に行き＿＿。|ませんか
+〜たい|want to|Add たい to the verb's ます-stem to say you want to do it.|日本へ行きたいです。|にほんへいきたいです。|I want to go to Japan.|日本へ行き＿＿です。|たい
+〜てください|please do,please|て-form + ください makes a polite request.|ここに名前を書いてください。|ここになまえをかいてください。|Please write your name here.|ここに名前を書いて＿＿。|ください
+〜ています|is doing,doing,ongoing|て-form + います shows an action in progress or an ongoing state.|今、本を読んでいます。|いま、ほんをよんでいます。|I'm reading a book now.|今、本を読んで＿＿。|います
+〜てもいいです|may,it's ok to,permission,can|て-form + もいいです gives or asks for permission.|写真を撮ってもいいですか。|しゃしんをとってもいいですか。|May I take a photo?|写真を撮って＿＿ですか。|もいい
+〜てはいけません|must not,may not,not allowed|て-form + はいけません says something is not allowed.|ここでたばこを吸ってはいけません。|ここでたばこをすってはいけません。|You must not smoke here.|ここでたばこを吸って＿＿。|はいけません
+〜ないでください|please don't,please do not|ない-form + でください is a polite "please don't".|ここで写真を撮らないでください。|ここでしゃしんをとらないでください。|Please don't take photos here.|ここで写真を撮ら＿＿ください。|ないで
+〜から (reason)|because,so,since|から after a reason means "because" or "so".|雨ですから、家にいます。|あめですから、いえにいます。|It's raining, so I'll stay home.|雨です＿＿、家にいます。|から
+〜から〜まで|from to,from until,until|から means "from" and まで means "until" or "as far as".|九時から五時まで働きます。|くじからごじまではたらきます。|I work from nine to five.|九時から五時＿＿働きます。|まで
+〜より〜のほうが|more than,comparison,than|A より B のほうが means "B is more ... than A".|犬より猫のほうが好きです。|いぬよりねこのほうがすきです。|I like cats more than dogs.|犬＿＿猫のほうが好きです。|より
+〜が好きです|like|Use が to mark the thing you like.|私は音楽が好きです。|わたしはおんがくがすきです。|I like music.|私は音楽＿＿好きです。|が
+〜が分かります|understand|分かります takes が for the thing you understand.|日本語が少し分かります。|にほんごがすこしわかります。|I understand a little Japanese.|日本語が少し＿＿。|わかります
+〜ね|isn't it,right,agreement|ね at the end looks for agreement: "isn't it?"|いい天気ですね。|いいてんきですね。|Nice weather, isn't it?|いい天気です＿＿。|ね
+〜よ|you know,emphasis|よ at the end tells the listener something they may not know.|この映画はおもしろいですよ。|このえいがはおもしろいですよ。|This movie is interesting, you know.|この映画はおもしろいです＿＿。|よ
+〜かったです|was,past adjective|For い-adjectives, drop い and add かったです for the past.|昨日は寒かったです。|きのうはさむかったです。|It was cold yesterday.|昨日は寒＿＿です。|かった
+〜くないです|not,is not,negative adjective|For い-adjectives, drop い and add くないです for the negative.|このカレーは辛くないです。|このカレーはからくないです。|This curry isn't spicy.|このカレーは辛＿＿です。|くない
+〜が (but)|but,however|が between two sentences means "but". けど is the casual version.|日本語は難しいですが、おもしろいです。|にほんごはむずかしいですが、おもしろいです。|Japanese is hard, but interesting.|日本語は難しいです＿＿、おもしろいです。|が,けど
+〜てから|after doing,after|て-form + から: do A, and after that do B.|手を洗ってから食べます。|てをあらってからたべます。|I eat after washing my hands.|手を洗って＿＿食べます。|から
+〜前に|before|Dictionary form or noun + の + 前に means "before".|寝る前に歯をみがきます。|ねるまえにはをみがきます。|I brush my teeth before going to bed.|寝る＿＿歯をみがきます。|まえに
+〜ながら|while,while doing|ます-stem + ながら: doing two things at the same time.|音楽を聞きながら勉強します。|おんがくをききながらべんきょうします。|I study while listening to music.|音楽を聞き＿＿勉強します。|ながら
+〜でしょう|probably,I think,right|でしょう means "probably", or "right?" with rising tone.|明日は雨でしょう。|あしたはあめでしょう。|It'll probably rain tomorrow.|明日は雨＿＿。|でしょう
+〜に行きます|go to do,in order to,go and do|ます-stem + に行きます: go somewhere in order to do something.|デパートへ服を買いに行きます。|デパートへふくをかいにいきます。|I'm going to the department store to buy clothes.|デパートへ服を買い＿＿行きます。|に
+〜なります|become,get|Noun + になります, い-adjective (drop い) + くなります: "become".|暖かくなりました。|あたたかくなりました。|It's gotten warm.|暖かく＿＿。|なりました
+〜だけ|only,just|だけ means "only" or "just".|百円だけあります。|ひゃくえんだけあります。|I only have 100 yen.|百円＿＿あります。|だけ
+〜ぐらい|about,approximately,around|くらい or ぐらい after a number means "about".|駅まで十分ぐらいです。|えきまでじゅっぷんぐらいです。|It's about ten minutes to the station.|駅まで十分＿＿です。|ぐらい,くらい`;
+
+const G4_RAW = `〜たことがあります|have done,have ever,experience|た-form + ことがあります: you have done something before.|富士山に登ったことがあります。|ふじさんにのぼったことがあります。|I've climbed Mt. Fuji.|富士山に登った＿＿があります。|こと
+〜たり〜たりします|do things like,and so on,such as|List a few example actions: "do things like A and B".|週末は掃除をしたり洗濯をしたりします。|しゅうまつはそうじをしたりせんたくをしたりします。|On weekends I do things like cleaning and laundry.|週末は掃除をし＿＿洗濯をしたりします。|たり
+〜ほうがいいです|should,had better,better|た-form + ほうがいい gives advice: "you'd better".|早く寝たほうがいいですよ。|はやくねたほうがいいですよ。|You'd better go to bed early.|早く寝た＿＿いいですよ。|ほうが
+〜なければなりません|must,have to|ない-form, drop い, add ければなりません: "must".|明日は早く起きなければなりません。|あしたははやくおきなければなりません。|I have to get up early tomorrow.|明日は早く起き＿＿なりません。|なければ
+〜なくてもいいです|don't have to,need not,do not have to|ない-form, drop い, add くてもいい: it's not necessary.|明日は来なくてもいいです。|あしたはこなくてもいいです。|You don't have to come tomorrow.|明日は来＿＿もいいです。|なくて
+〜つもりです|intend to,plan to,going to|Dictionary form + つもり: what you intend to do.|来年日本へ行くつもりです。|らいねんにほんへいくつもりです。|I plan to go to Japan next year.|来年日本へ行く＿＿です。|つもり
+〜ようと思います|thinking of,going to,plan to|Volitional form + と思います: "I'm thinking of doing".|週末、映画を見ようと思います。|しゅうまつ、えいがをみようとおもいます。|I'm thinking of seeing a movie this weekend.|週末、映画を見＿＿と思います。|よう
+〜ことができます|can,able to,be able to|Dictionary form + ことができる: "can do".|私は泳ぐことができます。|わたしはおよぐことができます。|I can swim.|私は泳ぐ＿＿できます。|ことが
+Potential form|can,able to,potential|る-verbs: られる. う-verbs: change the last sound to the え-row + る.|漢字が読めます。|かんじがよめます。|I can read kanji.|漢字が＿＿。|よめます
+〜と (whenever)|when,whenever,if|Plain form + と: whenever A happens, B naturally follows.|春になると花が咲きます。|はるになるとはながさきます。|When spring comes, flowers bloom.|春になる＿＿花が咲きます。|と
+〜たら|if,when,after|た-form + ら: "if" or "when (after) A happens".|雨が降ったら、行きません。|あめがふったら、いきません。|If it rains, I won't go.|雨が降っ＿＿、行きません。|たら
+〜ば|if,provided that|The ば conditional: "if". い-adjectives use ければ.|安ければ買います。|やすければかいます。|If it's cheap, I'll buy it.|安＿＿買います。|ければ
+〜なら|if,if it's,when it comes to|Noun + なら: "if it's about X" or "as for X".|日本料理なら、すしが好きです。|にほんりょうりなら、すしがすきです。|When it comes to Japanese food, I like sushi.|日本料理＿＿、すしが好きです。|なら
+〜ても|even if,even though|て-form + も: "even if".|雨が降っても行きます。|あめがふってもいきます。|I'll go even if it rains.|雨が降って＿＿行きます。|も
+〜てしまいます|end up,completely,unfortunately|て-form + しまう: finish completely, or something regrettable happened.|財布をなくしてしまいました。|さいふをなくしてしまいました。|I lost my wallet (unfortunately).|財布をなくして＿＿。|しまいました
+〜ておきます|do in advance,prepare,in advance|て-form + おく: do something ahead of time.|旅行の前にホテルを予約しておきます。|りょこうのまえにホテルをよやくしておきます。|I'll book a hotel before the trip.|旅行の前にホテルを予約して＿＿。|おきます
+〜てみます|try,try doing|て-form + みる: try doing something to see what it's like.|このケーキを食べてみてください。|このケーキをたべてみてください。|Please try this cake.|このケーキを食べて＿＿ください。|みて
+〜てあります|has been done,is done,state|Transitive て-form + ある: someone did it on purpose and the result remains.|窓が開けてあります。|まどがあけてあります。|The window has been left open.|窓が開けて＿＿。|あります
+〜そう (looks like)|looks like,seems,looks|Stem + そう: it looks like (from appearance).|このケーキはおいしそうです。|このケーキはおいしそうです。|This cake looks delicious.|このケーキはおいし＿＿です。|そう
+〜そうです (hearsay)|I heard,they say,apparently|Plain form + そうです: you heard it from someone.|明日は雨が降るそうです。|あしたはあめがふるそうです。|I heard it will rain tomorrow.|明日は雨が降る＿＿。|そうです
+〜ようです|seems,appears,it seems|ようです or みたいです: it seems so, based on what you notice.|誰もいないようです。|だれもいないようです。|It seems nobody is here.|誰もいない＿＿。|ようです,みたいです
+〜らしいです|apparently,I hear,seems|らしい: apparently, based on what you've heard.|彼は来月結婚するらしいです。|かれはらいげつけっこんするらしいです。|Apparently he's getting married next month.|彼は来月結婚する＿＿です。|らしい
+〜すぎる|too much,too,excessively|Stem + すぎる: do or be "too much".|食べすぎました。|たべすぎました。|I ate too much.|食べ＿＿ました。|すぎ
+〜やすい / 〜にくい|easy to,hard to|Stem + やすい means "easy to"; stem + にくい means "hard to".|このペンは書きやすいです。|このペンはかきやすいです。|This pen is easy to write with.|このペンは書き＿＿です。|やすい
+〜ために|in order to,for,for the sake of|Dictionary form or noun + の + ために: in order to.|日本で働くために日本語を勉強しています。|にほんではたらくためににほんごをべんきょうしています。|I'm studying Japanese to work in Japan.|日本で働く＿＿日本語を勉強しています。|ために,ため
+〜ように|so that,in order that|ように: so that something happens (or doesn't).|忘れないようにメモします。|わすれないようにメモします。|I'll write a note so I don't forget.|忘れない＿＿メモします。|ように
+〜ようになる|come to,become able to,start to|Dictionary or potential form + ようになる: a change in ability or habit.|日本語が話せるようになりました。|にほんごがはなせるようになりました。|I've become able to speak Japanese.|日本語が話せる＿＿なりました。|ように
+〜ことにする|decide to|Dictionary form + ことにする: decide to do something.|毎日運動することにしました。|まいにちうんどうすることにしました。|I decided to exercise every day.|毎日運動する＿＿しました。|ことに
+あげる|give|あげる: I (or someone) give to someone else.|友だちにプレゼントをあげました。|ともだちにプレゼントをあげました。|I gave my friend a present.|友だちにプレゼントを＿＿。|あげました
+くれる|give to me,give me|くれる: someone gives to me or my group.|母がセーターをくれました。|ははがセーターをくれました。|My mother gave me a sweater.|母がセーターを＿＿。|くれました
+もらう|receive,get|もらう: receive something from someone.|先生に本をもらいました。|せんせいにほんをもらいました。|I got a book from my teacher.|先生に本を＿＿。|もらいました
+〜てもらう|have someone do,get someone to do|て-form + もらう: receive a favor; someone does something for you.|友だちに宿題を手伝ってもらいました。|ともだちにしゅくだいをてつだってもらいました。|My friend helped me with my homework.|友だちに宿題を手伝って＿＿。|もらいました
+〜のに|even though,despite,although|のに: even though (with surprise or disappointment).|たくさん勉強したのに、試験に落ちました。|たくさんべんきょうしたのに、しけんにおちました。|Even though I studied a lot, I failed the exam.|たくさん勉強した＿＿、試験に落ちました。|のに
+〜し|and also,what's more,and|し lists reasons: "A, and also B".|この店は安いし、おいしいです。|このみせはやすいし、おいしいです。|This place is cheap, and it's tasty too.|この店は安い＿＿、おいしいです。|し
+〜かどうか|whether or not,whether,if|かどうか embeds a yes/no question: "whether or not".|明日来るかどうか分かりません。|あしたくるかどうかわかりません。|I don't know whether they'll come tomorrow.|明日来る＿＿分かりません。|かどうか
+Passive form|passive,was done,be done|る-verbs: られる. う-verbs: change to the あ-row + れる. "Was done (by someone)".|先生にほめられました。|せんせいにほめられました。|I was praised by the teacher.|先生にほめ＿＿。|られました
+Causative form|make,let,causative|る-verbs: させる. う-verbs: あ-row + せる. "Make or let someone do".|母は弟に野菜を食べさせました。|はははおとうとにやさいをたべさせました。|My mother made my brother eat vegetables.|母は弟に野菜を食べ＿＿。|させました
+〜まま|as it is,unchanged,while still|た-form + まま: leave something as it is.|窓を開けたまま寝ました。|まどをあけたままねました。|I slept with the window open.|窓を開けた＿＿寝ました。|まま
+〜はずです|should be,expected,supposed to|はず: it should be so (you have good reason to expect it).|彼はもう着いたはずです。|かれはもうついたはずです。|He should have arrived already.|彼はもう着いた＿＿です。|はず
+〜ところです|about to,just did,in the middle of|ところ: about to do (dictionary form), doing (ている), or just did (た).|今から出かけるところです。|いまからでかけるところです。|I'm just about to go out.|今から出かける＿＿です。|ところ`;
+
 // ---------- Build items ----------
+const CATS = [
+  {id:"found", name:"Foundations"},
+  {id:"kanji", name:"Kanji"},
+  {id:"gram",  name:"Grammar"},
+];
 const DECKS = [
-  {id:"hira", name:"Hiragana", tag:"Hiragana"},
-  {id:"kata", name:"Katakana", tag:"Katakana"},
-  {id:"rad",  name:"Radicals", tag:"Radical"},
-  {id:"n5",   name:"N5 kanji", tag:"N5 kanji"},
-  {id:"n4",   name:"N4 kanji", tag:"N4 kanji"},
+  {id:"hira", cat:"found", name:"Hiragana",   tag:"Hiragana"},
+  {id:"kata", cat:"found", name:"Katakana",   tag:"Katakana"},
+  {id:"rad",  cat:"found", name:"Radicals",   tag:"Radical"},
+  {id:"n5",   cat:"kanji", name:"N5 kanji",   tag:"N5 kanji"},
+  {id:"n4",   cat:"kanji", name:"N4 kanji",   tag:"N4 kanji"},
+  {id:"g5",   cat:"gram",  name:"N5 grammar", tag:"N5 grammar"},
+  {id:"g4",   cat:"gram",  name:"N4 grammar", tag:"N4 grammar"},
 ];
 const DECK = Object.fromEntries(DECKS.map(d=>[d.id,d]));
 const hira2kata = s => s.replace(/[ぁ-ゖ]/g, ch=>String.fromCharCode(ch.charCodeAt(0)+0x60));
@@ -621,6 +826,12 @@ const parseKanji = (raw, deck) => raw.trim().split("\n").map(l=>{
   const [k,m,on,kun,jp,rd,en]=l.split("|");
   return {id:k, deck, type:"kanji", k, meanings:m.split(","), on:on?on.split(","):[], kun:kun?kun.split(","):[], ex: jp?{jp,rd,en}:null};
 });
+const parseGrammar = (raw, deck) => raw.trim().split("\n").map(l=>{
+  const [p,m,expl,jp,rd,en,cloze,ans]=l.split("|");
+  const i=cloze.indexOf("＿＿"), pre=cloze.slice(0,i), suf=cloze.slice(i+2);
+  const blankJp = jp.startsWith(pre) && jp.endsWith(suf) ? jp.slice(pre.length, jp.length-suf.length) : "";
+  return {id:"g:"+p, deck, type:"grammar", k:p, meanings:m.split(","), expl, ex:{jp,rd,en}, cloze, answers:ans.split(","), blankJp};
+});
 const ITEMS = [];
 KANA_PAIRS.forEach(p=>ITEMS.push({id:"h:"+p.k, deck:"hira", type:"kana", k:p.k, romaji:p.romaji, other:hira2kata(p.k)}));
 KANA_PAIRS.forEach(p=>{ const k=hira2kata(p.k); ITEMS.push({id:"k:"+k, deck:"kata", type:"kana", k, romaji:p.romaji, other:p.k}); });
@@ -628,9 +839,10 @@ RAD_RAW.trim().split("\n").forEach(l=>{ const [k,m,ex,mn]=l.split("|"); ITEMS.pu
 const n5 = parseKanji(N5_RAW,"n5"); ITEMS.push(...n5);
 const n5set = new Set(n5.map(x=>x.id));
 ITEMS.push(...parseKanji(N4_RAW,"n4").filter(x=>!n5set.has(x.id)));
+ITEMS.push(...parseGrammar(G5_RAW,"g5"), ...parseGrammar(G4_RAW,"g4"));
 const BY = Object.fromEntries(ITEMS.map(x=>[x.id,x]));
 
-const QTYPES = x => x.type==="kana" ? ["romaji"] : x.type==="radical" ? ["meaning"]
+const QTYPES = x => x.type==="kana" ? ["romaji"] : x.type==="radical" ? ["meaning"] : x.type==="grammar" ? ["gmean","cloze"]
   : ["meaning", ...(x.on.length?["on"]:[]), ...(x.kun.length?["kun"]:[])];
 
 // ---------- SRS ----------
@@ -638,7 +850,7 @@ const HOURS = [0,4,8,23,47,167,335,730,2920]; // wait after reaching stage n
 const GROUP = s => s===0?0 : s<=4?1 : s<=6?2 : s===7?3 : s===8?4 : 5;
 const GROUPS = [["Not started","--s0"],["Learning","--s1"],["Familiar","--s2"],["Strong","--s3"],["Solid","--s4"],["Mastered","--s5"]];
 
-let state = {items:{}, decks:null, updatedAt:0};
+let state = {items:{}, decks:null, log:{}, updatedAt:0};
 const st = id => state.items[id]?.stage || 0;
 const deckOn = d => !!state.decks[d];
 const lessonsAvail = () => ITEMS.filter(x=>deckOn(x.deck) && !state.items[x.id]);
@@ -650,10 +862,16 @@ function load(){
   try{ const v=localStorage.getItem("sumi-srs"); if(v){ const s=JSON.parse(v); if(s && s.items) state=s; } }catch(e){}
   if(!state.decks){
     // Existing learners keep their current N5 path; new learners start with everything on
-    state.decks = Object.keys(state.items).length ? {hira:false,kata:false,rad:false,n5:true,n4:false}
-                                                  : {hira:true,kata:true,rad:true,n5:true,n4:true};
+    state.decks = Object.keys(state.items).length ? {hira:false,kata:false,rad:false,n5:true,n4:false,g5:false,g4:false}
+      : Object.fromEntries(DECKS.map(d=>[d.id,true]));
   }
+  if(!state.log) state.log={};
 }
+
+// ---------- Activity log (for streaks and stats) ----------
+const dayKey = (d=new Date()) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const keyDate = k => { const [y,m,d]=k.split("-").map(Number); return new Date(y,m-1,d); };
+function logDay(){ const k=dayKey(); return state.log[k] || (state.log[k]={a:0,r:0,l:0}); }
 
 // ---------- Romaji → hiragana ----------
 const MAP = {};
@@ -692,7 +910,6 @@ function toKana(s, final){
   return out;
 }
 const hasKana = s => /[぀-ヿ]/.test(s);
-const hasHira = s => /[ぁ-ゖ]/.test(s);
 const hasKata = s => /[ァ-ヶ]/.test(s);
 
 // ---------- Answer checking ----------
@@ -713,14 +930,17 @@ const fmtKun = r => r.includes(".") ? r.replace(/\.(.*)$/,"($1)") : r;
 const checkOn = (item, ans) => item.on.includes(ans);
 const checkKun = (item, ans) => kunReadings(item).includes(ans);
 const checkRomaji = (item, ans) => item.romaji.includes(ans.toLowerCase().trim());
+const checkCloze = (item, ans) => item.answers.includes(ans);
 
 // ---------- Views ----------
 const $ = id => document.getElementById(id);
 function show(view){
-  ["home","lesson","quiz","summary"].forEach(v=>$(v).classList.toggle("hidden", v!==view));
+  ["home","lesson","quiz","summary","stats"].forEach(v=>$(v).classList.toggle("hidden", v!==view));
   $("homeBtn").classList.toggle("hidden", view==="home");
+  $("statsBtn").classList.toggle("hidden", view!=="home");
   window.scrollTo(0,0);
 }
+
 // ---------- Audio (uses the device's built-in Japanese voice) ----------
 let jaVoice=null;
 function pickVoice(){
@@ -747,6 +967,11 @@ const SPK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-w
 const sayBtn = (text, label) => `<button class="say" data-say="${text}" aria-label="Listen: ${label}" title="Listen">${SPK}</button>`;
 document.addEventListener("click", e=>{ const b=e.target.closest(".say"); if(b) speak(b.dataset.say); });
 
+function exampleHTML(x, hl){
+  return `<div class="ex"><div class="lbl">Example${sayBtn(x.ex.rd,"example sentence")}</div>
+    <div class="jp">${hl ? x.ex.jp.split(hl).join(`<mark>${hl}</mark>`) : x.ex.jp}</div>
+    <div class="rd">${x.ex.rd}</div><div class="en">${x.ex.en}</div></div>`;
+}
 function infoHTML(x){
   if(x.type==="kana") return `<dl>
     <dt>Romaji</dt><dd>${x.romaji.join(" / ")}${sayBtn(x.k,"sound")}</dd>
@@ -756,13 +981,21 @@ function infoHTML(x){
     <dt>Meaning</dt><dd>${x.meanings.join(", ")}</dd>
     <dt>Found in</dt><dd class="jp">${x.examples.join("　")||"—"}</dd>
   </dl>${x.mnemonic?`<p class="mn"><b>Mnemonic</b>${x.mnemonic}</p>`:""}`;
+  if(x.type==="grammar") return `<dl>
+    <dt>Meaning</dt><dd>${x.meanings.join(", ")}</dd>
+    <dt>Answer</dt><dd class="jp">${x.answers.join("、")}</dd>
+  </dl><p class="expl">${x.expl}</p>${exampleHTML(x, x.blankJp)}`;
   return `<dl>
     <dt>Meaning</dt><dd>${x.meanings.join(", ")}</dd>
     <dt>On'yomi</dt><dd class="jp">${x.on.join("、")||"—"}${x.on.length?sayBtn(sayText.on(x),"on'yomi"):""}</dd>
     <dt>Kun'yomi</dt><dd class="jp">${x.kun.map(fmtKun).join("、")||"—"}${x.kun.length?sayBtn(sayText.kun(x),"kun'yomi"):""}</dd>
-  </dl>${x.ex?`<div class="ex"><div class="lbl">Example${sayBtn(x.ex.rd,"example sentence")}</div>
-    <div class="jp">${x.ex.jp.split(x.k).join(`<mark>${x.k}</mark>`)}</div>
-    <div class="rd">${x.ex.rd}</div><div class="en">${x.ex.en}</div></div>`:""}`;
+  </dl>${x.ex?exampleHTML(x, x.k):""}`;
+}
+// Fill a card face: kanji/kana big, grammar pattern smaller, cloze shows the gapped sentence
+function fillFace(el, x, t, extra=""){
+  el.className = "face" + extra + (x.type==="grammar" ? (t==="cloze" ? " cloze" : " small") : "");
+  if(x.type==="grammar" && t==="cloze") el.innerHTML = `<div>${x.cloze.replace("＿＿","<u>　</u>")}<small>${x.ex.en}</small></div>`;
+  else el.textContent = x.k;
 }
 function fmtWhen(ms){
   const d=new Date(ms), diff=ms-Date.now();
@@ -770,7 +1003,7 @@ function fmtWhen(ms){
   if(diff<24*3600e3) return `today at ${d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})}`;
   return d.toLocaleString([], {weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
 }
-const tileHTML = x => `<button class="tile${x.k.length>1?" long":""}" data-id="${x.id}" data-s="${GROUP(st(x.id))}" aria-label="${x.k}, ${x.type==="kana"?x.romaji[0]:x.meanings[0]}">${x.k}</button>`;
+const tileHTML = x => `<button class="tile${x.type==="grammar"?" g":x.k.length>1?" long":""}" data-id="${x.id}" data-s="${GROUP(st(x.id))}" aria-label="${x.k}, ${x.type==="kana"?x.romaji[0]:x.meanings[0]}">${x.k}</button>`;
 
 function render(){
   const L=lessonsAvail().length, R=dueNow().length;
@@ -782,15 +1015,17 @@ function render(){
     : R ? "You have reviews waiting. Reviewing on time keeps the intervals working."
     : upcoming.length ? `Next review ${fmtWhen(upcoming[0])}.`
     : L ? "Start with a lesson. Each item comes back for review 4 hours later." : "Everything in your decks is mastered. Nicely done.";
-  $("decks").innerHTML = DECKS.map(d=>{
+  $("decks").innerHTML = CATS.map(c=>`<h3 class="cath">${c.name}</h3><div class="decks">${DECKS.filter(d=>d.cat===c.id).map(d=>{
     const all=ITEMS.filter(x=>x.deck===d.id), learned=all.filter(x=>state.items[x.id]).length;
     return `<button class="deck" data-d="${d.id}" aria-pressed="${deckOn(d.id)}"><span class="dn">${d.name}<i>${deckOn(d.id)?"On":"Off"}</i></span><span class="dc">${learned} / ${all.length} started</span></button>`;
-  }).join("");
+  }).join("")}</div>`).join("");
   const shown = ITEMS.filter(x=>deckOn(x.deck));
   const counts=[0,0,0,0,0,0]; shown.forEach(x=>counts[GROUP(st(x.id))]++);
   $("stages").innerHTML = GROUPS.slice(1).map((g,i)=>`<div class="stage"><b>${counts[i+1]}</b><span><i class="dot" style="background:var(${g[1]})"></i>${g[0]}</span></div>`).join("");
-  $("grids").innerHTML = DECKS.filter(d=>deckOn(d.id)).map(d=>`<h3>${d.name}</h3><div class="grid">${ITEMS.filter(x=>x.deck===d.id).map(tileHTML).join("")}</div>`).join("")
-    || `<p class="hint">No decks are on.</p>`;
+  $("grids").innerHTML = CATS.map(c=>{
+    const ds=DECKS.filter(d=>d.cat===c.id && deckOn(d.id)); if(!ds.length) return "";
+    return `<h3 class="cath">${c.name}</h3>` + ds.map(d=>`<h4>${d.name}</h4><div class="grid${c.id==="gram"?" gram":""}">${ITEMS.filter(x=>x.deck===d.id).map(tileHTML).join("")}</div>`).join("");
+  }).join("") || `<p class="hint">No decks are on.</p>`;
   $("legend").innerHTML = GROUPS.map(g=>`<span><i class="dot" style="background:var(${g[1]})"></i>${g[0]}</span>`).join("");
 }
 
@@ -800,7 +1035,7 @@ $("decks").addEventListener("click", e=>{
 });
 $("grids").addEventListener("click", e=>{
   const t=e.target.closest(".tile"); if(!t) return; const x=BY[t.dataset.id], it=state.items[x.id];
-  $("dFace").textContent=x.k;
+  fillFace($("dFace"), x, "");
   $("dInfo").innerHTML = infoHTML(x) + `<p style="color:var(--muted);font-size:14px;margin:12px 0 0">${
     !it ? "Not started yet." : it.stage>=9 ? "Mastered. It won't come back for review." : `${GROUPS[GROUP(it.stage)][0]} · next review ${it.next<=Date.now()?"now":fmtWhen(it.next)}`}</p>`;
   $("dlg").showModal();
@@ -817,7 +1052,7 @@ function drawLesson(){
   const x=lessonSet[lessonIdx];
   $("lessonCount").textContent=`Lesson ${lessonIdx+1} of ${lessonSet.length}`;
   $("lessonTag").textContent=DECK[x.deck].tag;
-  $("lessonFace").textContent=x.k; $("lessonInfo").innerHTML=infoHTML(x);
+  fillFace($("lessonFace"), x, "", " lessonface"); $("lessonInfo").innerHTML=infoHTML(x);
   $("prevL").disabled = lessonIdx===0;
   $("nextL").textContent = lessonIdx===lessonSet.length-1 ? "Start quiz" : "Next";
 }
@@ -832,8 +1067,11 @@ const PROMPTS = {
   on:`On'yomi <em>(type romaji, it becomes katakana)</em>`,
   kun:`Kun'yomi <em>(type romaji, it becomes hiragana)</em>`,
   romaji:`Sound <em>(type in romaji)</em>`,
+  gmean:`Grammar meaning <em>(type in English)</em>`,
+  cloze:`Fill in the blank <em>(type romaji, it becomes hiragana)</em>`,
 };
-const PLACEHOLDERS = {meaning:"meaning", on:"オンヨミ", kun:"くんよみ", romaji:"romaji"};
+const PLACEHOLDERS = {meaning:"meaning", on:"オンヨミ", kun:"くんよみ", romaji:"romaji", gmean:"meaning", cloze:"こたえ"};
+const KANA_INPUT = new Set(["on","kun","cloze"]);
 function startQuiz(items, mode){
   const queue=[]; Q={mode, queue, cur:null, answered:false, track:{}, done:[], total:items.length, asked:0, right:0};
   items.forEach(x=>{ const ts=QTYPES(x); ts.forEach(t=>queue.push({id:x.id,t})); Q.track[x.id]={need:ts.length, ok:new Set(), wrong:false}; });
@@ -843,14 +1081,14 @@ function nextQ(){
   if(!Q.queue.length){ finishQuiz(); return; }
   Q.cur=Q.queue.shift(); Q.answered=false;
   const x=BY[Q.cur.id], t=Q.cur.t;
-  $("qCard").classList.toggle("reading", t==="on");
+  $("qCard").classList.toggle("reading", t==="on" || t==="cloze");
   $("qCard").classList.toggle("kun", t==="kun");
   $("qTag").textContent=DECK[x.deck].tag;
-  $("qFace").textContent=x.k;
+  fillFace($("qFace"), x, t);
   $("qPrompt").innerHTML = PROMPTS[t];
   const inp=$("qInput"); inp.value=""; inp.className=""; inp.readOnly=false;
   inp.placeholder = PLACEHOLDERS[t];
-  inp.lang = (t==="on"||t==="kun") ? "ja" : "en";
+  inp.lang = KANA_INPUT.has(t) ? "ja" : "en";
   $("qMsg").textContent=""; $("qInfo").classList.add("hidden"); $("showInfo").disabled=true;
   $("listen").disabled = x.type==="radical";
   $("qLeft").textContent = `${Q.done.length} of ${Q.total} done`;
@@ -859,7 +1097,7 @@ function nextQ(){
 }
 $("qInput").addEventListener("input", e=>{
   if(!Q || !Q.cur || Q.answered) return;
-  const t=Q.cur.t; if(t!=="on" && t!=="kun") return;
+  const t=Q.cur.t; if(!KANA_INPUT.has(t)) return;
   const v=e.target.value; let k=toKana(v,false); if(t==="on") k=hira2kata(k);
   if(k!==v) e.target.value=k;
 });
@@ -879,11 +1117,18 @@ $("qForm").addEventListener("submit", e=>{
     ans=toKana(ans,true); inp.value=ans;
     if(/[a-z]/i.test(ans)){ nudge("Use kana for the reading."); return; }
     if(hasKata(ans)){
-      if(checkOn(x, ans) || checkOn(x, hira2kata(ans))){ nudge("That's the on'yomi. This one asks for the kun'yomi."); return; }
+      if(checkOn(x, ans)){ nudge("That's the on'yomi. This one asks for the kun'yomi."); return; }
       nudge("Kun'yomi is written in hiragana."); return;
     }
     if(checkOn(x, hira2kata(ans))){ nudge("That's the on'yomi. This one asks for the kun'yomi."); return; }
     ok = checkKun(x, ans);
+  } else if(t==="cloze"){
+    if(x.blankJp && ans===x.blankJp) ok=true;   // typed with a Japanese keyboard, kanji included
+    else {
+      ans=toKana(ans,true); inp.value=ans;
+      if(/[a-z]/i.test(ans)){ nudge("Use kana for the answer."); return; }
+      ok = checkCloze(x, ans);
+    }
   } else if(t==="romaji"){
     if(hasKana(ans)){ nudge("Type the sound in romaji (latin letters)."); return; }
     ok = checkRomaji(x, ans);
@@ -892,11 +1137,13 @@ $("qForm").addEventListener("submit", e=>{
     ok = checkMeaning(x, ans);
   }
   Q.answered=true; inp.readOnly=true; Q.asked++;
+  const day=logDay(); day.a++; if(ok) day.r++;
   const tr=Q.track[x.id];
   if(ok){
     Q.right++; inp.classList.add("ok"); tr.ok.add(t);
-    $("qMsg").textContent = "Correct. " + (t==="meaning" ? x.meanings.join(", ")
-      : t==="on" ? x.on.join("、") : t==="kun" ? x.kun.map(fmtKun).join("、") : x.romaji.join(" / "));
+    $("qMsg").textContent = "Correct. " + (t==="meaning"||t==="gmean" ? x.meanings.join(", ")
+      : t==="on" ? x.on.join("、") : t==="kun" ? x.kun.map(fmtKun).join("、")
+      : t==="cloze" ? x.ex.jp : x.romaji.join(" / "));
     if(tr.ok.size===tr.need) completeItem(x.id);
   } else {
     inp.classList.add("bad"); tr.wrong=true;
@@ -905,6 +1152,7 @@ $("qForm").addEventListener("submit", e=>{
     Q.queue.splice(pos,0,{...Q.cur});
     $("qInfo").innerHTML=infoHTML(x); $("qInfo").classList.remove("hidden");
   }
+  save();
   $("showInfo").disabled=false;
   $("qLeft").textContent = `${Q.done.length} of ${Q.total} done`;
 });
@@ -912,9 +1160,11 @@ $("listen").onclick=()=>{
   if(!Q||!Q.cur) return;
   const x=BY[Q.cur.id], t=Q.cur.t;
   if(x.type==="radical") return;
-  const text = x.type==="kana" ? sayText.kana(x) : t==="kun" ? sayText.kun(x) : t==="on" ? sayText.on(x)
+  const text = x.type==="kana" ? sayText.kana(x) : x.type==="grammar" ? x.ex.rd
+    : t==="kun" ? sayText.kun(x) : t==="on" ? sayText.on(x)
     : [sayText.on(x), sayText.kun(x)].filter(Boolean).join("、");
-  if(!Q.answered && t!=="meaning"){
+  // hearing the answer to a reading/sound question before answering counts as a miss
+  if(!Q.answered && t!=="meaning" && t!=="gmean"){
     Q.track[x.id].wrong=true;
     $("qMsg").textContent="Listening before answering counts as a miss, so this one will come back sooner. Type what you heard to continue.";
   }
@@ -925,7 +1175,7 @@ $("showInfo").onclick=()=>{ $("qInfo").innerHTML=infoHTML(BY[Q.cur.id]); $("qInf
 function completeItem(id){
   const tr=Q.track[id], now=Date.now();
   let it=state.items[id];
-  if(Q.mode==="lesson"){ it={stage:1,next:now+HOURS[1]*3600e3}; }
+  if(Q.mode==="lesson"){ it={stage:1,next:now+HOURS[1]*3600e3}; logDay().l++; }
   else {
     let s=it.stage;
     if(tr.wrong) s=Math.max(1, s-(s>=5?2:1)); else s=Math.min(9,s+1);
@@ -953,16 +1203,113 @@ function goHome(){ Q=null; render(); show("home"); }
 $("homeBtn").onclick=goHome;
 $("lessonBtn").onclick=startLessons;
 $("reviewBtn").onclick=()=>{ const due=shuffle(dueNow()); if(due.length) startQuiz(due.slice(0,50),"review"); };
-$("resetBtn").onclick=()=>{ if(confirm("Reset all progress? Every item goes back to not started.")){ state.items={}; save(); render(); } };
+$("resetBtn").onclick=()=>{ if(confirm("Reset all progress? Every item goes back to not started and your stats are cleared.")){ state.items={}; state.log={}; save(); render(); } };
+
+// ---------- Stats ----------
+function streaks(){
+  const days = Object.keys(state.log).filter(k=>state.log[k].a+state.log[k].l>0).sort();
+  const set = new Set(days), today = dayKey();
+  let cur=0; const d=new Date(); if(!set.has(today)) d.setDate(d.getDate()-1);
+  while(set.has(dayKey(d))){ cur++; d.setDate(d.getDate()-1); }
+  let best=0, run=0, prev=null;
+  days.forEach(k=>{ const t=keyDate(k); run = prev && Math.round((t-prev)/864e5)===1 ? run+1 : 1; best=Math.max(best,run); prev=t; });
+  return {cur, best, today:set.has(today)};
+}
+function renderStats(){
+  const s=streaks();
+  const tot=Object.values(state.log).reduce((a,v)=>({a:a.a+v.a, r:a.r+v.r, l:a.l+v.l}),{a:0,r:0,l:0});
+  $("kpis").innerHTML = [
+    [`${s.cur}`, `day streak${s.cur?"":" (study today to start one)"}`],
+    [`${s.best}`, "best streak"],
+    [s.today?"Yes":"Not yet", "studied today"],
+    [tot.a?`${Math.round(tot.r/tot.a*100)}%`:"—", `accuracy · ${tot.a} answers`],
+  ].map(([b,l])=>`<div class="kpi"><b>${b}</b><span>${l}</span></div>`).join("");
+
+  // review forecast: active items in decks that are on
+  const now=Date.now(), start=new Date(); start.setHours(0,0,0,0);
+  const dayMs = i => { const d=new Date(start); d.setDate(d.getDate()+i); return d.getTime(); };
+  const active = ITEMS.filter(x=>deckOn(x.deck)).map(x=>state.items[x.id]).filter(i=>i&&i.stage>0&&i.stage<9);
+  const days = Array.from({length:7},(_,i)=>active.filter(it=> i===0 ? it.next<dayMs(1) : it.next>=dayMs(i)&&it.next<dayMs(i+1)).length);
+  const dueNowN = active.filter(it=>it.next<=now).length;
+  const max = Math.max(1,...days);
+  const label = i => i===0?"Today":i===1?"Tomorrow":new Date(dayMs(i)).toLocaleDateString([], {weekday:"short"});
+  $("forecast").innerHTML = `<div class="fc-head">
+      <div><b>${dueNowN}</b>due now</div><div><b>${days[0]-dueNowN}</b>later today</div><div><b>${days[1]}</b>tomorrow</div><div><b>${days.reduce((a,b)=>a+b,0)}</b>next 7 days</div></div>
+    <div class="bars">${days.map((n,i)=>`<div class="col" tabindex="0" data-tip="${label(i)}: ${n} review${n===1?"":"s"}" aria-label="${label(i)}: ${n} reviews"><div class="b" style="height:${n/max*100}%"></div></div>`).join("")}</div>
+    <div class="blabels">${days.map((_,i)=>`<span>${i===1?"Tmrw":label(i)}</span>`).join("")}</div>`;
+
+  // study calendar: last 18 weeks, one column per week starting Sunday
+  const weeks=18, first=new Date(start); first.setDate(first.getDate()-first.getDay()-7*(weeks-1));
+  const lvl = n => n===0?0 : n<10?1 : n<30?2 : n<60?3 : 4;
+  let cells="";
+  for(let i=0;i<weeks*7;i++){
+    const d=new Date(first); d.setDate(first.getDate()+i);
+    const v=state.log[dayKey(d)]||{a:0,l:0}, n=v.a+v.l, fut=d>start && dayKey(d)!==dayKey(start);
+    const when=d.toLocaleDateString([], {month:"short",day:"numeric"});
+    cells += `<i class="${fut?"future":""}" data-l="${lvl(n)}" data-tip="${when}: ${n?`${v.a} answers, ${v.l} lessons`:"no study"}"></i>`;
+  }
+  $("calendar").innerHTML = `<div class="cal" role="img" aria-label="Study activity over the last ${weeks} weeks">${cells}</div>
+    <div class="callegend">Less ${[0,1,2,3,4].map(l=>`<i style="background:var(--s${l})"></i>`).join("")} More</div>`;
+
+  // per deck
+  $("deckStats").innerHTML = `<table class="dtable"><thead><tr><th>Deck</th><th class="num">Started</th><th class="num">Mastered</th><th>Progress</th></tr></thead><tbody>${
+    DECKS.map(d=>{ const all=ITEMS.filter(x=>x.deck===d.id), started=all.filter(x=>state.items[x.id]).length, mast=all.filter(x=>st(x.id)>=9).length;
+      return `<tr><td>${d.name}</td><td class="num">${started} / ${all.length}</td><td class="num">${mast}</td><td><div class="meter"><i style="width:${started/all.length*100}%"></i></div></td></tr>`; }).join("")
+  }</tbody></table>`;
+}
+$("statsBtn").onclick=()=>{ renderStats(); show("stats"); };
+
+// shared hover tooltip for chart marks
+const tip=$("tip");
+function showTip(el){ const r=el.getBoundingClientRect(); tip.textContent=el.dataset.tip; tip.style.left=(r.left+r.width/2)+"px"; tip.style.top=(r.top-6)+"px"; tip.hidden=false; }
+document.addEventListener("pointerover", e=>{ const t=e.target.closest("[data-tip]"); if(t) showTip(t); else tip.hidden=true; });
+document.addEventListener("focusin", e=>{ const t=e.target.closest("[data-tip]"); if(t) showTip(t); else tip.hidden=true; });
+window.addEventListener("scroll", ()=>{ tip.hidden=true; }, {passive:true});
+
+// ---------- Settings ----------
+let settings = {theme:"auto", petals:"auto"};
+try{ Object.assign(settings, JSON.parse(localStorage.getItem("sumi-settings")||"{}")); }catch(e){}
+function applySettings(){
+  const r=document.documentElement;
+  if(settings.theme==="auto") delete r.dataset.theme; else r.dataset.theme=settings.theme;
+  if(settings.petals==="auto") delete r.dataset.petals; else r.dataset.petals=settings.petals;
+  try{ localStorage.setItem("sumi-settings", JSON.stringify(settings)); }catch(e){}
+}
+$("setBtn").onclick=()=>{
+  document.querySelectorAll('#setDlg input').forEach(i=>i.checked = settings[i.name]===i.value);
+  $("setDlg").showModal();
+};
+$("setDlg").addEventListener("change", e=>{ settings[e.target.name]=e.target.value; applySettings(); });
+
+// ---------- Background: temple and cherry tree silhouettes, falling petals ----------
+(function(){
+  let pg = `<svg class="pagoda" viewBox="0 40 200 280"><g class="ink"><rect x="34" y="300" width="132" height="20"/>`;
+  let y=300, w=78, h=34;
+  for(let i=0;i<5;i++){
+    const bw=w*.52, ry=y-h;
+    pg += `<rect x="${100-bw}" y="${ry}" width="${bw*2}" height="${h}"/>`;
+    pg += `<path d="M${100-w-14} ${ry+3}Q${100-w} ${ry-1} ${100-w+12} ${ry-12}H${100+w-12}Q${100+w} ${ry-1} ${100+w+14} ${ry+3}Q${100+w-4} ${ry+5} ${100+w-12} ${ry+6}H${100-w+12}Q${100-w+4} ${ry+5} ${100-w-14} ${ry+3}Z"/>`;
+    y=ry-12; w-=10; h-=3;
+  }
+  pg += `<rect x="98" y="${y-48}" width="4" height="48"/>${[10,18,26,34].map(o=>`<rect x="93" y="${y-o}" width="14" height="2.5"/>`).join("")}<circle cx="100" cy="${y-50}" r="4"/></g></svg>`;
+
+  let seed=7; const rnd=()=>{ seed=(seed*9301+49297)%233280; return seed/233280; };
+  const branches = [["M110 320C118 270 100 240 122 200C138 172 118 140 140 110",16],["M122 200C160 185 200 170 250 140",9],
+    ["M132 150C105 130 80 125 50 110",7],["M140 110C160 85 185 75 215 55",6],["M140 110C132 80 120 60 112 35",5],["M250 140C268 130 285 128 304 118",4]];
+  const clusters = [[250,135],[302,115],[215,52],[112,32],[50,108],[180,78],[200,165],[90,124],[160,58],[278,150],[28,98],[140,40],[230,100],[75,95]];
+  let tr = `<svg class="tree" viewBox="0 0 330 320"><g class="ink" fill="none" stroke-linecap="round">${branches.map(([d,sw])=>`<path d="${d}" stroke-width="${sw}"/>`).join("")}</g><g class="bloom">`;
+  clusters.forEach(([cx,cy])=>{ for(let i=0;i<6;i++) tr += `<circle cx="${(cx+(rnd()-.5)*44).toFixed(1)}" cy="${(cy+(rnd()-.5)*30).toFixed(1)}" r="${(9+rnd()*10).toFixed(1)}"/>`; });
+  tr += `</g></svg>`;
+  $("scene").innerHTML = tr + pg;
+
+  $("petals").innerHTML = Array.from({length:14},()=>{
+    const s=8+Math.random()*7, d=12+Math.random()*14;
+    return `<i class="petal" style="left:${Math.random()*100}%;width:${s}px;height:${s*.75}px;animation-duration:${d}s;animation-delay:${-Math.random()*d}s"></i>`;
+  }).join("");
+})();
 
 // refresh counts when reviews become due
 setInterval(()=>{ if(!$("home").classList.contains("hidden")) render(); }, 60e3);
-
-// falling sakura petals
-$("petals").innerHTML = Array.from({length:14},()=>{
-  const s=8+Math.random()*7, d=12+Math.random()*14;
-  return `<i class="petal" style="left:${Math.random()*100}%;width:${s}px;height:${s*.75}px;animation-duration:${d}s;animation-delay:${-Math.random()*d}s"></i>`;
-}).join("");
 
 load();
 render();
