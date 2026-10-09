@@ -134,7 +134,14 @@ h5{font-size:12px;font-weight:500;color:var(--muted);margin:10px 0 6px;letter-sp
 button{font:inherit;cursor:pointer}
 button:focus-visible,input:focus-visible,.tile:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .wrap{max-width:860px;margin:0 auto;padding:20px 18px 48px;position:relative;z-index:1}
-header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:28px}
+header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px;margin-bottom:28px}
+header .brand{flex:none;white-space:nowrap}
+header .nav{flex-wrap:wrap;justify-content:flex-end;margin-left:auto}
+@media (max-width:640px){
+  header .brand small{display:none}            /* the tagline doesn't fit next to the buttons on phones */
+  header .brand{font-size:24px}
+  #acctBtn{max-width:11em}
+}
 .brand{font-family:var(--kanji);font-weight:800;font-size:28px;letter-spacing:.02em;display:flex;align-items:baseline;gap:10px;color:var(--ink);text-decoration:none;border-radius:6px}
 .brand:hover small{text-decoration:underline;text-underline-offset:3px}
 .brand:focus-visible{outline:3px solid var(--accent);outline-offset:4px}
