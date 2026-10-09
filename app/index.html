@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Sumi · Kanji SRS</title>
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
@@ -58,6 +59,15 @@ body{margin:0;background:radial-gradient(ellipse 90% 340px at 50% 0,var(--glow),
 .acctrow input{flex:1 1 200px;min-width:0;font:inherit;font-size:15px;padding:9px 12px;border-radius:6px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink)}
 .acctrow .btn{padding:8px 14px}
 .acctline{margin:0 0 2px;font-size:15px;overflow-wrap:anywhere}
+.acctseg{margin:10px 0 8px}
+.acctseg button{flex:1;border:0;background:none;color:var(--ink);font:inherit;font-size:15px;padding:8px 6px;cursor:pointer}
+.acctseg button+button{border-left:1.5px solid var(--line)}
+.acctseg button[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+.acctcol{display:flex;flex-direction:column;gap:8px;margin:8px 0}
+.acctcol input{font:inherit;font-size:15px;padding:9px 12px;border-radius:6px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink)}
+.acctcol .btn{align-self:flex-start}
+.acctlinks{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;margin:4px 0 0;font-size:14px;color:var(--muted)}
+.acctlinks .linkbtn{padding:2px 0;font-size:14px}
 #acctBtn{max-width:16em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tip{position:fixed;z-index:10;pointer-events:none;background:var(--ink);color:var(--paper);font-size:13px;padding:5px 9px;border-radius:5px;white-space:nowrap;transform:translate(-50%,-100%)}
 
@@ -1590,6 +1600,8 @@ function initSync(){
   sb.auth.onAuthStateChange((event, session)=>{
     const u = session?.user || null, changed = (u?.id||null) !== (sbUser?.id||null);
     sbUser = u;
+    // arrived from a "reset your password" email: ask for the new password right away
+    if(event==="PASSWORD_RECOVERY"){ acctMode="recovery"; setTimeout(()=>{ if(!$("setDlg").open) $("setBtn").click(); }, 0); }
     if(location.hash.includes("access_token")) history.replaceState(null, "", location.pathname + location.search);
     renderAccount();
     // don't call Supabase inside this callback (it can deadlock); run on the next tick instead
@@ -1687,14 +1699,80 @@ window.addEventListener("offline", ()=>{ if(sbUser){ syncState="offline"; render
 // coming back to the tab: pick up anything studied on another device (not mid-quiz)
 document.addEventListener("visibilitychange", ()=>{ if(!document.hidden && sbUser && !Q) reconcile({quiet:true}); });
 
-async function sendLink(){
-  const email = ($("acctEmail")?.value||"").trim();
-  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ setAcctMsg("Enter a valid email address."); return; }
-  setAcctMsg("Sending…");
-  const {error} = await sb.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin + location.pathname}});
-  setAcctMsg(error ? `Couldn't send the link: ${error.message}` : `Check ${email} for a sign-in link, and open it in this browser.`);
-}
+// ---------- Sign-in form: password (main), email link (backup), forgot / reset password ----------
+let acctMode = "signin";          // signin | signup | link | forgot | recovery
+let acctEmail = "";               // keep the typed email when switching between modes
+const MIN_PW = 8;
+const BACK_HERE = () => location.origin + location.pathname;
+const validEmail = e => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
 function setAcctMsg(t){ const m=$("acctMsg"); if(m) m.textContent=t; }
+function friendlyAuthError(error){
+  const m = (error?.message||"").toLowerCase();
+  if(m.includes("invalid login credentials")) return "Wrong email or password.";
+  if(m.includes("already registered") || m.includes("already been registered")) return "That email already has an account. Sign in instead.";
+  if(m.includes("email not confirmed")) return "This account still needs its email confirmed. Check your inbox, or use “Email me a link instead”.";
+  if(m.includes("rate limit") || m.includes("too many")) return "Too many emails were sent recently. Please wait a while and try again, or sign in with your password.";
+  if(m.includes("password")) return error.message;
+  return `Something went wrong: ${error?.message||"unknown error"}`;
+}
+async function withBusy(fn){
+  const b=$("acctGo"); if(b) b.disabled=true;
+  try{ await fn(); } finally { const b2=$("acctGo"); if(b2) b2.disabled=false; }
+}
+async function acctSubmit(){
+  const email = ($("acctEmail")?.value||"").trim(), pw = $("acctPw")?.value||"";
+  acctEmail = email;
+  if(acctMode!=="recovery" && !validEmail(email)){ setAcctMsg("Enter a valid email address."); return; }
+  if(acctMode==="signin"){
+    if(!pw){ setAcctMsg("Enter your password."); return; }
+    await withBusy(async()=>{ setAcctMsg("Signing in…");
+      const {error} = await sb.auth.signInWithPassword({email, password:pw});
+      setAcctMsg(error ? friendlyAuthError(error) : ""); });
+  } else if(acctMode==="signup"){
+    if(pw.length < MIN_PW){ setAcctMsg(`Use at least ${MIN_PW} characters for your password.`); return; }
+    if(pw !== ($("acctPw2")?.value||"")){ setAcctMsg("The two passwords don't match."); return; }
+    await withBusy(async()=>{ setAcctMsg("Creating your account…");
+      const {data, error} = await sb.auth.signUp({email, password:pw, options:{emailRedirectTo: BACK_HERE()}});
+      if(error) return setAcctMsg(friendlyAuthError(error));
+      // with email confirmation off you're signed in straight away; if it's on, a confirmation email goes out
+      setAcctMsg(data.session ? "" : `Almost done: check ${email} and click the confirmation link.`); });
+  } else if(acctMode==="link"){
+    await withBusy(async()=>{ setAcctMsg("Sending…");
+      const {error} = await sb.auth.signInWithOtp({email, options:{emailRedirectTo: BACK_HERE()}});
+      setAcctMsg(error ? friendlyAuthError(error) : `Check ${email} for a sign-in link, and open it in this browser.`); });
+  } else if(acctMode==="forgot"){
+    await withBusy(async()=>{ setAcctMsg("Sending…");
+      const {error} = await sb.auth.resetPasswordForEmail(email, {redirectTo: BACK_HERE()});
+      setAcctMsg(error ? friendlyAuthError(error) : `If ${email} has an account, a reset link is on its way. Open it in this browser to choose a new password.`); });
+  } else if(acctMode==="recovery"){
+    if(pw.length < MIN_PW){ setAcctMsg(`Use at least ${MIN_PW} characters for your password.`); return; }
+    if(pw !== ($("acctPw2")?.value||"")){ setAcctMsg("The two passwords don't match."); return; }
+    await withBusy(async()=>{ setAcctMsg("Saving…");
+      const {error} = await sb.auth.updateUser({password:pw});
+      if(error) return setAcctMsg(friendlyAuthError(error));
+      acctMode="signin"; renderAccount(); toast("Your new password is saved."); });
+  }
+}
+function setAcctMode(m){ acctEmail = ($("acctEmail")?.value||acctEmail).trim(); acctMode=m; renderAccount(); $("acctEmail")?.focus(); }
+function accountFormHTML(){
+  const emailIn = `<input type="email" id="acctEmail" placeholder="you@example.com" autocomplete="email" aria-label="Email address" value="${acctEmail.replace(/"/g,"&quot;")}">`;
+  const pwIn = (id, label, ac) => `<input type="password" id="${id}" placeholder="${label}" autocomplete="${ac}" aria-label="${label}" minlength="${MIN_PW}">`;
+  const tabs = `<div class="seg acctseg" role="tablist">
+      <button type="button" role="tab" aria-selected="${acctMode==="signin"}" data-mode="signin">Sign in</button>
+      <button type="button" role="tab" aria-selected="${acctMode==="signup"}" data-mode="signup">Create account</button></div>`;
+  const msg = `<p class="note" id="acctMsg" role="status"></p>`;
+  const link = (mode, text) => `<button type="button" class="linkbtn" data-mode="${mode}">${text}</button>`;
+  if(acctMode==="signup") return `${tabs}<div class="acctcol">${emailIn}${pwIn("acctPw",`Password (at least ${MIN_PW} characters)`,"new-password")}${pwIn("acctPw2","Type the password again","new-password")}
+      <button type="button" class="btn primary" id="acctGo">Create account</button></div>${msg}`;
+  if(acctMode==="link") return `<div class="acctcol">${emailIn}<button type="button" class="btn primary" id="acctGo">Email me a sign-in link</button></div>
+      <p class="acctlinks">${link("signin","Use my password instead")}</p>${msg}`;
+  if(acctMode==="forgot") return `<p class="note">Enter your email and we'll send a link to choose a new password.</p>
+      <div class="acctcol">${emailIn}<button type="button" class="btn primary" id="acctGo">Send reset link</button></div>
+      <p class="acctlinks">${link("signin","Back to sign in")}</p>${msg}`;
+  return `${tabs}<div class="acctcol">${emailIn}${pwIn("acctPw","Password","current-password")}
+      <button type="button" class="btn primary" id="acctGo">Sign in</button></div>
+      <p class="acctlinks">${link("forgot","Forgot password?")}<span aria-hidden="true">·</span>${link("link","Email me a link instead")}</p>${msg}`;
+}
 async function signOut(){
   await sb.auth.signOut();
   syncMeta = {}; saveSyncMeta(); syncState = "";
@@ -1718,6 +1796,14 @@ function renderAccount(){
   if(!box) return;
   let backup=null; try{ backup=JSON.parse(localStorage.getItem("sumi-backup")||"null"); }catch(e){}
   if(syncState==="unavailable"){ box.innerHTML = `<legend>Account</legend><p class="note">Sign-in isn't available right now. You can keep studying: progress is saved in this browser.</p>`; return; }
+  if(sbUser && acctMode==="recovery"){
+    box.innerHTML = `<legend>Choose a new password</legend>
+      <p class="note">Signed in as <b>${sbUser.email||"you"}</b> from your reset link.</p>
+      <div class="acctcol"><input type="password" id="acctPw" placeholder="New password (at least ${MIN_PW} characters)" autocomplete="new-password" aria-label="New password">
+      <input type="password" id="acctPw2" placeholder="Type it again" autocomplete="new-password" aria-label="Type the new password again">
+      <button type="button" class="btn primary" id="acctGo">Save new password</button></div><p class="note" id="acctMsg" role="status"></p>`;
+    wireAccount(box); return;
+  }
   box.innerHTML = sbUser
     ? `<legend>Account</legend>
        <p class="acctline">Signed in as <b>${sbUser.email||"you"}</b></p>
@@ -1726,11 +1812,15 @@ function renderAccount(){
        <div class="acctrow"><button type="button" class="btn" id="acctSync">Sync now</button><button type="button" class="btn" id="acctOut">Sign out</button></div>
        ${backup?`<p class="note">A copy from ${backup.from} (saved ${fmtStamp(backup.savedAt)}) was kept. <button type="button" class="linkbtn" id="acctRestore">Restore it</button></p>`:""}`
     : `<legend>Sign in to sync (optional)</legend>
-       <p class="note">Get a sign-in link by email to sync your progress across devices. Without an account, progress stays in this browser.</p>
-       <div class="acctrow"><input type="email" id="acctEmail" placeholder="you@example.com" autocomplete="email" aria-label="Email address"><button type="button" class="btn primary" id="acctSend">Email me a link</button></div>
-       <p class="note" id="acctMsg" role="status"></p>`;
-  $("acctSend")?.addEventListener("click", sendLink);
-  $("acctEmail")?.addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); sendLink(); } });
+       <p class="note">Sync your progress across devices. Without an account, progress stays in this browser.</p>
+       ${accountFormHTML()}`;
+  wireAccount(box);
+}
+function wireAccount(box){
+  box.querySelectorAll("[data-mode]").forEach(b=>b.addEventListener("click", ()=>setAcctMode(b.dataset.mode)));
+  $("acctGo")?.addEventListener("click", acctSubmit);
+  // Enter would submit the Settings form and close it; send the sign-in instead
+  box.querySelectorAll("input").forEach(i=>i.addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); acctSubmit(); } }));
   $("acctOut")?.addEventListener("click", signOut);
   $("acctSync")?.addEventListener("click", ()=>reconcile({quiet:false}));
   $("acctRestore")?.addEventListener("click", restoreBackup);
