@@ -9,10 +9,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#EEF0F2; --surface:#FFFFFF; --ink:#1C2430; --muted:#5D6776; --line:#D3D8DF;
-  --indigo:#253E66; --indigo-ink:#F2F4F8; --meaning:#FFFFFF; --kun:#5B3B66;
-  --ok:#2F7A4A; --bad:#B03A35; --accent:#C7843A;
-  --s0:#D9DDE3; --s1:#E8C98F; --s2:#9DB7D8; --s3:#5F84B6; --s4:#33557F; --s5:#1C2430;
+  --paper:#FBF3F5; --surface:#FFFFFF; --ink:#3B2630; --muted:#86697A; --line:#EFD9E1;
+  --indigo:#B0466C; --indigo-ink:#FFF5F8; --meaning:#FFFFFF; --kun:#6A3D6E;
+  --ok:#3C7F52; --bad:#B23A48; --accent:#E07A9B; --petal:#F5B5C8; --glow:#FCE1EA;
+  --s0:#F1E4E9; --s1:#F9D3DE; --s2:#F2A7BE; --s3:#D46F93; --s4:#A84467; --s5:#4E2236;
   --kanji:"Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", serif;
   --ui:"Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
   box-sizing:border-box;
@@ -20,24 +20,33 @@
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --paper:#141A22; --surface:#1D2530; --ink:#E7EAEE; --muted:#9AA4B2; --line:#2E3946;
-    --indigo:#2D4A78; --indigo-ink:#F2F4F8; --meaning:#242E3A; --kun:#5E3F6B;
-    --ok:#4FA36C; --bad:#D9605A; --accent:#E0A35E;
-    --s0:#2A333F; --s1:#8A6C38; --s2:#46638A; --s3:#5F84B6; --s4:#9DB7D8; --s5:#E7EAEE;
+    --paper:#1C1418; --surface:#271C22; --ink:#F5E8ED; --muted:#BFA3B0; --line:#3D2C35;
+    --indigo:#9E3D62; --indigo-ink:#FFF0F5; --meaning:#2C2027; --kun:#5C3762;
+    --ok:#5DB07A; --bad:#E2697A; --accent:#F19AB6; --petal:#B5627F; --glow:#2E1C25;
+    --s0:#33252C; --s1:#6E3F52; --s2:#9A4F6C; --s3:#C76A8D; --s4:#E9A3BC; --s5:#FBE3EB;
   }
 }
 :root[data-theme="dark"]{
-  --paper:#141A22; --surface:#1D2530; --ink:#E7EAEE; --muted:#9AA4B2; --line:#2E3946;
-  --indigo:#2D4A78; --indigo-ink:#F2F4F8; --meaning:#242E3A; --kun:#5E3F6B;
-  --ok:#4FA36C; --bad:#D9605A; --accent:#E0A35E;
-  --s0:#2A333F; --s1:#8A6C38; --s2:#46638A; --s3:#5F84B6; --s4:#9DB7D8; --s5:#E7EAEE;
+  --paper:#1C1418; --surface:#271C22; --ink:#F5E8ED; --muted:#BFA3B0; --line:#3D2C35;
+  --indigo:#9E3D62; --indigo-ink:#FFF0F5; --meaning:#2C2027; --kun:#5C3762;
+  --ok:#5DB07A; --bad:#E2697A; --accent:#F19AB6; --petal:#B5627F; --glow:#2E1C25;
+  --s0:#33252C; --s1:#6E3F52; --s2:#9A4F6C; --s3:#C76A8D; --s4:#E9A3BC; --s5:#FBE3EB;
 }
 *,*::before,*::after{box-sizing:inherit}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.55}
+body{margin:0;background:radial-gradient(ellipse 90% 340px at 50% 0,var(--glow),transparent),var(--paper);background-repeat:no-repeat;color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.55;min-height:100vh}
+.petals{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.petal{position:absolute;top:-24px;width:12px;height:9px;background:var(--petal);border-radius:12px 2px 12px 2px;opacity:.75;animation:fall linear infinite}
+@keyframes fall{0%{transform:translate(0,-24px) rotate(0)}50%{transform:translate(50px,50vh) rotate(260deg)}100%{transform:translate(10px,105vh) rotate(520deg)}}
+@media (prefers-reduced-motion: reduce){.petals{display:none}}
+.flower{width:26px;height:26px;align-self:center;flex:none}
+.say{border:0;background:none;color:var(--accent);padding:2px 4px;margin-left:6px;vertical-align:middle;border-radius:4px;line-height:0}
+.say svg{width:18px;height:18px}
+.mn{margin:14px 0 0;padding:12px 14px;border-radius:6px;background:var(--glow);font-size:15px}
+.mn b{display:block;font-size:13px;color:var(--muted);font-weight:700;margin-bottom:2px}
 button{font:inherit;cursor:pointer}
 button:focus-visible,input:focus-visible,.tile:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-.wrap{max-width:860px;margin:0 auto;padding:20px 18px 48px}
+.wrap{max-width:860px;margin:0 auto;padding:20px 18px 48px;position:relative;z-index:1}
 header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:28px}
 .brand{font-family:var(--kanji);font-weight:800;font-size:28px;letter-spacing:.02em;display:flex;align-items:baseline;gap:10px}
 .brand small{font-family:var(--ui);font-weight:400;font-size:14px;color:var(--muted)}
@@ -72,8 +81,8 @@ h3{font-size:14px;margin:22px 0 10px;font-weight:700;color:var(--muted)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}
 .tile{border:0;aspect-ratio:1;border-radius:4px;font-family:var(--kanji);font-weight:600;font-size:26px;display:grid;place-items:center;background:var(--s0);color:var(--muted)}
 .tile.long{font-size:18px}
-.tile[data-s="1"]{background:var(--s1);color:#1C2430}
-.tile[data-s="2"]{background:var(--s2);color:#1C2430}
+.tile[data-s="1"]{background:var(--s1);color:var(--ink)}
+.tile[data-s="2"]{background:var(--s2);color:var(--ink)}
 .tile[data-s="3"]{background:var(--s3);color:#fff}
 .tile[data-s="4"]{background:var(--s4);color:var(--paper)}
 .tile[data-s="5"]{background:var(--s5);color:var(--paper)}
@@ -136,9 +145,10 @@ dialog .close{display:block;margin:0 20px 18px auto}
 </style>
 </head>
 <body>
+<div class="petals" id="petals" aria-hidden="true"></div>
 <div class="wrap">
   <header>
-    <div class="brand">墨 Sumi <small>kanji with spaced repetition</small></div>
+    <div class="brand"><svg class="flower" viewBox="0 0 100 100" aria-hidden="true"><g fill="var(--s2)"><path id="pt" d="M50 50C38 36 36 18 44 8l6 7 6-7c8 10 6 28-6 42z"/><use href="#pt" transform="rotate(72 50 50)"/><use href="#pt" transform="rotate(144 50 50)"/><use href="#pt" transform="rotate(216 50 50)"/><use href="#pt" transform="rotate(288 50 50)"/></g><circle cx="50" cy="50" r="7" fill="var(--s4)"/></svg>墨 Sumi <small>kanji with spaced repetition</small></div>
     <button class="linkbtn hidden" id="homeBtn">Back to home</button>
   </header>
 
@@ -193,7 +203,10 @@ dialog .close{display:block;margin:0 20px 18px auto}
       <div class="info hidden" id="qInfo"></div>
     </div>
     <div class="row">
-      <button class="btn" id="showInfo" disabled>Show details</button>
+      <span style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn" id="showInfo" disabled>Show details</button>
+        <button class="btn" id="listen">Listen</button>
+      </span>
       <button class="btn" id="wrapUp">Finish and save</button>
     </div>
   </section>
@@ -222,110 +235,110 @@ const KANA_RAW = `あ:a い:i う:u え:e お:o か:ka き:ki く:ku け:ke こ:
 ぎゃ:gya ぎゅ:gyu ぎょ:gyo じゃ:ja/jya/zya じゅ:ju/jyu/zyu じょ:jo/jyo/zyo びゃ:bya びゅ:byu びょ:byo ぴゃ:pya ぴゅ:pyu ぴょ:pyo`;
 
 // ---------- Radicals found in N5/N4 kanji : radical|meanings|example kanji ----------
-const RAD_RAW = `一|one|一 二 三 下
-丨|line,stick|中 十
-丶|dot|主
-丿|slash|九 千
-亠|lid,top hat|京 高 夜
-人|person|人 会 今
-亻|person|休 体 何 作 使
-儿|legs|先 元 兄 見
-入|enter|入
-八|eight,divide|八 六 分 公
-冖|cover,crown|写
-冫|ice|冬
-几|table,desk|風
-刀|knife,sword|分 切
-刂|knife,sword|前 別
-力|power,strength|力 男 動 勉
-匕|spoon|北
-十|ten,cross|十 千 午 南
-又|again,right hand|友
-口|mouth|口 右 名 品 問
-囗|enclosure,box|国 四 図 回
-土|soil,earth|土 地 場
-士|samurai,scholar|声 売
-夂|winter,go slowly|冬 夏
-夕|evening|夕 名 多 夜 外
-大|big|大 天 太 犬
-女|woman|女 好 妹 姉 始
-子|child|子 学 字 好
-宀|roof|家 安 字 室
-寸|inch,measurement|時 待 特
-小|small|小 少
-尸|flag,corpse|屋
-山|mountain|山
-川|river|川
-工|work,craft|工 左
-巾|cloth,towel|帰
-广|building,dotted cliff|広 店 度
-廴|long stride|建
-弓|bow|強 弱 引
-彳|step,going|行 後 待
-心|heart|心 思 意 急 悪
-戸|door|戸
-手|hand|手
-扌|hand|持
-攵|strike,action|教
-文|writing,pattern|文
-斤|axe|新 近
-方|direction,square|方 旅 族
-日|sun,day|日 明 時 早 曜
-月|moon,month|月 朝 明 服
-木|tree,wood|木 本 林 森 校
-欠|yawn,lack|歌 飲
-止|stop|止 歩 正
-歹|death,bones|死
-气|steam,spirit|気
-水|water|水
-氵|water|海 洋 漢 注
-火|fire|火 秋
-灬|fire|黒 無
-父|father|父
-牛|cow|牛 物 特
-王|king,jewel|理
-生|life,birth|生
-田|rice field|田 男 思 町 画
-疒|sickness|病
-白|white|白 百
-目|eye|目 見 真
-石|stone|研
-礻|altar,spirit|社
-禾|grain|秋 私
-穴|hole,cave|空 究
-立|stand|立 音 意 親
-竹|bamboo|答
-米|rice|料
-糸|thread|紙 終
-耳|ear|耳 聞
-肉|meat|肉
-自|self,nose|自
-艹|grass,plant|花 茶 英
-虫|insect,bug|風
-見|see|見 親
-言|say,speech|言 話 語 読 試
-貝|shell,money|買 貸 質 員
-走|run|走 起
-足|foot,leg|足
-車|car,vehicle|車 転 軽
-辶|road,movement|道 週 近 送 運 通 遠
-里|village|野
-金|gold,metal|金 銀
-門|gate|開 聞 間
-阝|hill,village|院 部
-隹|old bird|集 曜
-雨|rain|雨 電
-青|blue|青
-頁|head,page|題 頭 顔
-食|eat,food|食
-飠|eat,food|飲 飯 館
-馬|horse|駅 験
-魚|fish|魚
-鳥|bird|鳥`;
+const RAD_RAW = `一|one|一 二 三 下|A single flat stroke, like one finger laid down. That's one.
+丨|line,stick|中 十|One stroke standing straight up, like a stick planted in the ground.
+丶|dot|主|The smallest mark a brush can make: a single drop of ink. A dot.
+丿|slash|九 千|A sword swipe from top-right down to bottom-left. Slash!
+亠|lid,top hat|京 高 夜|A dot sitting on a flat line, like the knob on top of a pot lid, or a top hat.
+人|person|人 会 今|Two legs mid-stride. It's a person walking toward you.
+亻|person|休 体 何 作 使|When a person squeezes onto the left side of a kanji they stand sideways and thin. Still a person.
+儿|legs|先 元 兄 見|Just the legs of a person, knees bent, running off the bottom of the kanji.
+入|enter|入|Like 人, but the left stroke ducks in first, like someone ducking to enter a low doorway.
+八|eight,divide|八 六 分 公|Two strokes spreading apart like a road that divides. It widens like good luck in Japan: eight.
+冖|cover,crown|写|A flat sheet with the sides draped down, like a cloth thrown over something to cover it.
+冫|ice|冬|Two little drops frozen solid on the left. Ice.
+几|table,desk|風|A small low table standing on two legs.
+刀|knife,sword|分 切|A blade with a hooked handle. Watch your fingers, it's a knife.
+刂|knife,sword|前 別|The knife stood up on the right side of a kanji: two upright blades ready to cut.
+力|power,strength|力 男 動 勉|A flexed arm showing off its bicep. Power!
+匕|spoon|北|A spoon lying on its side with the handle pointing left.
+十|ten,cross|十 千 午 南|Two lines crossing like a plus sign. Count your ten fingers crossed together.
+又|again,right hand|友|A hand reaching out to grab something, again and again.
+口|mouth|口 右 名 品 問|A square mouth wide open, saying "ah".
+囗|enclosure,box|国 四 図 回|A big box that encloses things inside it, like a fence around a whole country (国).
+土|soil,earth|土 地 場|A sprout pushing up, with the long bottom line being the ground. Soil.
+士|samurai,scholar|声 売|Like soil, but the top line is longer: a samurai with broad shoulders standing tall.
+夂|winter,go slowly|冬 夏|Legs trudging slowly through deep snow. Going slowly, in winter.
+夕|evening|夕 名 多 夜 外|A crescent moon peeking out as the sun goes down. Evening.
+大|big|大 天 太 犬|A person stretching their arms out wide: "It was THIS big!"
+女|woman|女 好 妹 姉 始|A woman kneeling gracefully with her arms crossed.
+子|child|子 学 字 好|A baby wrapped up tight in a blanket, arms poking out. A child.
+宀|roof|家 安 字 室|A roof with a little chimney on top.
+寸|inch,measurement|時 待 特|A hand with a dot one inch from the wrist where you measure a pulse. Inch, measurement.
+小|small|小 少|A hook in the middle with two crumbs falling off. Something small breaking into tinier bits.
+尸|flag,corpse|屋|A flag hanging from a pole, or a body lying flat. Either way it's draped over.
+山|mountain|山|Three peaks side by side. A mountain.
+川|river|川|Three lines of water flowing downhill. A river.
+工|work,craft|工 左|A carpenter's I-beam, the tool you need for work and crafts.
+巾|cloth,towel|帰|A towel hanging over a rack to dry. Cloth.
+广|building,dotted cliff|広 店 度|A cliff with a dot of roof on top: a building tucked against a cliff.
+廴|long stride|建|A long sweeping stride stretching across the bottom of the kanji.
+弓|bow|強 弱 引|The zig-zag curve of an archer's bow.
+彳|step,going|行 後 待|Two little people stepping forward in a line. Going, step by step (it's the left half of 行).
+心|heart|心 思 意 急 悪|A heart with drops of feeling splashing around it.
+戸|door|戸|A single door swinging from its frame.
+手|hand|手|A hand with the fingers spread and a hooked wrist at the bottom.
+扌|hand|持|The hand squeezed onto the left side. When you see it, someone is doing something with their hands.
+攵|strike,action|教|A hand holding a stick, ready to strike. Action!
+文|writing,pattern|文|A person with a crossed pattern tattooed on their chest. Patterns, writing.
+斤|axe|新 近|An axe: the blade on the left, the long handle on the right.
+方|direction,square|方 旅 族|A person pointing their arm out: "Go that direction!"
+日|sun,day|日 明 時 早 曜|A window with the sun shining through it. Sun, day.
+月|moon,month|月 朝 明 服|A crescent moon with two thin clouds drifting across it. Moon, month.
+木|tree,wood|木 本 林 森 校|A tree: trunk in the middle, branches up, roots down.
+欠|yawn,lack|歌 飲|A person opening their mouth wide to yawn. They lack sleep.
+止|stop|止 歩 正|A footprint planted firmly on the ground. Stop!
+歹|death,bones|死|Bones lying out under the evening sky (夕). Death.
+气|steam,spirit|気|Wisps of steam curling up from a pot. Steam, spirit.
+水|water|水|A splash of water with droplets flying out on both sides.
+氵|water|海 洋 漢 注|Three drops of water on the left. Anything with this involves water.
+火|fire|火 秋|A campfire with sparks popping out on both sides. Fire.
+灬|fire|黒 無|Four little flames burning under the kanji, like a stove. Fire.
+父|father|父|Father with his arms crossed under a big mustache.
+牛|cow|牛 物 特|A cow's head seen from the front, with one horn sticking up.
+王|king,jewel|理|Three lines (heaven, people, earth) joined by one stroke. Only a king connects them all. Add a dot and it becomes 玉, jewel.
+生|life,birth|生|A plant sprouting up out of the earth (土). Life, birth.
+田|rice field|田 男 思 町 画|A rice field split into four paddies.
+疒|sickness|病|A sick bed with drops of sweat beside it. Sickness.
+白|white|白 百|A ray of light (the dot) shining on the sun (日). Bright and white.
+目|eye|目 見 真|An eye turned on its side, with the pupil in the middle.
+石|stone|研|A stone (口) tumbling down from under a cliff.
+礻|altar,spirit|社|The shape of a small shrine altar. Anything to do with gods and spirits.
+禾|grain|秋 私|A tree (木) with a heavy head of grain drooping over the top.
+穴|hole,cave|空 究|A roof over two legs disappearing inside. A hole, a cave.
+立|stand|立 音 意 親|A person standing up tall on the ground line.
+竹|bamboo|答|Two bamboo stalks side by side, leaves pointing down.
+米|rice|料|Grains of rice scattered around a stalk.
+糸|thread|紙 終|A twisted strand of thread with loose ends at the bottom.
+耳|ear|耳 聞|An ear with all its folds drawn in.
+肉|meat|肉|A slab of meat with the fat lines showing inside.
+自|self,nose|自|In Japan people point to their own nose to say "me". Self, nose.
+艹|grass,plant|花 茶 英|Two tufts of grass poking up on top. Grass, plants.
+虫|insect,bug|風|A bug with a big head and a little antenna on its tail.
+見|see|見 親|An eye (目) on running legs (儿), out and about to see things.
+言|say,speech|言 話 語 読 試|Lines of words coming out of a mouth (口). Speech.
+貝|shell,money|買 貸 質 員|A cowrie shell. People used shells as money, so it shows up in buying and selling.
+走|run|走 起|Earth (土) kicked up by legs sprinting. Run!
+足|foot,leg|足|A kneecap (口) sitting on top of a foot.
+車|car,vehicle|車 転 軽|A cart seen from above: the axle through the middle and a wheel on each end.
+辶|road,movement|道 週 近 送 運 通 遠|A road winding along the bottom of the kanji. Movement, going places.
+里|village|野|A rice field (田) on the ground (土). Where there are fields, there's a village.
+金|gold,metal|金 銀|Nuggets of gold buried in the earth under a roof. Gold, metal.
+門|gate|開 聞 間|Two swinging doors side by side. A gate.
+阝|hill,village|院 部|A big bumpy shape on the side, like a hill with a village on it.
+隹|old bird|集 曜|A bird with its feathers drawn as rows of lines. An old bird.
+雨|rain|雨 電|Raindrops falling from a cloud under the sky.
+青|blue|青|A young plant (生) growing under the moon (月). Fresh blue-green.
+頁|head,page|題 頭 顔|A head (目-like face) on top of a body on legs. Also the page you turn with your head down reading.
+食|eat,food|食|A lid on top of a nice dish. Food, eating.
+飠|eat,food|飲 飯 館|The food radical squeezed onto the left side. Anything with this is about eating.
+馬|horse|駅 験|A horse with a flowing mane and four legs (the dots) galloping.
+魚|fish|魚|A fish with a pointed head, a scaly body (田) and a tail fin.
+鳥|bird|鳥|A bird with its eye, feathers and feet. Bird.`;
 
 // ---------- Kanji : kanji|meanings|on'yomi|kun'yomi|example|example reading|translation ----------
 const N5_RAW = `一|one|イチ,イツ|ひと,ひと.つ|一つください。|ひとつください。|One, please.
-二|two|ニ|ふた,ふた.つ|二人で行きます。|ふたりでいきます。|The two of us will go.
+二|two|ニ,ジ|ふた,ふた.つ|二人で行きます。|ふたりでいきます。|The two of us will go.
 三|three|サン|み,み.つ,みっ.つ|三月に日本へ行きます。|さんがつににほんへいきます。|I'm going to Japan in March.
 四|four|シ|よ,よ.つ,よっ.つ,よん|四時に会いましょう。|よじにあいましょう。|Let's meet at four o'clock.
 五|five|ゴ|いつ,いつ.つ|りんごを五つ買いました。|りんごをいつつかいました。|I bought five apples.
@@ -333,7 +346,7 @@ const N5_RAW = `一|one|イチ,イツ|ひと,ひと.つ|一つください。|�
 七|seven|シチ|なな,なな.つ,なの|七時に起きます。|しちじにおきます。|I get up at seven.
 八|eight|ハチ|や,や.つ,やっ.つ|これは八百円です。|これははっぴゃくえんです。|This is 800 yen.
 九|nine|キュウ,ク|ここの,ここの.つ|九時に寝ます。|くじにねます。|I go to bed at nine.
-十|ten|ジュウ|とお,と|十分待ってください。|じゅっぷんまってください。|Please wait ten minutes.
+十|ten|ジュウ,ジッ,ジュッ|とお,と|十分待ってください。|じゅっぷんまってください。|Please wait ten minutes.
 百|hundred|ヒャク||百人が来ました。|ひゃくにんがきました。|A hundred people came.
 千|thousand|セン|ち|千円あります。|せんえんあります。|I have 1,000 yen.
 万|ten thousand|マン,バン||一万円は高いです。|いちまんえんはたかいです。|Ten thousand yen is expensive.
@@ -343,84 +356,84 @@ const N5_RAW = `一|one|イチ,イツ|ひと,ひと.つ|一つください。|�
 火|fire|カ|ひ|火曜日は忙しいです。|かようびはいそがしいです。|Tuesdays are busy.
 水|water|スイ|みず|水を飲みます。|みずをのみます。|I drink water.
 木|tree,wood|ボク,モク|き|木の下で休みます。|きのしたでやすみます。|I rest under the tree.
-金|gold,money|キン,コン|かね|お金がありません。|おかねがありません。|I don't have any money.
+金|gold,money|キン,コン|かね,かな|お金がありません。|おかねがありません。|I don't have any money.
 土|soil,earth|ド,ト|つち|土曜日に映画を見ます。|どようびにえいがをみます。|I watch a movie on Saturday.
 年|year|ネン|とし|毎年日本へ行きます。|まいとしにほんへいきます。|I go to Japan every year.
 人|person|ジン,ニン|ひと|あの人は先生です。|あのひとはせんせいです。|That person is a teacher.
 子|child|シ,ス|こ|子どもが公園で遊んでいます。|こどもがこうえんであそんでいます。|Children are playing in the park.
-女|woman|ジョ,ニョ|おんな,め|女の人が来ました。|おんなのひとがきました。|A woman came.
+女|woman|ジョ,ニョ,ニョウ|おんな,め|女の人が来ました。|おんなのひとがきました。|A woman came.
 男|man|ダン,ナン|おとこ|男の子が三人います。|おとこのこがさんにんいます。|There are three boys.
 大|big|ダイ,タイ|おお,おお.きい|大きい犬がいます。|おおきいいぬがいます。|There's a big dog.
 小|small|ショウ|ちい.さい,こ,お|小さい家に住んでいます。|ちいさいいえにすんでいます。|I live in a small house.
-中|middle,inside|チュウ|なか|かばんの中に本があります。|かばんのなかにほんがあります。|There's a book in the bag.
-上|up,above|ジョウ|うえ,あ.がる,のぼ.る|机の上にペンがあります。|つくえのうえにペンがあります。|There's a pen on the desk.
-下|down,below|カ,ゲ|した,さ.がる,くだ.る,お.りる|いすの下に猫がいます。|いすのしたにねこがいます。|There's a cat under the chair.
+中|middle,inside|チュウ,ジュウ|なか|かばんの中に本があります。|かばんのなかにほんがあります。|There's a book in the bag.
+上|up,above|ジョウ,ショウ|うえ,あ.がる,のぼ.る,うわ,かみ,あ.げる|机の上にペンがあります。|つくえのうえにペンがあります。|There's a pen on the desk.
+下|down,below|カ,ゲ|した,さ.がる,くだ.る,お.りる,しも,さ.げる|いすの下に猫がいます。|いすのしたにねこがいます。|There's a cat under the chair.
 左|left|サ|ひだり|左に曲がってください。|ひだりにまがってください。|Please turn left.
 右|right|ウ,ユウ|みぎ|駅は右にあります。|えきはみぎにあります。|The station is on the right.
 山|mountain|サン|やま|山に登りました。|やまにのぼりました。|I climbed a mountain.
 川|river|セン|かわ|川で泳ぎます。|かわでおよぎます。|I swim in the river.
 田|rice field|デン|た|田んぼに水があります。|たんぼにみずがあります。|There's water in the rice paddy.
 口|mouth|コウ,ク|くち|口を開けてください。|くちをあけてください。|Please open your mouth.
-目|eye|モク|め|目が痛いです。|めがいたいです。|My eyes hurt.
+目|eye|モク,ボク|め|目が痛いです。|めがいたいです。|My eyes hurt.
 耳|ear|ジ|みみ|祖父は耳が遠いです。|そふはみみがとおいです。|My grandfather is hard of hearing.
 手|hand|シュ|て|手を洗いましょう。|てをあらいましょう。|Let's wash our hands.
 足|foot,leg|ソク|あし,た.りる|足が痛いです。|あしがいたいです。|My feet hurt.
 力|power,strength|リョク,リキ|ちから|兄は力が強いです。|あにはちからがつよいです。|My older brother is strong.
 本|book,origin|ホン|もと|この本はおもしろいです。|このほんはおもしろいです。|This book is interesting.
 学|study,learning|ガク|まな.ぶ|大学で日本語を勉強します。|だいがくでにほんごをべんきょうします。|I study Japanese at university.
-生|life,birth|セイ,ショウ|い.きる,う.まれる,なま|学生は五人です。|がくせいはごにんです。|There are five students.
+生|life,birth|セイ,ショウ|い.きる,う.まれる,なま,は.える,き|学生は五人です。|がくせいはごにんです。|There are five students.
 先|previous,ahead|セン|さき|先生に聞きます。|せんせいにききます。|I'll ask the teacher.
 名|name|メイ,ミョウ|な|お名前は何ですか。|おなまえはなんですか。|What's your name?
-白|white|ハク|しろ,しろ.い|白いシャツを買いました。|しろいシャツをかいました。|I bought a white shirt.
-天|heaven,sky|テン|あめ|今日は天気がいいです。|きょうはてんきがいいです。|The weather is nice today.
+白|white|ハク,ビャク|しろ,しろ.い,しら|白いシャツを買いました。|しろいシャツをかいました。|I bought a white shirt.
+天|heaven,sky|テン|あめ,あま|今日は天気がいいです。|きょうはてんきがいいです。|The weather is nice today.
 気|spirit,energy|キ,ケ||元気ですか。|げんきですか。|How are you?
 雨|rain|ウ|あめ|雨が降っています。|あめがふっています。|It's raining.
 花|flower|カ|はな|花がきれいです。|はながきれいです。|The flowers are pretty.
-空|sky,empty|クウ|そら,から|空が青いです。|そらがあおいです。|The sky is blue.
+空|sky,empty|クウ|そら,から,あ.く|空が青いです。|そらがあおいです。|The sky is blue.
 犬|dog|ケン|いぬ|犬が好きです。|いぬがすきです。|I like dogs.
 見|see,look|ケン|み.る|テレビを見ます。|テレビをみます。|I watch TV.
-行|go|コウ,ギョウ|い.く,おこな.う|学校へ行きます。|がっこうへいきます。|I go to school.
+行|go|コウ,ギョウ,アン|い.く,おこな.う,ゆ.く|学校へ行きます。|がっこうへいきます。|I go to school.
 来|come|ライ|く.る|友だちが来ます。|ともだちがきます。|My friend is coming.
-出|exit,leave|シュツ|で.る,だ.す|八時に家を出ました。|はちじにいえをでました。|I left home at eight.
-入|enter|ニュウ|はい.る,い.れる|部屋に入ります。|へやにはいります。|I go into the room.
+出|exit,leave|シュツ,スイ|で.る,だ.す|八時に家を出ました。|はちじにいえをでました。|I left home at eight.
+入|enter|ニュウ|はい.る,い.れる,い.る|部屋に入ります。|へやにはいります。|I go into the room.
 休|rest|キュウ|やす.む|明日は休みです。|あしたはやすみです。|Tomorrow is a day off.
-言|say|ゲン,ゴン|い.う|もう一度言ってください。|もういちどいってください。|Please say it once more.
+言|say|ゲン,ゴン|い.う,こと|もう一度言ってください。|もういちどいってください。|Please say it once more.
 話|talk,story|ワ|はな.す,はなし|友だちと話します。|ともだちとはなします。|I talk with my friends.
-読|read|ドク|よ.む|新聞を読みます。|しんぶんをよみます。|I read the newspaper.
+読|read|ドク,トク,トウ|よ.む|新聞を読みます。|しんぶんをよみます。|I read the newspaper.
 書|write|ショ|か.く|名前を書いてください。|なまえをかいてください。|Please write your name.
-食|eat,food|ショク|た.べる|朝ご飯を食べます。|あさごはんをたべます。|I eat breakfast.
+食|eat,food|ショク,ジキ|た.べる|朝ご飯を食べます。|あさごはんをたべます。|I eat breakfast.
 飲|drink|イン|の.む|お茶を飲みます。|おちゃをのみます。|I drink tea.
 買|buy|バイ|か.う|本を買いました。|ほんをかいました。|I bought a book.
 聞|hear,listen|ブン,モン|き.く|音楽を聞きます。|おんがくをききます。|I listen to music.
-立|stand|リツ|た.つ|立ってください。|たってください。|Please stand up.
+立|stand|リツ,リュウ|た.つ,た.てる|立ってください。|たってください。|Please stand up.
 今|now|コン,キン|いま|今、何時ですか。|いま、なんじですか。|What time is it now?
 時|time,hour|ジ|とき|時間がありません。|じかんがありません。|I don't have time.
-分|minute,part,understand|ブン,フン|わ.かる|よく分かりません。|よくわかりません。|I don't really understand.
+分|minute,part,understand|ブン,フン,ブ|わ.かる,わ.ける|よく分かりません。|よくわかりません。|I don't really understand.
 半|half|ハン|なか.ば|三時半に会いましょう。|さんじはんにあいましょう。|Let's meet at 3:30.
 午|noon|ゴ||午後は暇です。|ごごはひまです。|I'm free in the afternoon.
 前|before,front|ゼン|まえ|駅の前で待ちます。|えきのまえでまちます。|I'll wait in front of the station.
-後|after,behind|ゴ,コウ|うし.ろ,あと,のち|後で電話します。|あとででんわします。|I'll call later.
+後|after,behind|ゴ,コウ|うし.ろ,あと,のち,おく.れる|後で電話します。|あとででんわします。|I'll call later.
 間|interval,between|カン,ケン|あいだ,ま|一時間勉強しました。|いちじかんべんきょうしました。|I studied for an hour.
 毎|every|マイ||毎日コーヒーを飲みます。|まいにちコーヒーをのみます。|I drink coffee every day.
 週|week|シュウ||来週テストがあります。|らいしゅうテストがあります。|There's a test next week.
 何|what|カ|なに,なん|これは何ですか。|これはなんですか。|What is this?
 国|country|コク|くに|どこの国から来ましたか。|どこのくにからきましたか。|Which country are you from?
-外|outside|ガイ,ゲ|そと,ほか|外は寒いです。|そとはさむいです。|It's cold outside.
+外|outside|ガイ,ゲ|そと,ほか,はず.す|外は寒いです。|そとはさむいです。|It's cold outside.
 語|language,word|ゴ|かた.る|英語を話せますか。|えいごをはなせますか。|Can you speak English?
 東|east|トウ|ひがし|東京に住んでいます。|とうきょうにすんでいます。|I live in Tokyo.
 西|west|セイ,サイ|にし|西の空が赤いです。|にしのそらがあかいです。|The western sky is red.
-南|south|ナン|みなみ|南の島へ行きたいです。|みなみのしまへいきたいです。|I want to go to a southern island.
+南|south|ナン,ナ|みなみ|南の島へ行きたいです。|みなみのしまへいきたいです。|I want to go to a southern island.
 北|north|ホク|きた|北海道は寒いです。|ほっかいどうはさむいです。|Hokkaido is cold.
 長|long,leader|チョウ|なが.い|妹は髪が長いです。|いもうとはかみがながいです。|My younger sister has long hair.
-高|tall,expensive|コウ|たか.い|この時計は高いです。|このとけいはたかいです。|This watch is expensive.
+高|tall,expensive|コウ|たか.い,たか|この時計は高いです。|このとけいはたかいです。|This watch is expensive.
 安|cheap,peaceful|アン|やす.い|この店は安いです。|このみせはやすいです。|This shop is cheap.
-新|new|シン|あたら.しい|新しい車を買いました。|あたらしいくるまをかいました。|I bought a new car.
+新|new|シン|あたら.しい,あら.た|新しい車を買いました。|あたらしいくるまをかいました。|I bought a new car.
 古|old|コ|ふる.い|古い町を歩きました。|ふるいまちをあるきました。|I walked around an old town.
 多|many|タ|おお.い|人が多いです。|ひとがおおいです。|There are a lot of people.
 少|few,little|ショウ|すく.ない,すこ.し|少し待ってください。|すこしまってください。|Please wait a little.
 電|electricity|デン||電話をかけます。|でんわをかけます。|I make a phone call.
 車|car,vehicle|シャ|くるま|車で行きます。|くるまでいきます。|I'll go by car.
-道|road,way|ドウ|みち|この道はせまいです。|このみちはせまいです。|This road is narrow.
+道|road,way|ドウ,トウ|みち|この道はせまいです。|このみちはせまいです。|This road is narrow.
 駅|station|エキ||駅はどこですか。|えきはどこですか。|Where is the station?
 社|company,shrine|シャ|やしろ|会社で働いています。|かいしゃではたらいています。|I work at a company.
 校|school|コウ||学校は八時からです。|がっこうははちじからです。|School starts at eight.
@@ -431,21 +444,21 @@ const N5_RAW = `一|one|イチ,イツ|ひと,ひと.つ|一つください。|�
 
 const N4_RAW = `会|meet,meeting|カイ,エ|あ.う|明日、友だちに会います。|あした、ともだちにあいます。|I'm meeting a friend tomorrow.
 同|same|ドウ|おな.じ|同じ本を持っています。|おなじほんをもっています。|I have the same book.
-事|thing,matter|ジ|こと|仕事は何時に終わりますか。|しごとはなんじにおわりますか。|What time does work finish?
+事|thing,matter|ジ,ズ|こと|仕事は何時に終わりますか。|しごとはなんじにおわりますか。|What time does work finish?
 自|self|ジ,シ|みずか.ら|自分で作りました。|じぶんでつくりました。|I made it myself.
 発|departure,emit|ハツ,ホツ||電車は九時に発車します。|でんしゃはくじにはっしゃします。|The train departs at nine.
 者|someone,person|シャ|もの|姉は医者です。|あねはいしゃです。|My older sister is a doctor.
 地|ground,earth|チ,ジ||地図を見てください。|ちずをみてください。|Please look at the map.
 業|business,industry|ギョウ,ゴウ|わざ|授業は九時からです。|じゅぎょうはくじからです。|Class starts at nine.
 方|direction,way,person|ホウ|かた|書き方を教えてください。|かきかたをおしえてください。|Please show me how to write it.
-場|place|ジョウ|ば|駐車場はどこですか。|ちゅうしゃじょうはどこですか。|Where is the parking lot?
+場|place|ジョウ,チョウ|ば|駐車場はどこですか。|ちゅうしゃじょうはどこですか。|Where is the parking lot?
 員|member,employee|イン||兄は会社員です。|あにはかいしゃいんです。|My older brother is an office worker.
-開|open|カイ|ひら.く,あ.く,あ.ける|窓を開けてください。|まどをあけてください。|Please open the window.
+開|open|カイ|ひら.く,あ.く,あ.ける,ひら.ける|窓を開けてください。|まどをあけてください。|Please open the window.
 問|question,problem|モン|と.う,とい|この問題は難しいです。|このもんだいはむずかしいです。|This problem is difficult.
 代|substitute,generation,fee|ダイ,タイ|か.わる|電気代が高いです。|でんきだいがたかいです。|The electricity bill is high.
-明|bright,clear|メイ,ミョウ|あか.るい,あ.ける|この部屋は明るいです。|このへやはあかるいです。|This room is bright.
+明|bright,clear|メイ,ミョウ,ミン|あか.るい,あ.ける,あ.かり,あき.らか|この部屋は明るいです。|このへやはあかるいです。|This room is bright.
 動|move|ドウ|うご.く|車が動きません。|くるまがうごきません。|The car won't move.
-京|capital|キョウ,ケイ||京都へ行きました。|きょうとへいきました。|I went to Kyoto.
+京|capital|キョウ,ケイ,キン||京都へ行きました。|きょうとへいきました。|I went to Kyoto.
 通|pass through,commute|ツウ,ツ|とお.る,かよ.う|バスで学校に通っています。|バスでがっこうにかよっています。|I go to school by bus.
 理|reason,logic|リ||料理を作ります。|りょうりをつくります。|I cook.
 体|body|タイ,テイ|からだ|体に気をつけてください。|からだにきをつけてください。|Please take care of yourself.
@@ -455,9 +468,9 @@ const N4_RAW = `会|meet,meeting|カイ,エ|あ.う|明日、友だちに会い�
 不|not,un-|フ,ブ||この町は不便です。|このまちはふべんです。|This town is inconvenient.
 作|make|サク,サ|つく.る|ケーキを作りました。|ケーキをつくりました。|I made a cake.
 用|use,errand|ヨウ|もち.いる|用事があるので帰ります。|ようじがあるのでかえります。|I have an errand, so I'm going home.
-度|degree,times|ド|たび|もう一度お願いします。|もういちどおねがいします。|Once more, please.
+度|degree,times|ド,ト|たび|もう一度お願いします。|もういちどおねがいします。|Once more, please.
 強|strong|キョウ,ゴウ|つよ.い|風が強いです。|かぜがつよいです。|The wind is strong.
-公|public|コウ|おおやけ|公園を散歩します。|こうえんをさんぽします。|I take a walk in the park.
+公|public|コウ,ク|おおやけ|公園を散歩します。|こうえんをさんぽします。|I take a walk in the park.
 持|hold,have|ジ|も.つ|かさを持っていますか。|かさをもっていますか。|Do you have an umbrella?
 野|field|ヤ|の|野菜を食べましょう。|やさいをたべましょう。|Let's eat vegetables.
 以|by means of,compared with|イ||十八歳以上の人は入れます。|じゅうはっさいいじょうのひとははいれます。|People 18 and over can enter.
@@ -471,8 +484,8 @@ const N4_RAW = `会|meet,meeting|カイ,エ|あ.う|明日、友だちに会い�
 教|teach|キョウ|おし.える|日本語を教えています。|にほんごをおしえています。|I teach Japanese.
 文|sentence,writing|ブン,モン|ふみ|作文を書きました。|さくぶんをかきました。|I wrote an essay.
 元|origin,former|ゲン,ガン|もと|元の場所に戻してください。|もとのばしょにもどしてください。|Please put it back where it was.
-重|heavy|ジュウ,チョウ|おも.い,かさ.ねる|この荷物は重いです。|このにもつはおもいです。|This luggage is heavy.
-近|near|キン|ちか.い|駅は近いです。|えきはちかいです。|The station is close.
+重|heavy|ジュウ,チョウ|おも.い,かさ.ねる,え|この荷物は重いです。|このにもつはおもいです。|This luggage is heavy.
+近|near|キン,コン|ちか.い|駅は近いです。|えきはちかいです。|The station is close.
 考|think,consider|コウ|かんが.える|よく考えてください。|よくかんがえてください。|Please think it over carefully.
 画|picture,stroke|ガ,カク||映画を見に行きましょう。|えいがをみにいきましょう。|Let's go see a movie.
 海|sea|カイ|うみ|夏は海で泳ぎます。|なつはうみでおよぎます。|In summer I swim in the sea.
@@ -508,25 +521,25 @@ const N4_RAW = `会|meet,meeting|カイ,エ|あ.う|明日、友だちに会い�
 転|turn,roll|テン|ころ.ぶ|自転車で行きます。|じてんしゃでいきます。|I'll go by bicycle.
 研|polish,study|ケン|と.ぐ|研究室にいます。|けんきゅうしつにいます。|I'm in the lab.
 究|research|キュウ|きわ.める|日本の歴史を研究しています。|にほんのれきしをけんきゅうしています。|I research Japanese history.
-楽|fun,music,comfort|ガク,ラク|たの.しい|旅行は楽しかったです。|りょこうはたのしかったです。|The trip was fun.
+楽|fun,music,comfort|ガク,ラク|たの.しい,たの.しむ|旅行は楽しかったです。|りょこうはたのしかったです。|The trip was fun.
 起|wake up,rise|キ|お.きる,お.こす|明日は早く起きます。|あしたははやくおきます。|I'll get up early tomorrow.
-着|arrive,wear|チャク|き.る,つ.く|駅に着きました。|えきにつきました。|I arrived at the station.
-病|illness|ビョウ|や.む|病気で学校を休みました。|びょうきでがっこうをやすみました。|I missed school because I was sick.
-質|quality|シツ,シチ||質問はありますか。|しつもんはありますか。|Do you have any questions?
+着|arrive,wear|チャク,ジャク|き.る,つ.く,き.せる,つ.ける|駅に着きました。|えきにつきました。|I arrived at the station.
+病|illness|ビョウ,ヘイ|や.む|病気で学校を休みました。|びょうきでがっこうをやすみました。|I missed school because I was sick.
+質|quality|シツ,シチ,チ||質問はありますか。|しつもんはありますか。|Do you have any questions?
 待|wait|タイ|ま.つ|ちょっと待ってください。|ちょっとまってください。|Please wait a moment.
 試|test,try|シ|ため.す,こころ.みる|明日試験があります。|あしたしけんがあります。|I have an exam tomorrow.
 族|family,tribe|ゾク||家族は四人です。|かぞくはよにんです。|There are four people in my family.
 銀|silver|ギン||銀行でお金を下ろします。|ぎんこうでおかねをおろします。|I take money out at the bank.
-早|early,fast|ソウ|はや.い|早く寝ましょう。|はやくねましょう。|Let's go to bed early.
+早|early,fast|ソウ,サッ|はや.い,はや.める|早く寝ましょう。|はやくねましょう。|Let's go to bed early.
 映|reflect,project|エイ|うつ.る|映画が好きです。|えいががすきです。|I like movies.
 親|parent,intimate|シン|おや,した.しい|親に電話しました。|おやにでんわしました。|I called my parents.
-験|test,effect|ケン||経験がありますか。|けいけんがありますか。|Do you have experience?
+験|test,effect|ケン,ゲン||経験がありますか。|けいけんがありますか。|Do you have experience?
 英|England,brilliant|エイ||英語を勉強しています。|えいごをべんきょうしています。|I'm studying English.
 医|doctor,medicine|イ||医者に行きました。|いしゃにいきました。|I went to the doctor.
 仕|serve,do|シ,ジ|つか.える|仕事が忙しいです。|しごとがいそがしいです。|Work is busy.
 去|past,leave|キョ,コ|さ.る|去年日本に来ました。|きょねんにほんにきました。|I came to Japan last year.
 味|taste|ミ|あじ|このスープは味が薄いです。|このスープはあじがうすいです。|This soup is bland.
-写|copy,photograph|シャ|うつ.す|ノートを写します。|ノートをうつします。|I copy the notes.
+写|copy,photograph|シャ,ジャ|うつ.す|ノートを写します。|ノートをうつします。|I copy the notes.
 字|character,letter|ジ|あざ|字がきれいですね。|じがきれいですね。|Your handwriting is neat.
 答|answer|トウ|こた.える,こた.え|質問に答えてください。|しつもんにこたえてください。|Please answer the question.
 夜|night|ヤ|よ,よる|夜は静かです。|よるはしずかです。|It's quiet at night.
@@ -537,7 +550,7 @@ const N4_RAW = `会|meet,meeting|カイ,エ|あ.う|明日、友だちに会い�
 悪|bad|アク,オ|わる.い|天気が悪いです。|てんきがわるいです。|The weather is bad.
 図|map,drawing|ズ,ト|はか.る|図書館で本を借ります。|としょかんでほんをかります。|I borrow books at the library.
 室|room|シツ|むろ|教室に入ってください。|きょうしつにはいってください。|Please go into the classroom.
-歩|walk|ホ,ブ|ある.く|駅まで歩きます。|えきまであるきます。|I walk to the station.
+歩|walk|ホ,ブ,フ|ある.く,あゆ.む|駅まで歩きます。|えきまであるきます。|I walk to the station.
 風|wind,style|フウ,フ|かぜ|風が気持ちいいです。|かぜがきもちいいです。|The breeze feels nice.
 紙|paper|シ|かみ|紙に名前を書いてください。|かみになまえをかいてください。|Please write your name on the paper.
 黒|black|コク|くろ,くろ.い|黒いかばんを持っています。|くろいかばんをもっています。|I have a black bag.
@@ -574,20 +587,20 @@ const N4_RAW = `会|meet,meeting|カイ,エ|あ.う|明日、友だちに会い�
 姉|older sister|シ|あね|姉と買い物に行きます。|あねとかいものにいきます。|I go shopping with my older sister.
 漢|China,Chinese|カン||漢字を書く練習をします。|かんじをかくれんしゅうをします。|I practice writing kanji.
 部|part,section,department|ブ||部長は会議中です。|ぶちょうはかいぎちゅうです。|The department head is in a meeting.
-頭|head|トウ,ズ|あたま|頭が痛いです。|あたまがいたいです。|I have a headache.
+頭|head|トウ,ズ,ト|あたま|頭が痛いです。|あたまがいたいです。|I have a headache.
 顔|face|ガン|かお|顔を洗います。|かおをあらいます。|I wash my face.
-声|voice|セイ|こえ|大きい声で話してください。|おおきいこえではなしてください。|Please speak in a loud voice.
+声|voice|セイ,ショウ|こえ|大きい声で話してください。|おおきいこえではなしてください。|Please speak in a loud voice.
 晩|evening,night|バン||今晩、映画を見ます。|こんばん、えいがをみます。|I'm watching a movie tonight.
 好|like,fond|コウ|す.き,この.む|日本の料理が好きです。|にほんのりょうりがすきです。|I like Japanese food.
 林|grove,woods|リン|はやし|林の中を歩きました。|はやしのなかをあるきました。|I walked through the woods.
 森|forest|シン|もり|森に鳥がたくさんいます。|もりにとりがたくさんいます。|There are many birds in the forest.
-遠|far|エン|とお.い|学校は家から遠いです。|がっこうはいえからとおいです。|School is far from my house.
+遠|far|エン,オン|とお.い|学校は家から遠いです。|がっこうはいえからとおいです。|School is far from my house.
 低|low,short|テイ|ひく.い|この山は低いです。|このやまはひくいです。|This mountain is low.
 暗|dark|アン|くら.い|外はもう暗いです。|そとはもうくらいです。|It's already dark outside.
 弱|weak|ジャク|よわ.い|私はお酒に弱いです。|わたしはおさけによわいです。|I can't hold my alcohol.
 太|fat,thick|タイ,タ|ふと.い,ふと.る|最近少し太りました。|さいきんすこしふとりました。|I've put on a little weight recently.
 軽|light (weight)|ケイ|かる.い|このかばんは軽いです。|このかばんはかるいです。|This bag is light.
-回|times,turn around|カイ|まわ.る,まわ.す|一日に三回薬を飲みます。|いちにちにさんかいくすりをのみます。|I take medicine three times a day.
+回|times,turn around|カイ,エ|まわ.る,まわ.す|一日に三回薬を飲みます。|いちにちにさんかいくすりをのみます。|I take medicine three times a day.
 引|pull|イン|ひ.く|ドアを引いてください。|ドアをひいてください。|Please pull the door.
 光|light,shine|コウ|ひかり,ひか.る|星が光っています。|ほしがひかっています。|The stars are shining.`;
 
@@ -611,7 +624,7 @@ const parseKanji = (raw, deck) => raw.trim().split("\n").map(l=>{
 const ITEMS = [];
 KANA_PAIRS.forEach(p=>ITEMS.push({id:"h:"+p.k, deck:"hira", type:"kana", k:p.k, romaji:p.romaji, other:hira2kata(p.k)}));
 KANA_PAIRS.forEach(p=>{ const k=hira2kata(p.k); ITEMS.push({id:"k:"+k, deck:"kata", type:"kana", k, romaji:p.romaji, other:p.k}); });
-RAD_RAW.trim().split("\n").forEach(l=>{ const [k,m,ex]=l.split("|"); ITEMS.push({id:"r:"+k, deck:"rad", type:"radical", k, meanings:m.split(","), examples:ex?ex.split(" "):[]}); });
+RAD_RAW.trim().split("\n").forEach(l=>{ const [k,m,ex,mn]=l.split("|"); ITEMS.push({id:"r:"+k, deck:"rad", type:"radical", k, meanings:m.split(","), examples:ex?ex.split(" "):[], mnemonic:mn||""}); });
 const n5 = parseKanji(N5_RAW,"n5"); ITEMS.push(...n5);
 const n5set = new Set(n5.map(x=>x.id));
 ITEMS.push(...parseKanji(N4_RAW,"n4").filter(x=>!n5set.has(x.id)));
@@ -708,20 +721,46 @@ function show(view){
   $("homeBtn").classList.toggle("hidden", view==="home");
   window.scrollTo(0,0);
 }
+// ---------- Audio (uses the device's built-in Japanese voice) ----------
+let jaVoice=null;
+function pickVoice(){
+  if(!("speechSynthesis" in window)) return;
+  const vs=speechSynthesis.getVoices().filter(v=>/^ja/i.test(v.lang));
+  jaVoice = vs.find(v=>/google|natural|online/i.test(v.name)) || vs[0] || null;
+}
+if("speechSynthesis" in window){ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }
+function speak(text){
+  if(!("speechSynthesis" in window)){ alert("This browser can't play audio."); return; }
+  pickVoice();
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text); u.lang="ja-JP"; if(jaVoice) u.voice=jaVoice; u.rate=0.8;
+  speechSynthesis.speak(u);
+  if(!jaVoice && !speak.warned){ speak.warned=true;
+    alert("No Japanese voice was found on this device, so audio may not play or may sound wrong. On Windows, add Japanese under Settings → Time & language → Speech."); }
+}
+const sayText = {
+  on: x => x.on.join("、"),
+  kun: x => x.kun.map(r=>r.replace(/\./g,"")).join("、"),
+  kana: x => x.k,
+};
+const SPK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>`;
+const sayBtn = (text, label) => `<button class="say" data-say="${text}" aria-label="Listen: ${label}" title="Listen">${SPK}</button>`;
+document.addEventListener("click", e=>{ const b=e.target.closest(".say"); if(b) speak(b.dataset.say); });
+
 function infoHTML(x){
   if(x.type==="kana") return `<dl>
-    <dt>Romaji</dt><dd>${x.romaji.join(" / ")}</dd>
+    <dt>Romaji</dt><dd>${x.romaji.join(" / ")}${sayBtn(x.k,"sound")}</dd>
     <dt>${x.deck==="hira"?"Katakana":"Hiragana"}</dt><dd class="jp">${x.other}</dd>
   </dl>`;
   if(x.type==="radical") return `<dl>
     <dt>Meaning</dt><dd>${x.meanings.join(", ")}</dd>
     <dt>Found in</dt><dd class="jp">${x.examples.join("　")||"—"}</dd>
-  </dl>`;
+  </dl>${x.mnemonic?`<p class="mn"><b>Mnemonic</b>${x.mnemonic}</p>`:""}`;
   return `<dl>
     <dt>Meaning</dt><dd>${x.meanings.join(", ")}</dd>
-    <dt>On'yomi</dt><dd class="jp">${x.on.join("、")||"—"}</dd>
-    <dt>Kun'yomi</dt><dd class="jp">${x.kun.map(fmtKun).join("、")||"—"}</dd>
-  </dl>${x.ex?`<div class="ex"><div class="lbl">Example</div>
+    <dt>On'yomi</dt><dd class="jp">${x.on.join("、")||"—"}${x.on.length?sayBtn(sayText.on(x),"on'yomi"):""}</dd>
+    <dt>Kun'yomi</dt><dd class="jp">${x.kun.map(fmtKun).join("、")||"—"}${x.kun.length?sayBtn(sayText.kun(x),"kun'yomi"):""}</dd>
+  </dl>${x.ex?`<div class="ex"><div class="lbl">Example${sayBtn(x.ex.rd,"example sentence")}</div>
     <div class="jp">${x.ex.jp.split(x.k).join(`<mark>${x.k}</mark>`)}</div>
     <div class="rd">${x.ex.rd}</div><div class="en">${x.ex.en}</div></div>`:""}`;
 }
@@ -813,6 +852,7 @@ function nextQ(){
   inp.placeholder = PLACEHOLDERS[t];
   inp.lang = (t==="on"||t==="kun") ? "ja" : "en";
   $("qMsg").textContent=""; $("qInfo").classList.add("hidden"); $("showInfo").disabled=true;
+  $("listen").disabled = x.type==="radical";
   $("qLeft").textContent = `${Q.done.length} of ${Q.total} done`;
   $("qAcc").textContent = Q.asked ? `${Math.round(Q.right/Q.asked*100)}% correct` : "";
   inp.focus();
@@ -868,6 +908,18 @@ $("qForm").addEventListener("submit", e=>{
   $("showInfo").disabled=false;
   $("qLeft").textContent = `${Q.done.length} of ${Q.total} done`;
 });
+$("listen").onclick=()=>{
+  if(!Q||!Q.cur) return;
+  const x=BY[Q.cur.id], t=Q.cur.t;
+  if(x.type==="radical") return;
+  const text = x.type==="kana" ? sayText.kana(x) : t==="kun" ? sayText.kun(x) : t==="on" ? sayText.on(x)
+    : [sayText.on(x), sayText.kun(x)].filter(Boolean).join("、");
+  if(!Q.answered && t!=="meaning"){
+    Q.track[x.id].wrong=true;
+    $("qMsg").textContent="Listening before answering counts as a miss, so this one will come back sooner. Type what you heard to continue.";
+  }
+  speak(text); $("qInput").focus();
+};
 $("showInfo").onclick=()=>{ $("qInfo").innerHTML=infoHTML(BY[Q.cur.id]); $("qInfo").classList.toggle("hidden"); $("qInput").focus(); };
 
 function completeItem(id){
@@ -905,6 +957,12 @@ $("resetBtn").onclick=()=>{ if(confirm("Reset all progress? Every item goes back
 
 // refresh counts when reviews become due
 setInterval(()=>{ if(!$("home").classList.contains("hidden")) render(); }, 60e3);
+
+// falling sakura petals
+$("petals").innerHTML = Array.from({length:14},()=>{
+  const s=8+Math.random()*7, d=12+Math.random()*14;
+  return `<i class="petal" style="left:${Math.random()*100}%;width:${s}px;height:${s*.75}px;animation-duration:${d}s;animation-delay:${-Math.random()*d}s"></i>`;
+}).join("");
 
 load();
 render();
