@@ -10,7 +10,7 @@
 <style>
 :root{
   --paper:#EEF0F2; --surface:#FFFFFF; --ink:#1C2430; --muted:#5D6776; --line:#D3D8DF;
-  --indigo:#253E66; --indigo-ink:#F2F4F8; --meaning:#FFFFFF;
+  --indigo:#253E66; --indigo-ink:#F2F4F8; --meaning:#FFFFFF; --kun:#5B3B66;
   --ok:#2F7A4A; --bad:#B03A35; --accent:#C7843A;
   --s0:#D9DDE3; --s1:#E8C98F; --s2:#9DB7D8; --s3:#5F84B6; --s4:#33557F; --s5:#1C2430;
   --kanji:"Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", serif;
@@ -21,14 +21,14 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --paper:#141A22; --surface:#1D2530; --ink:#E7EAEE; --muted:#9AA4B2; --line:#2E3946;
-    --indigo:#2D4A78; --indigo-ink:#F2F4F8; --meaning:#242E3A;
+    --indigo:#2D4A78; --indigo-ink:#F2F4F8; --meaning:#242E3A; --kun:#5E3F6B;
     --ok:#4FA36C; --bad:#D9605A; --accent:#E0A35E;
     --s0:#2A333F; --s1:#8A6C38; --s2:#46638A; --s3:#5F84B6; --s4:#9DB7D8; --s5:#E7EAEE;
   }
 }
 :root[data-theme="dark"]{
   --paper:#141A22; --surface:#1D2530; --ink:#E7EAEE; --muted:#9AA4B2; --line:#2E3946;
-  --indigo:#2D4A78; --indigo-ink:#F2F4F8; --meaning:#242E3A;
+  --indigo:#2D4A78; --indigo-ink:#F2F4F8; --meaning:#242E3A; --kun:#5E3F6B;
   --ok:#4FA36C; --bad:#D9605A; --accent:#E0A35E;
   --s0:#2A333F; --s1:#8A6C38; --s2:#46638A; --s3:#5F84B6; --s4:#9DB7D8; --s5:#E7EAEE;
 }
@@ -55,6 +55,15 @@ header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
 .big:disabled{opacity:.5;cursor:default}
 .next{color:var(--muted);font-size:14px;margin:12px 2px 30px}
 h2{font-size:17px;margin:0 0 12px;font-weight:700}
+h3{font-size:14px;margin:22px 0 10px;font-weight:700;color:var(--muted)}
+.decks{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.deck{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:10px 12px;text-align:left;display:flex;flex-direction:column;gap:2px}
+.deck .dn{font-weight:700;display:flex;justify-content:space-between;gap:8px}
+.deck .dn i{font-style:normal;font-size:12px;font-weight:500;padding:0 7px;border-radius:10px;background:var(--s0);color:var(--muted)}
+.deck .dc{font-size:12px;color:var(--muted)}
+.deck[aria-pressed="true"]{border-color:var(--ink)}
+.deck[aria-pressed="true"] .dn i{background:var(--ink);color:var(--paper)}
+.hint{font-size:13px;color:var(--muted);margin:8px 2px 30px}
 .stages{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:30px}
 .stage{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 10px 8px}
 .stage b{display:block;font-size:22px;font-family:var(--kanji)}
@@ -62,20 +71,25 @@ h2{font-size:17px;margin:0 0 12px;font-weight:700}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}
 .tile{border:0;aspect-ratio:1;border-radius:4px;font-family:var(--kanji);font-weight:600;font-size:26px;display:grid;place-items:center;background:var(--s0);color:var(--muted)}
+.tile.long{font-size:18px}
 .tile[data-s="1"]{background:var(--s1);color:#1C2430}
 .tile[data-s="2"]{background:var(--s2);color:#1C2430}
 .tile[data-s="3"]{background:var(--s3);color:#fff}
 .tile[data-s="4"]{background:var(--s4);color:var(--paper)}
 .tile[data-s="5"]{background:var(--s5);color:var(--paper)}
-.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);margin-top:12px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);margin-top:16px}
 .legend span{display:flex;align-items:center;gap:6px}
 footer{margin-top:40px;font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+footer p{margin:0;flex-basis:100%}
 
 /* Lesson + quiz */
 .bar{display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--muted);margin-bottom:12px}
-.card{border-radius:8px;overflow:hidden;border:1.5px solid var(--line);background:var(--surface)}
+.card{border-radius:8px;overflow:hidden;border:1.5px solid var(--line);background:var(--surface);position:relative}
+.tag{position:absolute;top:10px;left:14px;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;opacity:.7;z-index:1}
+.card.reading .tag,.card.kun .tag{color:var(--indigo-ink)}
 .face{display:grid;place-items:center;padding:34px 16px 30px;font-family:var(--kanji);font-weight:800;font-size:clamp(110px,26vw,170px);line-height:1;background:var(--meaning);color:var(--ink);transition:background .2s,color .2s}
 .card.reading .face{background:var(--indigo);color:var(--indigo-ink)}
+.card.kun .face{background:var(--kun);color:var(--indigo-ink)}
 .prompt{padding:10px 16px;font-weight:700;font-size:15px;text-align:center;border-top:1.5px solid var(--line);border-bottom:1.5px solid var(--line)}
 .prompt em{font-style:normal;font-weight:400;color:var(--muted)}
 .answer{display:flex;padding:14px;gap:10px;align-items:stretch}
@@ -92,6 +106,12 @@ footer{margin-top:40px;font-size:13px;color:var(--muted);display:flex;flex-wrap:
 .info dt{color:var(--muted);font-size:14px}
 .info dd{margin:0;font-size:18px}
 .info dd.jp{font-family:var(--kanji);font-weight:600;font-size:20px}
+.ex{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.ex .lbl{color:var(--muted);font-size:14px;margin-bottom:4px}
+.ex .jp{font-family:var(--kanji);font-weight:600;font-size:22px;line-height:1.5}
+.ex .rd{font-size:14px;color:var(--muted)}
+.ex .en{font-size:16px;margin-top:2px}
+mark{background:color-mix(in srgb,var(--accent) 32%,transparent);color:inherit;border-radius:2px;padding:0 2px}
 .row{display:flex;gap:10px;justify-content:space-between;margin-top:14px;flex-wrap:wrap}
 .btn{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:10px 18px;font-weight:500}
 .btn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
@@ -104,7 +124,7 @@ footer{margin-top:40px;font-size:13px;color:var(--muted);display:flex;flex-wrap:
 .summary .lists .w{background:color-mix(in srgb,var(--bad) 18%,transparent)}
 .summary .lists .r{background:color-mix(in srgb,var(--ok) 18%,transparent)}
 
-dialog{border:1.5px solid var(--line);border-radius:8px;padding:0;background:var(--surface);color:var(--ink);width:min(420px,92vw)}
+dialog{border:1.5px solid var(--line);border-radius:8px;padding:0;background:var(--surface);color:var(--ink);width:min(440px,92vw)}
 dialog::backdrop{background:rgba(10,15,25,.45)}
 dialog .face{font-size:110px;padding:24px}
 dialog .close{display:block;margin:0 20px 18px auto}
@@ -125,18 +145,22 @@ dialog .close{display:block;margin:0 20px 18px auto}
   <!-- HOME -->
   <main id="home">
     <div class="actions">
-      <button class="big lessons" id="lessonBtn"><span class="n" id="lessonN">0</span><span class="l">Lessons</span><span class="h">Learn 5 new kanji</span></button>
+      <button class="big lessons" id="lessonBtn"><span class="n" id="lessonN">0</span><span class="l">Lessons</span><span class="h">Learn 5 new items</span></button>
       <button class="big reviews" id="reviewBtn"><span class="n" id="reviewN">0</span><span class="l">Reviews</span><span class="h">Due now</span></button>
     </div>
     <p class="next" id="nextLine"></p>
+    <h2>Decks</h2>
+    <div class="decks" id="decks"></div>
+    <p class="hint">Tap a deck to turn it on or off. Decks that are off are paused: no new lessons and no reviews.</p>
     <h2>Progress</h2>
     <div class="stages" id="stages"></div>
-    <h2>All kanji</h2>
-    <div class="grid" id="grid"></div>
+    <h2>All items</h2>
+    <div id="grids"></div>
     <div class="legend" id="legend"></div>
     <footer>
-      <span id="saveState">Saved on this device</span>
+      <span id="saveState">Progress is saved in this browser</span>
       <button class="linkbtn" id="resetBtn">Reset all progress</button>
+      <p>Example sentences were written with AI help and haven't been checked by a teacher. If one looks wrong, trust your textbook.</p>
     </footer>
   </main>
 
@@ -144,6 +168,7 @@ dialog .close{display:block;margin:0 20px 18px auto}
   <section id="lesson" class="hidden">
     <div class="bar"><span id="lessonCount"></span><span>Read it, then press Next</span></div>
     <div class="card">
+      <div class="tag" id="lessonTag"></div>
       <div class="face lessonface" id="lessonFace"></div>
       <div class="info" id="lessonInfo"></div>
     </div>
@@ -157,6 +182,7 @@ dialog .close{display:block;margin:0 20px 18px auto}
   <section id="quiz" class="hidden">
     <div class="bar"><span id="qLeft"></span><span id="qAcc"></span></div>
     <div class="card" id="qCard">
+      <div class="tag" id="qTag"></div>
       <div class="face" id="qFace"></div>
       <div class="prompt" id="qPrompt"></div>
       <form class="answer" id="qForm" autocomplete="off">
@@ -185,156 +211,435 @@ dialog .close{display:block;margin:0 20px 18px auto}
 </dialog>
 
 <script>
-// ---------- Kanji data (JLPT N5 core) : kanji|meanings|on'yomi|kun'yomi ----------
-const RAW = `一|one|イチ,イツ|ひと,ひと.つ
-二|two|ニ|ふた,ふた.つ
-三|three|サン|み,み.つ,みっ.つ
-四|four|シ|よ,よ.つ,よっ.つ,よん
-五|five|ゴ|いつ,いつ.つ
-六|six|ロク|む,む.つ,むっ.つ
-七|seven|シチ|なな,なな.つ,なの
-八|eight|ハチ|や,や.つ,やっ.つ
-九|nine|キュウ,ク|ここの,ここの.つ
-十|ten|ジュウ|とお,と
-百|hundred|ヒャク|
-千|thousand|セン|ち
-万|ten thousand|マン,バン|
-円|yen,circle|エン|まる.い
-日|sun,day|ニチ,ジツ|ひ,か
-月|moon,month|ゲツ,ガツ|つき
-火|fire|カ|ひ
-水|water|スイ|みず
-木|tree,wood|ボク,モク|き
-金|gold,money|キン,コン|かね
-土|soil,earth|ド,ト|つち
-年|year|ネン|とし
-人|person|ジン,ニン|ひと
-子|child|シ,ス|こ
-女|woman|ジョ,ニョ|おんな,め
-男|man|ダン,ナン|おとこ
-大|big|ダイ,タイ|おお,おお.きい
-小|small|ショウ|ちい.さい,こ,お
-中|middle,inside|チュウ|なか
-上|up,above|ジョウ|うえ,あ.がる,のぼ.る
-下|down,below|カ,ゲ|した,さ.がる,くだ.る,お.りる
-左|left|サ|ひだり
-右|right|ウ,ユウ|みぎ
-山|mountain|サン|やま
-川|river|セン|かわ
-田|rice field|デン|た
-口|mouth|コウ,ク|くち
-目|eye|モク|め
-耳|ear|ジ|みみ
-手|hand|シュ|て
-足|foot,leg|ソク|あし,た.りる
-力|power,strength|リョク,リキ|ちから
-本|book,origin|ホン|もと
-学|study,learning|ガク|まな.ぶ
-生|life,birth|セイ,ショウ|い.きる,う.まれる,なま
-先|previous,ahead|セン|さき
-名|name|メイ,ミョウ|な
-白|white|ハク|しろ,しろ.い
-天|heaven,sky|テン|あめ
-気|spirit,energy|キ,ケ|
-雨|rain|ウ|あめ
-花|flower|カ|はな
-空|sky,empty|クウ|そら,から
-犬|dog|ケン|いぬ
-見|see,look|ケン|み.る
-行|go|コウ,ギョウ|い.く,おこな.う
-来|come|ライ|く.る
-出|exit,leave|シュツ|で.る,だ.す
-入|enter|ニュウ|はい.る,い.れる
-休|rest|キュウ|やす.む
-言|say|ゲン,ゴン|い.う
-話|talk,story|ワ|はな.す,はなし
-読|read|ドク|よ.む
-書|write|ショ|か.く
-食|eat,food|ショク|た.べる
-飲|drink|イン|の.む
-買|buy|バイ|か.う
-聞|hear,listen|ブン,モン|き.く
-立|stand|リツ|た.つ
-今|now|コン,キン|いま
-時|time,hour|ジ|とき
-分|minute,part,understand|ブン,フン|わ.かる
-半|half|ハン|なか.ば
-午|noon|ゴ|
-前|before,front|ゼン|まえ
-後|after,behind|ゴ,コウ|うし.ろ,あと,のち
-間|interval,between|カン,ケン|あいだ,ま
-毎|every|マイ|
-週|week|シュウ|
-何|what|カ|なに,なん
-国|country|コク|くに
-外|outside|ガイ,ゲ|そと,ほか
-語|language,word|ゴ|かた.る
-東|east|トウ|ひがし
-西|west|セイ,サイ|にし
-南|south|ナン|みなみ
-北|north|ホク|きた
-長|long,leader|チョウ|なが.い
-高|tall,expensive|コウ|たか.い
-安|cheap,peaceful|アン|やす.い
-新|new|シン|あたら.しい
-古|old|コ|ふる.い
-多|many|タ|おお.い
-少|few,little|ショウ|すく.ない,すこ.し
-電|electricity|デン|
-車|car,vehicle|シャ|くるま
-道|road,way|ドウ|みち
-駅|station|エキ|
-社|company,shrine|シャ|やしろ
-校|school|コウ|
-店|shop,store|テン|みせ
-友|friend|ユウ|とも
-父|father|フ|ちち
-母|mother|ボ|はは`;
-const KANJI = RAW.split("\n").map(l=>{const [k,m,on,kun]=l.split("|");
-  return {k, meanings:m.split(","), on:on?on.split(","):[], kun:kun?kun.split(","):[]};});
-const BY = Object.fromEntries(KANJI.map(x=>[x.k,x]));
+// ---------- Kana : kana:romaji/alternatives ----------
+const KANA_RAW = `あ:a い:i う:u え:e お:o か:ka き:ki く:ku け:ke こ:ko さ:sa し:shi/si す:su せ:se そ:so
+た:ta ち:chi/ti つ:tsu/tu て:te と:to な:na に:ni ぬ:nu ね:ne の:no は:ha ひ:hi ふ:fu/hu へ:he ほ:ho
+ま:ma み:mi む:mu め:me も:mo や:ya ゆ:yu よ:yo ら:ra り:ri る:ru れ:re ろ:ro わ:wa を:wo/o ん:n/nn
+が:ga ぎ:gi ぐ:gu げ:ge ご:go ざ:za じ:ji/zi ず:zu ぜ:ze ぞ:zo だ:da ぢ:ji/di/dzi づ:zu/du/dzu で:de ど:do
+ば:ba び:bi ぶ:bu べ:be ぼ:bo ぱ:pa ぴ:pi ぷ:pu ぺ:pe ぽ:po
+きゃ:kya きゅ:kyu きょ:kyo しゃ:sha/sya しゅ:shu/syu しょ:sho/syo ちゃ:cha/cya/tya ちゅ:chu/cyu/tyu ちょ:cho/cyo/tyo
+にゃ:nya にゅ:nyu にょ:nyo ひゃ:hya ひゅ:hyu ひょ:hyo みゃ:mya みゅ:myu みょ:myo りゃ:rya りゅ:ryu りょ:ryo
+ぎゃ:gya ぎゅ:gyu ぎょ:gyo じゃ:ja/jya/zya じゅ:ju/jyu/zyu じょ:jo/jyo/zyo びゃ:bya びゅ:byu びょ:byo ぴゃ:pya ぴゅ:pyu ぴょ:pyo`;
+
+// ---------- Radicals found in N5/N4 kanji : radical|meanings|example kanji ----------
+const RAD_RAW = `一|one|一 二 三 下
+丨|line,stick|中 十
+丶|dot|主
+丿|slash|九 千
+亠|lid,top hat|京 高 夜
+人|person|人 会 今
+亻|person|休 体 何 作 使
+儿|legs|先 元 兄 見
+入|enter|入
+八|eight,divide|八 六 分 公
+冖|cover,crown|写
+冫|ice|冬
+几|table,desk|風
+刀|knife,sword|分 切
+刂|knife,sword|前 別
+力|power,strength|力 男 動 勉
+匕|spoon|北
+十|ten,cross|十 千 午 南
+又|again,right hand|友
+口|mouth|口 右 名 品 問
+囗|enclosure,box|国 四 図 回
+土|soil,earth|土 地 場
+士|samurai,scholar|声 売
+夂|winter,go slowly|冬 夏
+夕|evening|夕 名 多 夜 外
+大|big|大 天 太 犬
+女|woman|女 好 妹 姉 始
+子|child|子 学 字 好
+宀|roof|家 安 字 室
+寸|inch,measurement|時 待 特
+小|small|小 少
+尸|flag,corpse|屋
+山|mountain|山
+川|river|川
+工|work,craft|工 左
+巾|cloth,towel|帰
+广|building,dotted cliff|広 店 度
+廴|long stride|建
+弓|bow|強 弱 引
+彳|step,going|行 後 待
+心|heart|心 思 意 急 悪
+戸|door|戸
+手|hand|手
+扌|hand|持
+攵|strike,action|教
+文|writing,pattern|文
+斤|axe|新 近
+方|direction,square|方 旅 族
+日|sun,day|日 明 時 早 曜
+月|moon,month|月 朝 明 服
+木|tree,wood|木 本 林 森 校
+欠|yawn,lack|歌 飲
+止|stop|止 歩 正
+歹|death,bones|死
+气|steam,spirit|気
+水|water|水
+氵|water|海 洋 漢 注
+火|fire|火 秋
+灬|fire|黒 無
+父|father|父
+牛|cow|牛 物 特
+王|king,jewel|理
+生|life,birth|生
+田|rice field|田 男 思 町 画
+疒|sickness|病
+白|white|白 百
+目|eye|目 見 真
+石|stone|研
+礻|altar,spirit|社
+禾|grain|秋 私
+穴|hole,cave|空 究
+立|stand|立 音 意 親
+竹|bamboo|答
+米|rice|料
+糸|thread|紙 終
+耳|ear|耳 聞
+肉|meat|肉
+自|self,nose|自
+艹|grass,plant|花 茶 英
+虫|insect,bug|風
+見|see|見 親
+言|say,speech|言 話 語 読 試
+貝|shell,money|買 貸 質 員
+走|run|走 起
+足|foot,leg|足
+車|car,vehicle|車 転 軽
+辶|road,movement|道 週 近 送 運 通 遠
+里|village|野
+金|gold,metal|金 銀
+門|gate|開 聞 間
+阝|hill,village|院 部
+隹|old bird|集 曜
+雨|rain|雨 電
+青|blue|青
+頁|head,page|題 頭 顔
+食|eat,food|食
+飠|eat,food|飲 飯 館
+馬|horse|駅 験
+魚|fish|魚
+鳥|bird|鳥`;
+
+// ---------- Kanji : kanji|meanings|on'yomi|kun'yomi|example|example reading|translation ----------
+const N5_RAW = `一|one|イチ,イツ|ひと,ひと.つ|一つください。|ひとつください。|One, please.
+二|two|ニ|ふた,ふた.つ|二人で行きます。|ふたりでいきます。|The two of us will go.
+三|three|サン|み,み.つ,みっ.つ|三月に日本へ行きます。|さんがつににほんへいきます。|I'm going to Japan in March.
+四|four|シ|よ,よ.つ,よっ.つ,よん|四時に会いましょう。|よじにあいましょう。|Let's meet at four o'clock.
+五|five|ゴ|いつ,いつ.つ|りんごを五つ買いました。|りんごをいつつかいました。|I bought five apples.
+六|six|ロク|む,む.つ,むっ.つ|六月は雨が多いです。|ろくがつはあめがおおいです。|It rains a lot in June.
+七|seven|シチ|なな,なな.つ,なの|七時に起きます。|しちじにおきます。|I get up at seven.
+八|eight|ハチ|や,や.つ,やっ.つ|これは八百円です。|これははっぴゃくえんです。|This is 800 yen.
+九|nine|キュウ,ク|ここの,ここの.つ|九時に寝ます。|くじにねます。|I go to bed at nine.
+十|ten|ジュウ|とお,と|十分待ってください。|じゅっぷんまってください。|Please wait ten minutes.
+百|hundred|ヒャク||百人が来ました。|ひゃくにんがきました。|A hundred people came.
+千|thousand|セン|ち|千円あります。|せんえんあります。|I have 1,000 yen.
+万|ten thousand|マン,バン||一万円は高いです。|いちまんえんはたかいです。|Ten thousand yen is expensive.
+円|yen,circle|エン|まる.い|このりんごは百円です。|このりんごはひゃくえんです。|This apple is 100 yen.
+日|sun,day|ニチ,ジツ|ひ,か|日曜日に休みます。|にちようびにやすみます。|I rest on Sundays.
+月|moon,month|ゲツ,ガツ|つき|月がきれいです。|つきがきれいです。|The moon is beautiful.
+火|fire|カ|ひ|火曜日は忙しいです。|かようびはいそがしいです。|Tuesdays are busy.
+水|water|スイ|みず|水を飲みます。|みずをのみます。|I drink water.
+木|tree,wood|ボク,モク|き|木の下で休みます。|きのしたでやすみます。|I rest under the tree.
+金|gold,money|キン,コン|かね|お金がありません。|おかねがありません。|I don't have any money.
+土|soil,earth|ド,ト|つち|土曜日に映画を見ます。|どようびにえいがをみます。|I watch a movie on Saturday.
+年|year|ネン|とし|毎年日本へ行きます。|まいとしにほんへいきます。|I go to Japan every year.
+人|person|ジン,ニン|ひと|あの人は先生です。|あのひとはせんせいです。|That person is a teacher.
+子|child|シ,ス|こ|子どもが公園で遊んでいます。|こどもがこうえんであそんでいます。|Children are playing in the park.
+女|woman|ジョ,ニョ|おんな,め|女の人が来ました。|おんなのひとがきました。|A woman came.
+男|man|ダン,ナン|おとこ|男の子が三人います。|おとこのこがさんにんいます。|There are three boys.
+大|big|ダイ,タイ|おお,おお.きい|大きい犬がいます。|おおきいいぬがいます。|There's a big dog.
+小|small|ショウ|ちい.さい,こ,お|小さい家に住んでいます。|ちいさいいえにすんでいます。|I live in a small house.
+中|middle,inside|チュウ|なか|かばんの中に本があります。|かばんのなかにほんがあります。|There's a book in the bag.
+上|up,above|ジョウ|うえ,あ.がる,のぼ.る|机の上にペンがあります。|つくえのうえにペンがあります。|There's a pen on the desk.
+下|down,below|カ,ゲ|した,さ.がる,くだ.る,お.りる|いすの下に猫がいます。|いすのしたにねこがいます。|There's a cat under the chair.
+左|left|サ|ひだり|左に曲がってください。|ひだりにまがってください。|Please turn left.
+右|right|ウ,ユウ|みぎ|駅は右にあります。|えきはみぎにあります。|The station is on the right.
+山|mountain|サン|やま|山に登りました。|やまにのぼりました。|I climbed a mountain.
+川|river|セン|かわ|川で泳ぎます。|かわでおよぎます。|I swim in the river.
+田|rice field|デン|た|田んぼに水があります。|たんぼにみずがあります。|There's water in the rice paddy.
+口|mouth|コウ,ク|くち|口を開けてください。|くちをあけてください。|Please open your mouth.
+目|eye|モク|め|目が痛いです。|めがいたいです。|My eyes hurt.
+耳|ear|ジ|みみ|祖父は耳が遠いです。|そふはみみがとおいです。|My grandfather is hard of hearing.
+手|hand|シュ|て|手を洗いましょう。|てをあらいましょう。|Let's wash our hands.
+足|foot,leg|ソク|あし,た.りる|足が痛いです。|あしがいたいです。|My feet hurt.
+力|power,strength|リョク,リキ|ちから|兄は力が強いです。|あにはちからがつよいです。|My older brother is strong.
+本|book,origin|ホン|もと|この本はおもしろいです。|このほんはおもしろいです。|This book is interesting.
+学|study,learning|ガク|まな.ぶ|大学で日本語を勉強します。|だいがくでにほんごをべんきょうします。|I study Japanese at university.
+生|life,birth|セイ,ショウ|い.きる,う.まれる,なま|学生は五人です。|がくせいはごにんです。|There are five students.
+先|previous,ahead|セン|さき|先生に聞きます。|せんせいにききます。|I'll ask the teacher.
+名|name|メイ,ミョウ|な|お名前は何ですか。|おなまえはなんですか。|What's your name?
+白|white|ハク|しろ,しろ.い|白いシャツを買いました。|しろいシャツをかいました。|I bought a white shirt.
+天|heaven,sky|テン|あめ|今日は天気がいいです。|きょうはてんきがいいです。|The weather is nice today.
+気|spirit,energy|キ,ケ||元気ですか。|げんきですか。|How are you?
+雨|rain|ウ|あめ|雨が降っています。|あめがふっています。|It's raining.
+花|flower|カ|はな|花がきれいです。|はながきれいです。|The flowers are pretty.
+空|sky,empty|クウ|そら,から|空が青いです。|そらがあおいです。|The sky is blue.
+犬|dog|ケン|いぬ|犬が好きです。|いぬがすきです。|I like dogs.
+見|see,look|ケン|み.る|テレビを見ます。|テレビをみます。|I watch TV.
+行|go|コウ,ギョウ|い.く,おこな.う|学校へ行きます。|がっこうへいきます。|I go to school.
+来|come|ライ|く.る|友だちが来ます。|ともだちがきます。|My friend is coming.
+出|exit,leave|シュツ|で.る,だ.す|八時に家を出ました。|はちじにいえをでました。|I left home at eight.
+入|enter|ニュウ|はい.る,い.れる|部屋に入ります。|へやにはいります。|I go into the room.
+休|rest|キュウ|やす.む|明日は休みです。|あしたはやすみです。|Tomorrow is a day off.
+言|say|ゲン,ゴン|い.う|もう一度言ってください。|もういちどいってください。|Please say it once more.
+話|talk,story|ワ|はな.す,はなし|友だちと話します。|ともだちとはなします。|I talk with my friends.
+読|read|ドク|よ.む|新聞を読みます。|しんぶんをよみます。|I read the newspaper.
+書|write|ショ|か.く|名前を書いてください。|なまえをかいてください。|Please write your name.
+食|eat,food|ショク|た.べる|朝ご飯を食べます。|あさごはんをたべます。|I eat breakfast.
+飲|drink|イン|の.む|お茶を飲みます。|おちゃをのみます。|I drink tea.
+買|buy|バイ|か.う|本を買いました。|ほんをかいました。|I bought a book.
+聞|hear,listen|ブン,モン|き.く|音楽を聞きます。|おんがくをききます。|I listen to music.
+立|stand|リツ|た.つ|立ってください。|たってください。|Please stand up.
+今|now|コン,キン|いま|今、何時ですか。|いま、なんじですか。|What time is it now?
+時|time,hour|ジ|とき|時間がありません。|じかんがありません。|I don't have time.
+分|minute,part,understand|ブン,フン|わ.かる|よく分かりません。|よくわかりません。|I don't really understand.
+半|half|ハン|なか.ば|三時半に会いましょう。|さんじはんにあいましょう。|Let's meet at 3:30.
+午|noon|ゴ||午後は暇です。|ごごはひまです。|I'm free in the afternoon.
+前|before,front|ゼン|まえ|駅の前で待ちます。|えきのまえでまちます。|I'll wait in front of the station.
+後|after,behind|ゴ,コウ|うし.ろ,あと,のち|後で電話します。|あとででんわします。|I'll call later.
+間|interval,between|カン,ケン|あいだ,ま|一時間勉強しました。|いちじかんべんきょうしました。|I studied for an hour.
+毎|every|マイ||毎日コーヒーを飲みます。|まいにちコーヒーをのみます。|I drink coffee every day.
+週|week|シュウ||来週テストがあります。|らいしゅうテストがあります。|There's a test next week.
+何|what|カ|なに,なん|これは何ですか。|これはなんですか。|What is this?
+国|country|コク|くに|どこの国から来ましたか。|どこのくにからきましたか。|Which country are you from?
+外|outside|ガイ,ゲ|そと,ほか|外は寒いです。|そとはさむいです。|It's cold outside.
+語|language,word|ゴ|かた.る|英語を話せますか。|えいごをはなせますか。|Can you speak English?
+東|east|トウ|ひがし|東京に住んでいます。|とうきょうにすんでいます。|I live in Tokyo.
+西|west|セイ,サイ|にし|西の空が赤いです。|にしのそらがあかいです。|The western sky is red.
+南|south|ナン|みなみ|南の島へ行きたいです。|みなみのしまへいきたいです。|I want to go to a southern island.
+北|north|ホク|きた|北海道は寒いです。|ほっかいどうはさむいです。|Hokkaido is cold.
+長|long,leader|チョウ|なが.い|妹は髪が長いです。|いもうとはかみがながいです。|My younger sister has long hair.
+高|tall,expensive|コウ|たか.い|この時計は高いです。|このとけいはたかいです。|This watch is expensive.
+安|cheap,peaceful|アン|やす.い|この店は安いです。|このみせはやすいです。|This shop is cheap.
+新|new|シン|あたら.しい|新しい車を買いました。|あたらしいくるまをかいました。|I bought a new car.
+古|old|コ|ふる.い|古い町を歩きました。|ふるいまちをあるきました。|I walked around an old town.
+多|many|タ|おお.い|人が多いです。|ひとがおおいです。|There are a lot of people.
+少|few,little|ショウ|すく.ない,すこ.し|少し待ってください。|すこしまってください。|Please wait a little.
+電|electricity|デン||電話をかけます。|でんわをかけます。|I make a phone call.
+車|car,vehicle|シャ|くるま|車で行きます。|くるまでいきます。|I'll go by car.
+道|road,way|ドウ|みち|この道はせまいです。|このみちはせまいです。|This road is narrow.
+駅|station|エキ||駅はどこですか。|えきはどこですか。|Where is the station?
+社|company,shrine|シャ|やしろ|会社で働いています。|かいしゃではたらいています。|I work at a company.
+校|school|コウ||学校は八時からです。|がっこうははちじからです。|School starts at eight.
+店|shop,store|テン|みせ|店は十時に開きます。|みせはじゅうじにあきます。|The shop opens at ten.
+友|friend|ユウ|とも|友だちと遊びます。|ともだちとあそびます。|I hang out with friends.
+父|father|フ|ちち|父は医者です。|ちちはいしゃです。|My father is a doctor.
+母|mother|ボ|はは|母は料理が上手です。|はははりょうりがじょうずです。|My mother is good at cooking.`;
+
+const N4_RAW = `会|meet,meeting|カイ,エ|あ.う|明日、友だちに会います。|あした、ともだちにあいます。|I'm meeting a friend tomorrow.
+同|same|ドウ|おな.じ|同じ本を持っています。|おなじほんをもっています。|I have the same book.
+事|thing,matter|ジ|こと|仕事は何時に終わりますか。|しごとはなんじにおわりますか。|What time does work finish?
+自|self|ジ,シ|みずか.ら|自分で作りました。|じぶんでつくりました。|I made it myself.
+発|departure,emit|ハツ,ホツ||電車は九時に発車します。|でんしゃはくじにはっしゃします。|The train departs at nine.
+者|someone,person|シャ|もの|姉は医者です。|あねはいしゃです。|My older sister is a doctor.
+地|ground,earth|チ,ジ||地図を見てください。|ちずをみてください。|Please look at the map.
+業|business,industry|ギョウ,ゴウ|わざ|授業は九時からです。|じゅぎょうはくじからです。|Class starts at nine.
+方|direction,way,person|ホウ|かた|書き方を教えてください。|かきかたをおしえてください。|Please show me how to write it.
+場|place|ジョウ|ば|駐車場はどこですか。|ちゅうしゃじょうはどこですか。|Where is the parking lot?
+員|member,employee|イン||兄は会社員です。|あにはかいしゃいんです。|My older brother is an office worker.
+開|open|カイ|ひら.く,あ.く,あ.ける|窓を開けてください。|まどをあけてください。|Please open the window.
+問|question,problem|モン|と.う,とい|この問題は難しいです。|このもんだいはむずかしいです。|This problem is difficult.
+代|substitute,generation,fee|ダイ,タイ|か.わる|電気代が高いです。|でんきだいがたかいです。|The electricity bill is high.
+明|bright,clear|メイ,ミョウ|あか.るい,あ.ける|この部屋は明るいです。|このへやはあかるいです。|This room is bright.
+動|move|ドウ|うご.く|車が動きません。|くるまがうごきません。|The car won't move.
+京|capital|キョウ,ケイ||京都へ行きました。|きょうとへいきました。|I went to Kyoto.
+通|pass through,commute|ツウ,ツ|とお.る,かよ.う|バスで学校に通っています。|バスでがっこうにかよっています。|I go to school by bus.
+理|reason,logic|リ||料理を作ります。|りょうりをつくります。|I cook.
+体|body|タイ,テイ|からだ|体に気をつけてください。|からだにきをつけてください。|Please take care of yourself.
+主|master,main|シュ,ス|ぬし,おも|主人は今出かけています。|しゅじんはいまでかけています。|My husband is out right now.
+題|topic,title|ダイ||宿題が多いです。|しゅくだいがおおいです。|There's a lot of homework.
+意|idea,mind,meaning|イ||この言葉の意味は何ですか。|このことばのいみはなんですか。|What does this word mean?
+不|not,un-|フ,ブ||この町は不便です。|このまちはふべんです。|This town is inconvenient.
+作|make|サク,サ|つく.る|ケーキを作りました。|ケーキをつくりました。|I made a cake.
+用|use,errand|ヨウ|もち.いる|用事があるので帰ります。|ようじがあるのでかえります。|I have an errand, so I'm going home.
+度|degree,times|ド|たび|もう一度お願いします。|もういちどおねがいします。|Once more, please.
+強|strong|キョウ,ゴウ|つよ.い|風が強いです。|かぜがつよいです。|The wind is strong.
+公|public|コウ|おおやけ|公園を散歩します。|こうえんをさんぽします。|I take a walk in the park.
+持|hold,have|ジ|も.つ|かさを持っていますか。|かさをもっていますか。|Do you have an umbrella?
+野|field|ヤ|の|野菜を食べましょう。|やさいをたべましょう。|Let's eat vegetables.
+以|by means of,compared with|イ||十八歳以上の人は入れます。|じゅうはっさいいじょうのひとははいれます。|People 18 and over can enter.
+思|think|シ|おも.う|いい考えだと思います。|いいかんがえだとおもいます。|I think it's a good idea.
+家|house,home|カ,ケ|いえ,や,うち|家に帰ります。|いえにかえります。|I'm going home.
+世|world,generation|セイ,セ|よ|世界は広いです。|せかいはひろいです。|The world is big.
+正|correct|セイ,ショウ|ただ.しい,まさ|正しい答えを書いてください。|ただしいこたえをかいてください。|Please write the correct answer.
+院|institution|イン||病院へ行きます。|びょういんへいきます。|I'm going to the hospital.
+心|heart,mind|シン|こころ|心配しないでください。|しんぱいしないでください。|Please don't worry.
+界|world,boundary|カイ||世界中を旅行したいです。|せかいじゅうをりょこうしたいです。|I want to travel all over the world.
+教|teach|キョウ|おし.える|日本語を教えています。|にほんごをおしえています。|I teach Japanese.
+文|sentence,writing|ブン,モン|ふみ|作文を書きました。|さくぶんをかきました。|I wrote an essay.
+元|origin,former|ゲン,ガン|もと|元の場所に戻してください。|もとのばしょにもどしてください。|Please put it back where it was.
+重|heavy|ジュウ,チョウ|おも.い,かさ.ねる|この荷物は重いです。|このにもつはおもいです。|This luggage is heavy.
+近|near|キン|ちか.い|駅は近いです。|えきはちかいです。|The station is close.
+考|think,consider|コウ|かんが.える|よく考えてください。|よくかんがえてください。|Please think it over carefully.
+画|picture,stroke|ガ,カク||映画を見に行きましょう。|えいがをみにいきましょう。|Let's go see a movie.
+海|sea|カイ|うみ|夏は海で泳ぎます。|なつはうみでおよぎます。|In summer I swim in the sea.
+売|sell|バイ|う.る|この店で切手を売っています。|このみせできってをうっています。|This shop sells stamps.
+知|know|チ|し.る|その人を知っていますか。|そのひとをしっていますか。|Do you know that person?
+集|gather,collect|シュウ|あつ.まる,あつ.める|切手を集めています。|きってをあつめています。|I collect stamps.
+別|separate,different|ベツ|わか.れる|別の日にしましょう。|べつのひにしましょう。|Let's make it a different day.
+物|thing|ブツ,モツ|もの|買い物に行きます。|かいものにいきます。|I'm going shopping.
+使|use|シ|つか.う|このペンを使ってもいいですか。|このペンをつかってもいいですか。|May I use this pen?
+品|goods,article|ヒン|しな|この品物はいくらですか。|このしなものはいくらですか。|How much is this item?
+計|measure,plan|ケイ|はか.る|時計を見てください。|とけいをみてください。|Please look at the clock.
+死|death,die|シ|し.ぬ|金魚が死んでしまいました。|きんぎょがしんでしまいました。|The goldfish died.
+特|special|トク||特に問題はありません。|とくにもんだいはありません。|There's no particular problem.
+私|I,private|シ|わたし,わたくし|私は学生です。|わたしはがくせいです。|I'm a student.
+始|begin|シ|はじ.める,はじ.まる|授業が始まります。|じゅぎょうがはじまります。|Class is starting.
+朝|morning|チョウ|あさ|毎朝六時に起きます。|まいあさろくじにおきます。|I get up at six every morning.
+運|carry,luck|ウン|はこ.ぶ|この箱を運んでください。|このはこをはこんでください。|Please carry this box.
+終|end|シュウ|お.わる,お.える|映画は十時に終わります。|えいがはじゅうじにおわります。|The movie ends at ten.
+台|stand,counter for machines|ダイ,タイ||車が二台あります。|くるまがにだいあります。|There are two cars.
+広|wide,spacious|コウ|ひろ.い|この公園は広いです。|このこうえんはひろいです。|This park is big.
+住|live,reside|ジュウ|す.む|大阪に住んでいます。|おおさかにすんでいます。|I live in Osaka.
+無|nothing,without|ム,ブ|な.い|無理をしないでください。|むりをしないでください。|Please don't overdo it.
+真|true,reality|シン|ま|写真を撮りましょう。|しゃしんをとりましょう。|Let's take a photo.
+有|have,exist|ユウ,ウ|あ.る|この店は有名です。|このみせはゆうめいです。|This shop is famous.
+町|town|チョウ|まち|静かな町です。|しずかなまちです。|It's a quiet town.
+料|fee,materials|リョウ||料金はいくらですか。|りょうきんはいくらですか。|How much is the fee?
+工|craft,construction|コウ,ク||工場で働いています。|こうじょうではたらいています。|I work at a factory.
+建|build|ケン,コン|た.てる|新しい家を建てました。|あたらしいいえをたてました。|We built a new house.
+急|hurry,sudden|キュウ|いそ.ぐ|急いでください。|いそいでください。|Please hurry.
+止|stop|シ|と.まる,と.める|ここで止まってください。|ここでとまってください。|Please stop here.
+送|send|ソウ|おく.る|手紙を送りました。|てがみをおくりました。|I sent a letter.
+切|cut|セツ,サイ|き.る|はさみで紙を切ります。|はさみでかみをきります。|I cut the paper with scissors.
+転|turn,roll|テン|ころ.ぶ|自転車で行きます。|じてんしゃでいきます。|I'll go by bicycle.
+研|polish,study|ケン|と.ぐ|研究室にいます。|けんきゅうしつにいます。|I'm in the lab.
+究|research|キュウ|きわ.める|日本の歴史を研究しています。|にほんのれきしをけんきゅうしています。|I research Japanese history.
+楽|fun,music,comfort|ガク,ラク|たの.しい|旅行は楽しかったです。|りょこうはたのしかったです。|The trip was fun.
+起|wake up,rise|キ|お.きる,お.こす|明日は早く起きます。|あしたははやくおきます。|I'll get up early tomorrow.
+着|arrive,wear|チャク|き.る,つ.く|駅に着きました。|えきにつきました。|I arrived at the station.
+病|illness|ビョウ|や.む|病気で学校を休みました。|びょうきでがっこうをやすみました。|I missed school because I was sick.
+質|quality|シツ,シチ||質問はありますか。|しつもんはありますか。|Do you have any questions?
+待|wait|タイ|ま.つ|ちょっと待ってください。|ちょっとまってください。|Please wait a moment.
+試|test,try|シ|ため.す,こころ.みる|明日試験があります。|あしたしけんがあります。|I have an exam tomorrow.
+族|family,tribe|ゾク||家族は四人です。|かぞくはよにんです。|There are four people in my family.
+銀|silver|ギン||銀行でお金を下ろします。|ぎんこうでおかねをおろします。|I take money out at the bank.
+早|early,fast|ソウ|はや.い|早く寝ましょう。|はやくねましょう。|Let's go to bed early.
+映|reflect,project|エイ|うつ.る|映画が好きです。|えいががすきです。|I like movies.
+親|parent,intimate|シン|おや,した.しい|親に電話しました。|おやにでんわしました。|I called my parents.
+験|test,effect|ケン||経験がありますか。|けいけんがありますか。|Do you have experience?
+英|England,brilliant|エイ||英語を勉強しています。|えいごをべんきょうしています。|I'm studying English.
+医|doctor,medicine|イ||医者に行きました。|いしゃにいきました。|I went to the doctor.
+仕|serve,do|シ,ジ|つか.える|仕事が忙しいです。|しごとがいそがしいです。|Work is busy.
+去|past,leave|キョ,コ|さ.る|去年日本に来ました。|きょねんにほんにきました。|I came to Japan last year.
+味|taste|ミ|あじ|このスープは味が薄いです。|このスープはあじがうすいです。|This soup is bland.
+写|copy,photograph|シャ|うつ.す|ノートを写します。|ノートをうつします。|I copy the notes.
+字|character,letter|ジ|あざ|字がきれいですね。|じがきれいですね。|Your handwriting is neat.
+答|answer|トウ|こた.える,こた.え|質問に答えてください。|しつもんにこたえてください。|Please answer the question.
+夜|night|ヤ|よ,よる|夜は静かです。|よるはしずかです。|It's quiet at night.
+音|sound|オン,イン|おと,ね|変な音がします。|へんなおとがします。|I hear a strange sound.
+注|pour,attention|チュウ|そそ.ぐ|車に注意してください。|くるまにちゅういしてください。|Watch out for cars.
+帰|return home|キ|かえ.る|七時に家に帰ります。|しちじにいえにかえります。|I go home at seven.
+歌|song,sing|カ|うた,うた.う|歌を歌いましょう。|うたをうたいましょう。|Let's sing a song.
+悪|bad|アク,オ|わる.い|天気が悪いです。|てんきがわるいです。|The weather is bad.
+図|map,drawing|ズ,ト|はか.る|図書館で本を借ります。|としょかんでほんをかります。|I borrow books at the library.
+室|room|シツ|むろ|教室に入ってください。|きょうしつにはいってください。|Please go into the classroom.
+歩|walk|ホ,ブ|ある.く|駅まで歩きます。|えきまであるきます。|I walk to the station.
+風|wind,style|フウ,フ|かぜ|風が気持ちいいです。|かぜがきもちいいです。|The breeze feels nice.
+紙|paper|シ|かみ|紙に名前を書いてください。|かみになまえをかいてください。|Please write your name on the paper.
+黒|black|コク|くろ,くろ.い|黒いかばんを持っています。|くろいかばんをもっています。|I have a black bag.
+春|spring|シュン|はる|春になると花が咲きます。|はるになるとはながさきます。|When spring comes, flowers bloom.
+赤|red|セキ,シャク|あか,あか.い|赤いりんごを食べました。|あかいりんごをたべました。|I ate a red apple.
+青|blue|セイ,ショウ|あお,あお.い|青い海を見ました。|あおいうみをみました。|I saw the blue sea.
+館|building,hall|カン|やかた|美術館に行きました。|びじゅつかんにいきました。|I went to an art museum.
+屋|roof,shop|オク|や|本屋で雑誌を買いました。|ほんやでざっしをかいました。|I bought a magazine at the bookstore.
+色|color|ショク,シキ|いろ|好きな色は何ですか。|すきないろはなんですか。|What's your favorite color?
+走|run|ソウ|はし.る|公園を走ります。|こうえんをはしります。|I run in the park.
+秋|autumn,fall|シュウ|あき|秋は涼しいです。|あきはすずしいです。|Autumn is cool.
+夏|summer|カ,ゲ|なつ|夏休みに海へ行きます。|なつやすみにうみへいきます。|I'm going to the beach during summer vacation.
+習|learn|シュウ|なら.う|ピアノを習っています。|ピアノをならっています。|I'm taking piano lessons.
+洋|ocean,Western|ヨウ||洋服を買いに行きます。|ようふくをかいにいきます。|I'm going to buy clothes.
+旅|trip,travel|リョ|たび|一人で旅をしました。|ひとりでたびをしました。|I traveled alone.
+服|clothes|フク||新しい服を着ます。|あたらしいふくをきます。|I'll wear new clothes.
+夕|evening|セキ|ゆう|夕ご飯は何ですか。|ゆうごはんはなんですか。|What's for dinner?
+借|borrow|シャク|か.りる|友だちにペンを借りました。|ともだちにペンをかりました。|I borrowed a pen from a friend.
+曜|day of the week|ヨウ||今日は何曜日ですか。|きょうはなんようびですか。|What day of the week is it today?
+肉|meat|ニク||肉と魚とどちらが好きですか。|にくとさかなとどちらがすきですか。|Which do you like better, meat or fish?
+貸|lend|タイ|か.す|本を貸してください。|ほんをかしてください。|Please lend me the book.
+堂|hall|ドウ||食堂で昼ご飯を食べます。|しょくどうでひるごはんをたべます。|I eat lunch in the cafeteria.
+鳥|bird|チョウ|とり|鳥が鳴いています。|とりがないています。|A bird is singing.
+飯|meal,cooked rice|ハン|めし|ご飯を食べましょう。|ごはんをたべましょう。|Let's eat.
+勉|exertion,effort|ベン|つと.める|毎晩勉強します。|まいばんべんきょうします。|I study every night.
+冬|winter|トウ|ふゆ|冬は雪が降ります。|ふゆはゆきがふります。|It snows in winter.
+昼|noon,daytime|チュウ|ひる|昼休みは一時までです。|ひるやすみはいちじまでです。|Lunch break is until one.
+茶|tea|チャ,サ||お茶をどうぞ。|おちゃをどうぞ。|Please have some tea.
+弟|younger brother|テイ,ダイ,デ|おとうと|弟は高校生です。|おとうとはこうこうせいです。|My younger brother is a high school student.
+牛|cow|ギュウ|うし|牛乳を飲みます。|ぎゅうにゅうをのみます。|I drink milk.
+魚|fish|ギョ|さかな,うお|魚が好きです。|さかながすきです。|I like fish.
+兄|older brother|ケイ,キョウ|あに|兄は東京に住んでいます。|あにはとうきょうにすんでいます。|My older brother lives in Tokyo.
+妹|younger sister|マイ|いもうと|妹は十歳です。|いもうとはじゅっさいです。|My younger sister is ten.
+姉|older sister|シ|あね|姉と買い物に行きます。|あねとかいものにいきます。|I go shopping with my older sister.
+漢|China,Chinese|カン||漢字を書く練習をします。|かんじをかくれんしゅうをします。|I practice writing kanji.
+部|part,section,department|ブ||部長は会議中です。|ぶちょうはかいぎちゅうです。|The department head is in a meeting.
+頭|head|トウ,ズ|あたま|頭が痛いです。|あたまがいたいです。|I have a headache.
+顔|face|ガン|かお|顔を洗います。|かおをあらいます。|I wash my face.
+声|voice|セイ|こえ|大きい声で話してください。|おおきいこえではなしてください。|Please speak in a loud voice.
+晩|evening,night|バン||今晩、映画を見ます。|こんばん、えいがをみます。|I'm watching a movie tonight.
+好|like,fond|コウ|す.き,この.む|日本の料理が好きです。|にほんのりょうりがすきです。|I like Japanese food.
+林|grove,woods|リン|はやし|林の中を歩きました。|はやしのなかをあるきました。|I walked through the woods.
+森|forest|シン|もり|森に鳥がたくさんいます。|もりにとりがたくさんいます。|There are many birds in the forest.
+遠|far|エン|とお.い|学校は家から遠いです。|がっこうはいえからとおいです。|School is far from my house.
+低|low,short|テイ|ひく.い|この山は低いです。|このやまはひくいです。|This mountain is low.
+暗|dark|アン|くら.い|外はもう暗いです。|そとはもうくらいです。|It's already dark outside.
+弱|weak|ジャク|よわ.い|私はお酒に弱いです。|わたしはおさけによわいです。|I can't hold my alcohol.
+太|fat,thick|タイ,タ|ふと.い,ふと.る|最近少し太りました。|さいきんすこしふとりました。|I've put on a little weight recently.
+軽|light (weight)|ケイ|かる.い|このかばんは軽いです。|このかばんはかるいです。|This bag is light.
+回|times,turn around|カイ|まわ.る,まわ.す|一日に三回薬を飲みます。|いちにちにさんかいくすりをのみます。|I take medicine three times a day.
+引|pull|イン|ひ.く|ドアを引いてください。|ドアをひいてください。|Please pull the door.
+光|light,shine|コウ|ひかり,ひか.る|星が光っています。|ほしがひかっています。|The stars are shining.`;
+
+// ---------- Build items ----------
+const DECKS = [
+  {id:"hira", name:"Hiragana", tag:"Hiragana"},
+  {id:"kata", name:"Katakana", tag:"Katakana"},
+  {id:"rad",  name:"Radicals", tag:"Radical"},
+  {id:"n5",   name:"N5 kanji", tag:"N5 kanji"},
+  {id:"n4",   name:"N4 kanji", tag:"N4 kanji"},
+];
+const DECK = Object.fromEntries(DECKS.map(d=>[d.id,d]));
+const hira2kata = s => s.replace(/[ぁ-ゖ]/g, ch=>String.fromCharCode(ch.charCodeAt(0)+0x60));
+const kata2hira = s => s.replace(/[ァ-ヶ]/g, ch=>String.fromCharCode(ch.charCodeAt(0)-0x60));
+
+const KANA_PAIRS = KANA_RAW.split(/\s+/).filter(Boolean).map(p=>{ const [k,r]=p.split(":"); return {k, romaji:r.split("/")}; });
+const parseKanji = (raw, deck) => raw.trim().split("\n").map(l=>{
+  const [k,m,on,kun,jp,rd,en]=l.split("|");
+  return {id:k, deck, type:"kanji", k, meanings:m.split(","), on:on?on.split(","):[], kun:kun?kun.split(","):[], ex: jp?{jp,rd,en}:null};
+});
+const ITEMS = [];
+KANA_PAIRS.forEach(p=>ITEMS.push({id:"h:"+p.k, deck:"hira", type:"kana", k:p.k, romaji:p.romaji, other:hira2kata(p.k)}));
+KANA_PAIRS.forEach(p=>{ const k=hira2kata(p.k); ITEMS.push({id:"k:"+k, deck:"kata", type:"kana", k, romaji:p.romaji, other:p.k}); });
+RAD_RAW.trim().split("\n").forEach(l=>{ const [k,m,ex]=l.split("|"); ITEMS.push({id:"r:"+k, deck:"rad", type:"radical", k, meanings:m.split(","), examples:ex?ex.split(" "):[]}); });
+const n5 = parseKanji(N5_RAW,"n5"); ITEMS.push(...n5);
+const n5set = new Set(n5.map(x=>x.id));
+ITEMS.push(...parseKanji(N4_RAW,"n4").filter(x=>!n5set.has(x.id)));
+const BY = Object.fromEntries(ITEMS.map(x=>[x.id,x]));
+
+const QTYPES = x => x.type==="kana" ? ["romaji"] : x.type==="radical" ? ["meaning"]
+  : ["meaning", ...(x.on.length?["on"]:[]), ...(x.kun.length?["kun"]:[])];
 
 // ---------- SRS ----------
 const HOURS = [0,4,8,23,47,167,335,730,2920]; // wait after reaching stage n
 const GROUP = s => s===0?0 : s<=4?1 : s<=6?2 : s===7?3 : s===8?4 : 5;
 const GROUPS = [["Not started","--s0"],["Learning","--s1"],["Familiar","--s2"],["Strong","--s3"],["Solid","--s4"],["Mastered","--s5"]];
 
-let state = {items:{}, updatedAt:0};
-const st = k => state.items[k]?.stage || 0;
-const lessonsAvail = () => KANJI.filter(x=>!state.items[x.k]);
-const dueNow = () => KANJI.filter(x=>{const it=state.items[x.k]; return it && it.stage>0 && it.stage<9 && it.next<=Date.now();});
+let state = {items:{}, decks:null, updatedAt:0};
+const st = id => state.items[id]?.stage || 0;
+const deckOn = d => !!state.decks[d];
+const lessonsAvail = () => ITEMS.filter(x=>deckOn(x.deck) && !state.items[x.id]);
+const dueNow = () => ITEMS.filter(x=>{const it=state.items[x.id]; return deckOn(x.deck) && it && it.stage>0 && it.stage<9 && it.next<=Date.now();});
 
-// ---------- Saving (account sync when available, device storage always) ----------
-let dbDoc = null;
-function saveLocal(){ try{ localStorage.setItem("sumi-srs", JSON.stringify(state)); }catch(e){} }
-function loadLocal(){ try{ const v=localStorage.getItem("sumi-srs"); if(v) return JSON.parse(v);}catch(e){} return null; }
-let saveTimer=null;
-function save(){
-  state.updatedAt = Date.now(); saveLocal();
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(async()=>{
-    if(!dbDoc) return;
-    try{ await dbDoc.set({items:state.items, updatedAt:state.updatedAt}); setSaveLabel("Synced to your account"); }
-    catch(e){ setSaveLabel("Saved on this device (sync failed)"); }
-  }, 600);
-}
-function setSaveLabel(t){ document.getElementById("saveState").textContent=t; }
-
-async function connectDb(){
-  try{
-    if(!window.claude || !window.claude.use) return;
-    const [db,user] = await Promise.all([claude.use("db"), claude.use("user")]);
-    if(!db || !user) return;
-    const id = await user.id(); if(!id) return;
-    dbDoc = db.doc(`data/users/${id}/srs`);
-    const snap = await dbDoc.get();
-    if(snap.exists){
-      const remote = snap.data();
-      if((remote.updatedAt||0) > (state.updatedAt||0)){ state = {items:remote.items||{}, updatedAt:remote.updatedAt}; saveLocal(); render(); }
-      else if(state.updatedAt) save();
-    } else if(state.updatedAt) save();
-    setSaveLabel("Synced to your account");
-  }catch(e){ dbDoc=null; }
+// ---------- Saving (this browser only) ----------
+function save(){ state.updatedAt = Date.now(); try{ localStorage.setItem("sumi-srs", JSON.stringify(state)); }catch(e){} }
+function load(){
+  try{ const v=localStorage.getItem("sumi-srs"); if(v){ const s=JSON.parse(v); if(s && s.items) state=s; } }catch(e){}
+  if(!state.decks){
+    // Existing learners keep their current N5 path; new learners start with everything on
+    state.decks = Object.keys(state.items).length ? {hira:false,kata:false,rad:false,n5:true,n4:false}
+                                                  : {hira:true,kata:true,rad:true,n5:true,n4:true};
+  }
 }
 
 // ---------- Romaji → hiragana ----------
@@ -373,24 +678,28 @@ function toKana(s, final){
   }
   return out;
 }
-const kata2hira = s => s.replace(/[\u30A1-\u30F6]/g, ch=>String.fromCharCode(ch.charCodeAt(0)-0x60));
-const hasKana = s => /[\u3040-\u30FF]/.test(s);
+const hasKana = s => /[぀-ヿ]/.test(s);
+const hasHira = s => /[ぁ-ゖ]/.test(s);
+const hasKata = s => /[ァ-ヶ]/.test(s);
 
 // ---------- Answer checking ----------
 function lev(a,b){ const d=Array.from({length:a.length+1},(_,i)=>[i]); for(let j=1;j<=b.length;j++)d[0][j]=j;
   for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
   return d[a.length][b.length]; }
-const normM = s => s.toLowerCase().trim().replace(/^to\s+/,"").replace(/[^a-z0-9 ]/g,"").replace(/\s+/g," ");
+const normM = s => s.toLowerCase().trim().replace(/\(.*?\)/g,"").replace(/^to\s+/,"").replace(/[^a-z0-9 ]/g,"").replace(/\s+/g," ").trim();
 function checkMeaning(item, ans){
   const a=normM(ans);
   return item.meanings.some(m=>{ const t=normM(m); const tol=t.length<=3?0:t.length<=5?1:2; return lev(a,t)<=tol; });
 }
-function readingsOf(item){
-  const set=new Set(item.on.map(kata2hira));
+function kunReadings(item){
+  const set=new Set();
   item.kun.forEach(r=>{ set.add(r.replace(/[.\-]/g,"")); set.add(r.split(".")[0]); });
   return [...set];
 }
-const checkReading = (item, ans) => readingsOf(item).includes(kata2hira(ans.trim()));
+const fmtKun = r => r.includes(".") ? r.replace(/\.(.*)$/,"($1)") : r;
+const checkOn = (item, ans) => item.on.includes(ans);
+const checkKun = (item, ans) => kunReadings(item).includes(ans);
+const checkRomaji = (item, ans) => item.romaji.includes(ans.toLowerCase().trim());
 
 // ---------- Views ----------
 const $ = id => document.getElementById(id);
@@ -400,11 +709,21 @@ function show(view){
   window.scrollTo(0,0);
 }
 function infoHTML(x){
+  if(x.type==="kana") return `<dl>
+    <dt>Romaji</dt><dd>${x.romaji.join(" / ")}</dd>
+    <dt>${x.deck==="hira"?"Katakana":"Hiragana"}</dt><dd class="jp">${x.other}</dd>
+  </dl>`;
+  if(x.type==="radical") return `<dl>
+    <dt>Meaning</dt><dd>${x.meanings.join(", ")}</dd>
+    <dt>Found in</dt><dd class="jp">${x.examples.join("　")||"—"}</dd>
+  </dl>`;
   return `<dl>
     <dt>Meaning</dt><dd>${x.meanings.join(", ")}</dd>
     <dt>On'yomi</dt><dd class="jp">${x.on.join("、")||"—"}</dd>
-    <dt>Kun'yomi</dt><dd class="jp">${x.kun.join("、")||"—"}</dd>
-  </dl>`;
+    <dt>Kun'yomi</dt><dd class="jp">${x.kun.map(fmtKun).join("、")||"—"}</dd>
+  </dl>${x.ex?`<div class="ex"><div class="lbl">Example</div>
+    <div class="jp">${x.ex.jp.split(x.k).join(`<mark>${x.k}</mark>`)}</div>
+    <div class="rd">${x.ex.rd}</div><div class="en">${x.ex.en}</div></div>`:""}`;
 }
 function fmtWhen(ms){
   const d=new Date(ms), diff=ms-Date.now();
@@ -412,23 +731,36 @@ function fmtWhen(ms){
   if(diff<24*3600e3) return `today at ${d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})}`;
   return d.toLocaleString([], {weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
 }
+const tileHTML = x => `<button class="tile${x.k.length>1?" long":""}" data-id="${x.id}" data-s="${GROUP(st(x.id))}" aria-label="${x.k}, ${x.type==="kana"?x.romaji[0]:x.meanings[0]}">${x.k}</button>`;
 
 function render(){
   const L=lessonsAvail().length, R=dueNow().length;
   $("lessonN").textContent=L; $("reviewN").textContent=R;
   $("lessonBtn").disabled=!L; $("reviewBtn").disabled=!R;
-  const upcoming=Object.values(state.items).filter(i=>i.stage>0&&i.stage<9&&i.next>Date.now()).map(i=>i.next).sort((a,b)=>a-b);
-  $("nextLine").textContent = R ? "You have reviews waiting. Reviewing on time keeps the intervals working."
+  const anyOn = DECKS.some(d=>deckOn(d.id));
+  const upcoming=ITEMS.filter(x=>deckOn(x.deck)).map(x=>state.items[x.id]).filter(i=>i&&i.stage>0&&i.stage<9&&i.next>Date.now()).map(i=>i.next).sort((a,b)=>a-b);
+  $("nextLine").textContent = !anyOn ? "Turn on a deck below to get started."
+    : R ? "You have reviews waiting. Reviewing on time keeps the intervals working."
     : upcoming.length ? `Next review ${fmtWhen(upcoming[0])}.`
-    : L ? "Start with a lesson. Each kanji comes back for review 4 hours later." : "Everything is mastered. Nicely done.";
-  const counts=[0,0,0,0,0,0]; KANJI.forEach(x=>counts[GROUP(st(x.k))]++);
+    : L ? "Start with a lesson. Each item comes back for review 4 hours later." : "Everything in your decks is mastered. Nicely done.";
+  $("decks").innerHTML = DECKS.map(d=>{
+    const all=ITEMS.filter(x=>x.deck===d.id), learned=all.filter(x=>state.items[x.id]).length;
+    return `<button class="deck" data-d="${d.id}" aria-pressed="${deckOn(d.id)}"><span class="dn">${d.name}<i>${deckOn(d.id)?"On":"Off"}</i></span><span class="dc">${learned} / ${all.length} started</span></button>`;
+  }).join("");
+  const shown = ITEMS.filter(x=>deckOn(x.deck));
+  const counts=[0,0,0,0,0,0]; shown.forEach(x=>counts[GROUP(st(x.id))]++);
   $("stages").innerHTML = GROUPS.slice(1).map((g,i)=>`<div class="stage"><b>${counts[i+1]}</b><span><i class="dot" style="background:var(${g[1]})"></i>${g[0]}</span></div>`).join("");
-  $("grid").innerHTML = KANJI.map(x=>`<button class="tile" data-k="${x.k}" data-s="${GROUP(st(x.k))}" aria-label="${x.k}, ${x.meanings[0]}">${x.k}</button>`).join("");
+  $("grids").innerHTML = DECKS.filter(d=>deckOn(d.id)).map(d=>`<h3>${d.name}</h3><div class="grid">${ITEMS.filter(x=>x.deck===d.id).map(tileHTML).join("")}</div>`).join("")
+    || `<p class="hint">No decks are on.</p>`;
   $("legend").innerHTML = GROUPS.map(g=>`<span><i class="dot" style="background:var(${g[1]})"></i>${g[0]}</span>`).join("");
 }
 
-$("grid").addEventListener("click", e=>{
-  const t=e.target.closest(".tile"); if(!t) return; const x=BY[t.dataset.k], it=state.items[x.k];
+$("decks").addEventListener("click", e=>{
+  const b=e.target.closest(".deck"); if(!b) return;
+  state.decks[b.dataset.d] = !deckOn(b.dataset.d); save(); render();
+});
+$("grids").addEventListener("click", e=>{
+  const t=e.target.closest(".tile"); if(!t) return; const x=BY[t.dataset.id], it=state.items[x.id];
   $("dFace").textContent=x.k;
   $("dInfo").innerHTML = infoHTML(x) + `<p style="color:var(--muted);font-size:14px;margin:12px 0 0">${
     !it ? "Not started yet." : it.stage>=9 ? "Mastered. It won't come back for review." : `${GROUPS[GROUP(it.stage)][0]} · next review ${it.next<=Date.now()?"now":fmtWhen(it.next)}`}</p>`;
@@ -445,6 +777,7 @@ function startLessons(){
 function drawLesson(){
   const x=lessonSet[lessonIdx];
   $("lessonCount").textContent=`Lesson ${lessonIdx+1} of ${lessonSet.length}`;
+  $("lessonTag").textContent=DECK[x.deck].tag;
   $("lessonFace").textContent=x.k; $("lessonInfo").innerHTML=infoHTML(x);
   $("prevL").disabled = lessonIdx===0;
   $("nextL").textContent = lessonIdx===lessonSet.length-1 ? "Start quiz" : "Next";
@@ -455,47 +788,76 @@ $("nextL").onclick=()=>{ if(lessonIdx<lessonSet.length-1){lessonIdx++; drawLesso
 // ---------- Quiz (used for lesson quizzes and reviews) ----------
 let Q=null;
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;};
+const PROMPTS = {
+  meaning:`Meaning <em>(type in English)</em>`,
+  on:`On'yomi <em>(type romaji, it becomes katakana)</em>`,
+  kun:`Kun'yomi <em>(type romaji, it becomes hiragana)</em>`,
+  romaji:`Sound <em>(type in romaji)</em>`,
+};
+const PLACEHOLDERS = {meaning:"meaning", on:"オンヨミ", kun:"くんよみ", romaji:"romaji"};
 function startQuiz(items, mode){
-  const queue=[]; items.forEach(x=>{ queue.push({k:x.k,t:"meaning"}); queue.push({k:x.k,t:"reading"}); });
-  Q={mode, queue:shuffle(queue), cur:null, answered:false, track:{}, done:[], total:items.length, asked:0, right:0};
-  items.forEach(x=>Q.track[x.k]={meaning:false,reading:false,wrong:false});
-  show("quiz"); nextQ();
+  const queue=[]; Q={mode, queue, cur:null, answered:false, track:{}, done:[], total:items.length, asked:0, right:0};
+  items.forEach(x=>{ const ts=QTYPES(x); ts.forEach(t=>queue.push({id:x.id,t})); Q.track[x.id]={need:ts.length, ok:new Set(), wrong:false}; });
+  shuffle(queue); show("quiz"); nextQ();
 }
 function nextQ(){
   if(!Q.queue.length){ finishQuiz(); return; }
   Q.cur=Q.queue.shift(); Q.answered=false;
-  const x=BY[Q.cur.k];
-  $("qCard").classList.toggle("reading", Q.cur.t==="reading");
+  const x=BY[Q.cur.id], t=Q.cur.t;
+  $("qCard").classList.toggle("reading", t==="on");
+  $("qCard").classList.toggle("kun", t==="kun");
+  $("qTag").textContent=DECK[x.deck].tag;
   $("qFace").textContent=x.k;
-  $("qPrompt").innerHTML = Q.cur.t==="meaning" ? `Meaning <em>(type in English)</em>` : `Reading <em>(type romaji, it becomes kana)</em>`;
+  $("qPrompt").innerHTML = PROMPTS[t];
   const inp=$("qInput"); inp.value=""; inp.className=""; inp.readOnly=false;
-  inp.placeholder = Q.cur.t==="meaning" ? "meaning" : "よみかた";
-  inp.lang = Q.cur.t==="reading" ? "ja" : "en";
+  inp.placeholder = PLACEHOLDERS[t];
+  inp.lang = (t==="on"||t==="kun") ? "ja" : "en";
   $("qMsg").textContent=""; $("qInfo").classList.add("hidden"); $("showInfo").disabled=true;
   $("qLeft").textContent = `${Q.done.length} of ${Q.total} done`;
   $("qAcc").textContent = Q.asked ? `${Math.round(Q.right/Q.asked*100)}% correct` : "";
   inp.focus();
 }
 $("qInput").addEventListener("input", e=>{
-  if(Q && Q.cur && Q.cur.t==="reading" && !Q.answered){
-    const v=e.target.value, k=toKana(v,false); if(k!==v) e.target.value=k;
-  }
+  if(!Q || !Q.cur || Q.answered) return;
+  const t=Q.cur.t; if(t!=="on" && t!=="kun") return;
+  const v=e.target.value; let k=toKana(v,false); if(t==="on") k=hira2kata(k);
+  if(k!==v) e.target.value=k;
 });
 function nudge(text){ const i=$("qInput"); $("qMsg").textContent=text; i.classList.remove("shake"); void i.offsetWidth; i.classList.add("shake"); }
 $("qForm").addEventListener("submit", e=>{
   e.preventDefault(); if(!Q||!Q.cur) return;
   if(Q.answered){ nextQ(); return; }
-  const inp=$("qInput"), x=BY[Q.cur.k];
+  const inp=$("qInput"), x=BY[Q.cur.id], t=Q.cur.t;
   let ans=inp.value.trim(); if(!ans){ nudge("Type an answer first."); return; }
-  if(Q.cur.t==="reading"){ ans=toKana(ans,true); inp.value=ans; if(/[a-z]/i.test(ans)){ nudge("Use kana for the reading."); return; } }
-  else if(hasKana(ans)){ nudge("This one asks for the English meaning."); return; }
-  const ok = Q.cur.t==="meaning" ? checkMeaning(x,ans) : checkReading(x,ans);
+  let ok;
+  if(t==="on"){
+    ans=hira2kata(toKana(ans,true)); inp.value=ans;
+    if(/[a-z]/i.test(ans)){ nudge("Use kana for the reading."); return; }
+    if(x.kun.length && checkKun(x, kata2hira(ans))){ nudge("That's a kun'yomi. This one asks for the on'yomi."); return; }
+    ok = checkOn(x, ans);
+  } else if(t==="kun"){
+    ans=toKana(ans,true); inp.value=ans;
+    if(/[a-z]/i.test(ans)){ nudge("Use kana for the reading."); return; }
+    if(hasKata(ans)){
+      if(checkOn(x, ans) || checkOn(x, hira2kata(ans))){ nudge("That's the on'yomi. This one asks for the kun'yomi."); return; }
+      nudge("Kun'yomi is written in hiragana."); return;
+    }
+    if(checkOn(x, hira2kata(ans))){ nudge("That's the on'yomi. This one asks for the kun'yomi."); return; }
+    ok = checkKun(x, ans);
+  } else if(t==="romaji"){
+    if(hasKana(ans)){ nudge("Type the sound in romaji (latin letters)."); return; }
+    ok = checkRomaji(x, ans);
+  } else {
+    if(hasKana(ans)){ nudge("This one asks for the English meaning."); return; }
+    ok = checkMeaning(x, ans);
+  }
   Q.answered=true; inp.readOnly=true; Q.asked++;
-  const tr=Q.track[x.k];
+  const tr=Q.track[x.id];
   if(ok){
-    Q.right++; inp.classList.add("ok"); tr[Q.cur.t]=true;
-    $("qMsg").textContent = Q.cur.t==="meaning" ? `Correct. ${x.meanings.join(", ")}` : `Correct. ${readingsOf(x).slice(0,4).join("、")}`;
-    if(tr.meaning && tr.reading) completeItem(x.k);
+    Q.right++; inp.classList.add("ok"); tr.ok.add(t);
+    $("qMsg").textContent = "Correct. " + (t==="meaning" ? x.meanings.join(", ")
+      : t==="on" ? x.on.join("、") : t==="kun" ? x.kun.map(fmtKun).join("、") : x.romaji.join(" / "));
+    if(tr.ok.size===tr.need) completeItem(x.id);
   } else {
     inp.classList.add("bad"); tr.wrong=true;
     $("qMsg").textContent="Not quite. It will come back later in this session.";
@@ -506,25 +868,24 @@ $("qForm").addEventListener("submit", e=>{
   $("showInfo").disabled=false;
   $("qLeft").textContent = `${Q.done.length} of ${Q.total} done`;
 });
-$("showInfo").onclick=()=>{ $("qInfo").innerHTML=infoHTML(BY[Q.cur.k]); $("qInfo").classList.toggle("hidden"); $("qInput").focus(); };
+$("showInfo").onclick=()=>{ $("qInfo").innerHTML=infoHTML(BY[Q.cur.id]); $("qInfo").classList.toggle("hidden"); $("qInput").focus(); };
 
-function completeItem(k){
-  const tr=Q.track[k], now=Date.now();
-  let it=state.items[k];
+function completeItem(id){
+  const tr=Q.track[id], now=Date.now();
+  let it=state.items[id];
   if(Q.mode==="lesson"){ it={stage:1,next:now+HOURS[1]*3600e3}; }
   else {
     let s=it.stage;
     if(tr.wrong) s=Math.max(1, s-(s>=5?2:1)); else s=Math.min(9,s+1);
-    it={stage:s, next: s>=9 ? Infinity : now+HOURS[s]*3600e3};
-    if(s>=9) it.next=8.64e15;
+    it={stage:s, next: s>=9 ? 8.64e15 : now+HOURS[s]*3600e3};
   }
-  state.items[k]=it; Q.done.push({k,wrong:tr.wrong}); save();
+  state.items[id]=it; Q.done.push({id,wrong:tr.wrong}); save();
 }
 function finishQuiz(){
-  const wrong=Q.done.filter(d=>d.wrong).map(d=>d.k), right=Q.done.filter(d=>!d.wrong).map(d=>d.k);
+  const wrong=Q.done.filter(d=>d.wrong).map(d=>BY[d.id].k), right=Q.done.filter(d=>!d.wrong).map(d=>BY[d.id].k);
   const isLesson=Q.mode==="lesson";
   $("sumBody").innerHTML = `<div class="k">${isLesson?"学":"済"}</div>
-    <h2>${isLesson?`${Q.done.length} new kanji learned`:`${Q.done.length} reviews done`}</h2>
+    <h2>${isLesson?`${Q.done.length} new items learned`:`${Q.done.length} reviews done`}</h2>
     <p style="color:var(--muted);margin:0">${isLesson?"They come back for review in 4 hours.":`${right.length} right on the first try, ${wrong.length} to keep practicing.`}</p>
     <div class="lists">${right.map(k=>`<span class="r">${k}</span>`).join("")}${wrong.map(k=>`<span class="w">${k}</span>`).join("")}</div>
     <button class="btn primary" id="sumHome">Back to home</button>`;
@@ -540,14 +901,13 @@ function goHome(){ Q=null; render(); show("home"); }
 $("homeBtn").onclick=goHome;
 $("lessonBtn").onclick=startLessons;
 $("reviewBtn").onclick=()=>{ const due=shuffle(dueNow()); if(due.length) startQuiz(due.slice(0,50),"review"); };
-$("resetBtn").onclick=()=>{ if(confirm("Reset all progress? Every kanji goes back to not started.")){ state={items:{},updatedAt:0}; save(); render(); } };
+$("resetBtn").onclick=()=>{ if(confirm("Reset all progress? Every item goes back to not started.")){ state.items={}; save(); render(); } };
 
 // refresh counts when reviews become due
 setInterval(()=>{ if(!$("home").classList.contains("hidden")) render(); }, 60e3);
 
-const local=loadLocal(); if(local && local.items) state=local;
+load();
 render();
-connectDb();
 </script>
 </body>
 </html>
