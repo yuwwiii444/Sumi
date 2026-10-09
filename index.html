@@ -251,7 +251,7 @@ try{ const s=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
   <!-- HOME -->
   <main id="home">
     <div class="actions">
-      <button class="big lessons" id="lessonBtn"><span class="n" id="lessonN">0</span><span class="l">Lessons</span><span class="h">Learn 5 new items</span></button>
+      <button class="big lessons" id="lessonBtn"><span class="n" id="lessonN">0</span><span class="l">Lessons</span><span class="h" id="lessonHint">Learn 5 new items</span></button>
       <button class="big reviews" id="reviewBtn"><span class="n" id="reviewN">0</span><span class="l">Reviews</span><span class="h">Due now</span></button>
     </div>
     <p class="next" id="nextLine"></p>
@@ -342,6 +342,17 @@ try{ const s=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
         <label><input type="radio" name="theme" value="dark">Dark</label>
       </div>
       <p class="note">Auto follows your device's light or dark mode.</p>
+    </fieldset>
+    <fieldset>
+      <legend>New items per lesson</legend>
+      <div class="seg">
+        <label><input type="radio" name="batch" value="3">3</label>
+        <label><input type="radio" name="batch" value="5">5</label>
+        <label><input type="radio" name="batch" value="10">10</label>
+        <label><input type="radio" name="batch" value="15">15</label>
+        <label><input type="radio" name="batch" value="20">20</label>
+      </div>
+      <p class="note">How many new kana, kanji, grammar points or words each lesson teaches before its quiz.</p>
     </fieldset>
     <fieldset>
       <legend>Falling petals</legend>
@@ -1181,6 +1192,7 @@ const tileHTML = x => `<button class="tile${x.type==="grammar"||x.type==="vocab"
 function render(){
   const L=lessonsAvail().length, R=dueNow().length;
   $("lessonN").textContent=L; $("reviewN").textContent=R;
+  $("lessonHint").textContent=`Learn ${Math.min(batchSize(), L) || batchSize()} new items`;
   $("lessonBtn").disabled=!L; $("reviewBtn").disabled=!R;
   const anyOn = DECKS.some(d=>deckOn(d.id));
   const upcoming=ITEMS.filter(x=>deckOn(x.deck)).map(x=>state.items[x.id]).filter(i=>i&&i.stage>0&&i.stage<9&&i.next>Date.now()).map(i=>i.next).sort((a,b)=>a-b);
@@ -1242,7 +1254,7 @@ $("dClose").onclick=()=>$("dlg").close();
 // ---------- Lessons ----------
 let lessonSet=[], lessonIdx=0;
 function startLessons(){
-  lessonSet=lessonsAvail().slice(0,5); lessonIdx=0; if(!lessonSet.length) return;
+  lessonSet=lessonsAvail().slice(0,batchSize()); lessonIdx=0; if(!lessonSet.length) return;
   show("lesson"); drawLesson();
 }
 function drawLesson(){
@@ -1490,7 +1502,8 @@ document.addEventListener("focusin", e=>{ const t=e.target.closest("[data-tip]")
 window.addEventListener("scroll", ()=>{ tip.hidden=true; }, {passive:true});
 
 // ---------- Settings ----------
-let settings = {theme:"auto", petals:"auto"};
+let settings = {theme:"auto", petals:"auto", batch:"5"};
+const batchSize = () => [3,5,10,15,20].includes(+settings.batch) ? +settings.batch : 5;
 try{ Object.assign(settings, JSON.parse(localStorage.getItem("sumi-settings")||"{}")); }catch(e){}
 function applySettings(){
   const r=document.documentElement;
@@ -1502,7 +1515,7 @@ $("setBtn").onclick=()=>{
   document.querySelectorAll('#setDlg input').forEach(i=>i.checked = settings[i.name]===i.value);
   $("setDlg").showModal();
 };
-$("setDlg").addEventListener("change", e=>{ settings[e.target.name]=e.target.value; applySettings(); });
+$("setDlg").addEventListener("change", e=>{ settings[e.target.name]=e.target.value; applySettings(); if(e.target.name==="batch") render(); });
 
 // ---------- Background: temple and cherry tree silhouettes, falling petals ----------
 (function(){
