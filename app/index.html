@@ -45,12 +45,12 @@ body{margin:0;background:radial-gradient(ellipse 90% 340px at 50% 0,var(--glow),
 @media (prefers-reduced-motion: reduce){:root:not([data-petals="on"]) .petals{display:none}}
 :root[data-petals="off"] .petals{display:none}
 .scene{position:fixed;left:0;right:0;bottom:0;height:min(44vh,360px);pointer-events:none;z-index:0}
-.scene svg{position:absolute;bottom:0;height:100%;width:auto}
-.scene .tree{left:-30px}
-.scene .pagoda{right:3%}
+.scene svg{position:absolute;bottom:0;height:100%;width:auto;max-width:48vw;overflow:visible}
+.scene .tree{left:8px}
+.scene .pagoda{right:12px}
 .scene .ink{fill:var(--scene);stroke:var(--scene)}
 .scene .bloom{fill:var(--bloom)}
-@media (max-width:560px){.scene{height:220px}.scene .pagoda{right:-10px}}
+@media (max-width:560px){.scene{height:200px}}
 .nav{display:flex;align-items:center;gap:6px}
 .iconbtn{border:0;background:none;color:var(--muted);padding:6px;border-radius:6px;line-height:0}
 .iconbtn svg{width:22px;height:22px}
@@ -141,6 +141,17 @@ h5{font-size:12px;font-weight:500;color:var(--muted);margin:10px 0 6px;letter-sp
 .seg input{position:absolute;opacity:0;pointer-events:none}
 .seg label:has(input:checked){background:var(--ink);color:var(--paper)}
 .seg label:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:-3px}
+/* lesson-size slider + number box */
+.slider{display:flex;align-items:center;gap:14px}
+.slider input[type=range]{flex:1;min-width:0;height:28px;margin:0;background:none;-webkit-appearance:none;appearance:none;cursor:pointer;--fill:8%}
+.slider input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--s3) var(--fill),var(--s0) var(--fill))}
+.slider input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:var(--s0)}
+.slider input[type=range]::-moz-range-progress{height:6px;border-radius:3px;background:var(--s3)}
+.slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;margin-top:-8px;border-radius:50%;background:var(--surface);border:3px solid var(--indigo);box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.slider input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--surface);border:3px solid var(--indigo)}
+.slider input[type=range]:focus-visible{outline:3px solid var(--accent);outline-offset:4px;border-radius:4px}
+.slider input[type=number]{width:4.2em;font:inherit;font-size:17px;font-weight:700;text-align:center;padding:7px 4px;border-radius:6px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink)}
+.sliderscale{display:flex;justify-content:space-between;width:calc(100% - 4.2em - 14px);font-size:12px;color:var(--muted);margin-top:2px}
 .setbody .note{font-size:13px;color:var(--muted);margin:6px 0 0}
 @media (max-width:560px){.kpis{grid-template-columns:1fr 1fr}}
 .flower{width:26px;height:26px;align-self:center;flex:none}
@@ -297,7 +308,7 @@ try{ const s=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
     <p class="next" id="nextLine"></p>
     <h2>Decks</h2>
     <div id="decks"></div>
-    <p class="hint">Tap a deck to turn it on or off. Decks that are off are paused: no new lessons and no reviews.</p>
+    <p class="hint">Tap a deck to turn it on or off. Off only stops new lessons: anything you've already learned still comes back for review.</p>
     <h2>Progress</h2>
     <div class="stages" id="stages"></div>
     <h2>All items</h2>
@@ -332,7 +343,7 @@ try{ const s=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
       <div class="face" id="qFace"></div>
       <div class="prompt" id="qPrompt"></div>
       <form class="answer" id="qForm" autocomplete="off">
-        <input id="qInput" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Your answer">
+        <input id="qInput" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" enterkeyhint="go" aria-label="Your answer">
         <button class="go" type="submit" aria-label="Submit answer">Check</button>
       </form>
       <div class="msg" id="qMsg"></div>
@@ -361,7 +372,7 @@ try{ const s=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
     <div class="card pad" id="calendar"></div>
     <h2>By deck</h2>
     <div class="card" id="deckStats" style="margin-bottom:12px"></div>
-    <p class="hint">Streaks, the calendar and accuracy are counted from the day this stats page was added. Reviews only count for decks that are on.</p>
+    <p class="hint">Streaks, the calendar and accuracy are counted from the day this stats page was added. Reviews and the forecast include every deck, even ones that are off.</p>
   </section>
 </div>
 
@@ -373,7 +384,7 @@ try{ const s=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
 
 <dialog id="setDlg" aria-labelledby="setTitle">
   <form class="setbody" method="dialog">
-    <h2 id="setTitle">Settings</h2>
+    <h2 id="setTitle" tabindex="-1" style="outline:none">Settings</h2>
     <fieldset id="acct"></fieldset>
     <fieldset>
       <legend>Theme</legend>
@@ -386,13 +397,11 @@ try{ const s=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
     </fieldset>
     <fieldset>
       <legend>New items per lesson</legend>
-      <div class="seg">
-        <label><input type="radio" name="batch" value="3">3</label>
-        <label><input type="radio" name="batch" value="5">5</label>
-        <label><input type="radio" name="batch" value="10">10</label>
-        <label><input type="radio" name="batch" value="15">15</label>
-        <label><input type="radio" name="batch" value="20">20</label>
+      <div class="slider">
+        <input type="range" id="batchRange" min="1" max="50" step="1" aria-label="New items per lesson">
+        <input type="number" id="batchNum" min="1" max="50" step="1" inputmode="numeric" aria-label="New items per lesson, as a number">
       </div>
+      <div class="sliderscale" aria-hidden="true"><span>1</span><span>50</span></div>
       <p class="note">How many new kana, kanji, grammar points or words each lesson teaches before its quiz.</p>
     </fieldset>
     <fieldset>
@@ -1601,7 +1610,8 @@ let state = {items:{}, decks:null, log:{}, updatedAt:0};
 const st = id => state.items[id]?.stage || 0;
 const deckOn = d => !!state.decks[d];
 const lessonsAvail = () => ITEMS.filter(x=>deckOn(x.deck) && !state.items[x.id]);
-const dueNow = () => ITEMS.filter(x=>{const it=state.items[x.id]; return deckOn(x.deck) && it && it.stage>0 && it.stage<9 && it.next<=Date.now();});
+// Deck on/off only controls NEW lessons. Anything already learned keeps coming back for review.
+const dueNow = () => ITEMS.filter(x=>{const it=state.items[x.id]; return it && it.stage>0 && it.stage<9 && it.next<=Date.now();});
 
 // ---------- Saving: always to this browser first, then to the account if signed in ----------
 function saveLocal(){ try{ localStorage.setItem("sumi-srs", JSON.stringify(state)); }catch(e){} }
@@ -1780,10 +1790,10 @@ function render(){
   $("lessonHint").textContent=`Learn ${Math.min(batchSize(), L) || batchSize()} new items`;
   $("lessonBtn").disabled=!L; $("reviewBtn").disabled=!R;
   const anyOn = DECKS.some(d=>deckOn(d.id));
-  const upcoming=ITEMS.filter(x=>deckOn(x.deck)).map(x=>state.items[x.id]).filter(i=>i&&i.stage>0&&i.stage<9&&i.next>Date.now()).map(i=>i.next).sort((a,b)=>a-b);
-  $("nextLine").textContent = !anyOn ? "Turn on a deck below to get started."
-    : R ? "You have reviews waiting. Reviewing on time keeps the intervals working."
-    : upcoming.length ? `Next review ${fmtWhen(upcoming[0])}.`
+  const upcoming=ITEMS.map(x=>state.items[x.id]).filter(i=>i&&i.stage>0&&i.stage<9&&i.next>Date.now()).map(i=>i.next).sort((a,b)=>a-b);
+  $("nextLine").textContent = R ? "You have reviews waiting. Reviewing on time keeps the intervals working."
+    : upcoming.length ? `Next review ${fmtWhen(upcoming[0])}.` + (!L ? (anyOn ? "" : " Turn on a deck below for new lessons.") : "")
+    : !anyOn ? "Turn on a deck below to get started."
     : L ? "Start with a lesson. Each item comes back for review 4 hours later." : "Everything in your decks is mastered. Nicely done.";
   $("decks").innerHTML = CATS.map(c=>{
     const ds=DECKS.filter(d=>d.cat===c.id), on=ds.filter(d=>deckOn(d.id)).length, key="d-"+c.id;
@@ -1792,8 +1802,8 @@ function render(){
       return `<button class="deck" data-d="${d.id}" aria-pressed="${deckOn(d.id)}"><span class="dn">${d.name}<i>${deckOn(d.id)?"On":"Off"}</i></span><span class="dc">${learned} / ${all.length} started</span></button>`;
     }).join("")}</div>`;
   }).join("");
-  const shown = ITEMS.filter(x=>deckOn(x.deck));
-  const counts=[0,0,0,0,0,0]; shown.forEach(x=>counts[GROUP(st(x.id))]++);
+  // progress counts everything you've started, in any deck (on or off)
+  const counts=[0,0,0,0,0,0]; ITEMS.forEach(x=>counts[GROUP(st(x.id))]++);
   $("stages").innerHTML = GROUPS.slice(1).map((g,i)=>`<div class="stage"><b>${counts[i+1]}</b><span><i class="dot" style="background:var(${g[1]})"></i>${g[0]}</span></div>`).join("");
   $("grids").innerHTML = CATS.map(c=>{
     const ds=DECKS.filter(d=>d.cat===c.id && deckOn(d.id)); if(!ds.length) return "";
@@ -1881,21 +1891,32 @@ function nextQ(){
   $("qTag").textContent=DECK[x.deck].tag;
   fillFace($("qFace"), x, t);
   $("qPrompt").innerHTML = PROMPTS[t];
-  const inp=$("qInput"); inp.value=""; inp.className=""; inp.readOnly=false;
+  const inp=$("qInput"); inp.value=""; inp.className=""; lockedValue=null;
   inp.placeholder = PLACEHOLDERS[t];
   inp.lang = KANA_INPUT.has(t) ? "ja" : "en";
   $("qMsg").textContent=""; $("qInfo").classList.add("hidden"); $("showInfo").disabled=true;
   $("listen").disabled = x.type==="radical";
   $("qLeft").textContent = `${Q.done.length} of ${Q.total} done`;
   $("qAcc").textContent = Q.asked ? `${Math.round(Q.right/Q.asked*100)}% correct` : "";
-  inp.focus();
+  inp.focus({preventScroll:true});
 }
-$("qInput").addEventListener("input", e=>{
+// Phones: never make the box read-only (that hides the keyboard between questions).
+// After answering, the box stays editable but typing is ignored until the next question.
+let lockedValue = null;
+$("qInput").addEventListener("beforeinput", e=>{ if(Q && Q.answered) e.preventDefault(); });
+function convertKana(el){
   if(!Q || !Q.cur || Q.answered) return;
   const t=Q.cur.t; if(!KANA_INPUT.has(t)) return;
-  const v=e.target.value; let k=toKana(v,false); if(t==="on") k=hira2kata(k);
-  if(k!==v) e.target.value=k;
+  const v=el.value; let k=toKana(v,false); if(t==="on") k=hira2kata(k);
+  if(k!==v) el.value=k;
+}
+$("qInput").addEventListener("input", e=>{
+  if(Q && Q.answered){ if(lockedValue!==null && e.target.value!==lockedValue) e.target.value=lockedValue; return; }
+  // don't rewrite the text while the phone keyboard is still composing a word (Gboard, iOS predictive text)
+  if(e.isComposing) return;
+  convertKana(e.target);
 });
+$("qInput").addEventListener("compositionend", e=>convertKana(e.target));
 function nudge(text){ const i=$("qInput"); $("qMsg").textContent=text; i.classList.remove("shake"); void i.offsetWidth; i.classList.add("shake"); }
 $("qForm").addEventListener("submit", e=>{
   e.preventDefault(); if(!Q||!Q.cur) return;
@@ -1939,7 +1960,7 @@ $("qForm").addEventListener("submit", e=>{
     if(hasKana(ans)){ nudge("This one asks for the English meaning."); return; }
     ok = checkMeaning(x, ans);
   }
-  Q.answered=true; inp.readOnly=true; Q.asked++;
+  Q.answered=true; Q.asked++; lockedValue=inp.value;
   const day=logDay(); day.a++; if(ok) day.r++;
   const tr=Q.track[x.id];
   if(ok){
@@ -2032,7 +2053,7 @@ function renderStats(){
   // review forecast: active items in decks that are on
   const now=Date.now(), start=new Date(); start.setHours(0,0,0,0);
   const dayMs = i => { const d=new Date(start); d.setDate(d.getDate()+i); return d.getTime(); };
-  const active = ITEMS.filter(x=>deckOn(x.deck)).map(x=>state.items[x.id]).filter(i=>i&&i.stage>0&&i.stage<9);
+  const active = ITEMS.map(x=>state.items[x.id]).filter(i=>i&&i.stage>0&&i.stage<9);   // every deck, on or off
   const days = Array.from({length:7},(_,i)=>active.filter(it=> i===0 ? it.next<dayMs(1) : it.next>=dayMs(i)&&it.next<dayMs(i+1)).length);
   const dueNowN = active.filter(it=>it.next<=now).length;
   const max = Math.max(1,...days);
@@ -2089,7 +2110,9 @@ window.addEventListener("scroll", ()=>{ tip.hidden=true; }, {passive:true});
 
 // ---------- Settings ----------
 let settings = {theme:"auto", petals:"auto", batch:"5"};
-const batchSize = () => [3,5,10,15,20].includes(+settings.batch) ? +settings.batch : 5;
+const BATCH_MIN = 1, BATCH_MAX = 50;
+const clampBatch = n => Math.min(BATCH_MAX, Math.max(BATCH_MIN, Math.round(n)));
+const batchSize = () => { const n = parseInt(settings.batch, 10); return Number.isFinite(n) ? clampBatch(n) : 5; };
 try{ Object.assign(settings, JSON.parse(localStorage.getItem("sumi-settings")||"{}")); }catch(e){}
 function applySettings(){
   const r=document.documentElement;
@@ -2097,11 +2120,25 @@ function applySettings(){
   if(settings.petals==="auto") delete r.dataset.petals; else r.dataset.petals=settings.petals;
   try{ localStorage.setItem("sumi-settings", JSON.stringify(settings)); }catch(e){}
 }
+function showBatch(n){
+  $("batchRange").value = n; $("batchNum").value = n;
+  // fill the slider track up to the thumb
+  $("batchRange").style.setProperty("--fill", `${(n-BATCH_MIN)/(BATCH_MAX-BATCH_MIN)*100}%`);
+}
+function setBatch(n){ n = clampBatch(n); settings.batch = String(n); showBatch(n); applySettings(); render(); }
 $("setBtn").onclick=()=>{
-  document.querySelectorAll('#setDlg input').forEach(i=>i.checked = settings[i.name]===i.value);
+  document.querySelectorAll('#setDlg input[type=radio]').forEach(i=>i.checked = settings[i.name]===i.value);
+  showBatch(batchSize());
   $("setDlg").showModal();
+  // the dialog focuses its first field (the email box), which pops up the phone keyboard; focus the title instead
+  if(matchMedia("(pointer: coarse)").matches) $("setTitle").focus({preventScroll:true});
 };
-$("setDlg").addEventListener("change", e=>{ if(e.target.type!=="radio") return; settings[e.target.name]=e.target.value; applySettings(); if(e.target.name==="batch") render(); });
+$("setDlg").addEventListener("change", e=>{ if(e.target.type!=="radio") return; settings[e.target.name]=e.target.value; applySettings(); });
+$("batchRange").addEventListener("input", e=>setBatch(+e.target.value));
+// typing: only apply whole numbers in range; tidy up the box when you leave it
+$("batchNum").addEventListener("input", e=>{ const n=parseInt(e.target.value,10); if(n>=BATCH_MIN && n<=BATCH_MAX){ settings.batch=String(n); $("batchRange").value=n; $("batchRange").style.setProperty("--fill", `${(n-BATCH_MIN)/(BATCH_MAX-BATCH_MIN)*100}%`); applySettings(); render(); } });
+$("batchNum").addEventListener("blur", e=>setBatch(parseInt(e.target.value,10) || batchSize()));
+$("batchNum").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); setBatch(parseInt(e.target.value,10) || batchSize()); } });   // Enter saves, and doesn't close Settings
 
 // ---------- Background: temple and cherry tree silhouettes, falling petals ----------
 (function(){
@@ -2119,7 +2156,7 @@ $("setDlg").addEventListener("change", e=>{ if(e.target.type!=="radio") return; 
   const branches = [["M110 320C118 270 100 240 122 200C138 172 118 140 140 110",16],["M122 200C160 185 200 170 250 140",9],
     ["M132 150C105 130 80 125 50 110",7],["M140 110C160 85 185 75 215 55",6],["M140 110C132 80 120 60 112 35",5],["M250 140C268 130 285 128 304 118",4]];
   const clusters = [[250,135],[302,115],[215,52],[112,32],[50,108],[180,78],[200,165],[90,124],[160,58],[278,150],[28,98],[140,40],[230,100],[75,95]];
-  let tr = `<svg class="tree" viewBox="0 0 330 320"><g class="ink" fill="none" stroke-linecap="round">${branches.map(([d,sw])=>`<path d="${d}" stroke-width="${sw}"/>`).join("")}</g><g class="bloom">`;
+  let tr = `<svg class="tree" viewBox="-32 -26 394 346"><g class="ink" fill="none" stroke-linecap="round">${branches.map(([d,sw])=>`<path d="${d}" stroke-width="${sw}"/>`).join("")}</g><g class="bloom">`;
   clusters.forEach(([cx,cy])=>{ for(let i=0;i<6;i++) tr += `<circle cx="${(cx+(rnd()-.5)*44).toFixed(1)}" cy="${(cy+(rnd()-.5)*30).toFixed(1)}" r="${(9+rnd()*10).toFixed(1)}"/>`; });
   tr += `</g></svg>`;
   $("scene").innerHTML = tr + pg;
