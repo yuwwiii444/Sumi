@@ -57,6 +57,9 @@ input:focus-visible,button:focus-visible,a:focus-visible,summary:focus-visible{o
   .tl small{min-height:0}
 }
 .flower{width:26px;height:26px;align-self:center;flex:none}
+/* Sumi the mascot, standing at the bottom right of the hero */
+.hero-mascot{position:absolute;right:24px;bottom:-6px;width:150px;height:auto;z-index:2;pointer-events:none}
+@media (max-width:700px){.hero-mascot{width:104px;right:12px;bottom:-4px}}
 </style>
 <script>
 // use the same Theme and Petals choices as the app's Settings
@@ -84,7 +87,7 @@ try{ var st=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
   </nav>
 
   <!-- Hero -->
-  <header id="top" style="max-width: 1200px; margin: 0 auto; padding: 56px 24px 96px; display: flex; flex-wrap: wrap; gap: 48px; align-items: center">
+  <header id="top" style="max-width: 1200px; margin: 0 auto; padding: 56px 24px 96px; display: flex; flex-wrap: wrap; gap: 48px; align-items: center; position: relative">
     <div style="flex: 1 1 460px; min-width: 0">
       <h1 style="margin: 0 0 22px; font-family: 'Shippori Mincho B1', 'Yu Mincho', serif; font-weight: 800; font-size: clamp(42px, 6vw, 76px); line-height: 1.08; letter-spacing: -0.01em">Learn Japanese that stays with you.</h1>
       <p style="margin: 0 0 34px; font-size: 20px; color: var(--text2); max-width: 30em">Kana, kanji, words and grammar, a few at a time. Sumi brings each one back right before you would forget it, so it sticks for months, not days. Free, and no account needed.</p>
@@ -103,6 +106,7 @@ try{ var st=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
         </div>
       </div>
     </div>
+    <img class="hero-mascot" src="assets/mascot/sumi.svg" alt="Sumi, the site's mascot, smiling" width="596" height="836">
   </header>
 
   <!-- How it works -->

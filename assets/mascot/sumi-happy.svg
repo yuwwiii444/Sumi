@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="120 128 596 836" role="img" aria-labelledby="title">
+<title id="title">Sumi, smiling</title>
+<style>
+  svg {
+    --ink: #1E1A3A;          /* outlines (dark navy ink) */
+    --hood: #9790BC;         /* lavender hood */
+    --hood-shade: #8780AE;   /* hood's long right side, a touch darker */
+    --face: #F7EDB0;         /* butter-yellow face */
+    --blush: #F1A9A5;        /* soft pink cheeks */
+    --kimono: #4A4F7F;       /* indigo kimono */
+    --kimono-light: #6E74AA; /* sleeves */
+    --obi: #B9BDDD;          /* pale lavender obi */
+    --collar: #F3EEF7;       /* under-collar */
+    --mouth: #A9445A;        /* open mouth (cheering) */
+    --pin: #F4AEC3;          /* sakura hairpin */
+    --pin-center: #C2577A;
+    --line: 8;          /* outline thickness */
+  }
+  .ink { fill: none; stroke: var(--ink); stroke-width: var(--line); stroke-linecap: round; stroke-linejoin: round; }
+  .fill-ink { fill: var(--ink); }
+  @media (prefers-reduced-motion: no-preference) {
+    #upper { animation: sumi-breathe 4.2s ease-in-out infinite; }
+    #eyes { transform-box: fill-box; transform-origin: 50% 50%; animation: sumi-blink 6s infinite; }
+  }
+  /* kneeling, so instead of bobbing the head and shoulders rise gently, like breathing */
+  @keyframes sumi-breathe { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+  @keyframes sumi-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.12); } }
+</style>
+<g id="sumi">
+  <g id="lap">
+    <ellipse cx="420" cy="944" rx="300" ry="20" fill="var(--ink)" opacity=".08"/>
+    <!-- sleeves spread on the floor -->
+    <path fill="var(--kimono-light)" d="M268,600 C232,660 214,760 196,842 C188,876 160,900 142,916 C178,930 250,930 300,912 L306,760 Z"/>
+    <path class="ink" d="M268,600 C232,660 214,760 196,842 C188,876 160,900 142,916 C178,930 250,930 300,912"/>
+    <path fill="var(--kimono-light)" d="M568,600 C604,660 622,760 640,842 C648,876 676,900 694,916 C658,930 586,930 536,912 L530,760 Z"/>
+    <path class="ink" d="M568,600 C604,660 622,760 640,842 C648,876 676,900 694,916 C658,930 586,930 536,912"/>
+    <!-- kneeling lap -->
+    <path fill="var(--kimono)" d="M286,836 C276,880 280,926 312,936 L526,936 C558,926 562,880 552,836 Z"/>
+    <path class="ink" d="M286,836 C276,880 280,926 312,936 L526,936 C558,926 562,880 552,836"/>
+    <path class="ink" d="M356,868 C352,896 352,920 356,936"/>
+  </g>
+  <g id="upper">
+  <g id="hood">
+    <path fill="var(--hood)" d="M180,716 C178,600 176,420 186,330 C196,250 250,180 330,158 C380,145 460,145 512,160 C588,184 636,248 648,330 C660,420 664,600 662,722 Q640,716 620,700 L230,700 Q206,712 180,716 Z"/>
+    <path fill="var(--hood-shade)" opacity=".55" d="M576,300 C596,360 604,520 604,700 L620,700 Q640,716 662,722 C664,600 660,420 648,330 C640,290 626,262 606,236 C596,258 586,278 576,300 Z"/>
+    <path class="ink" d="M180,716 C178,600 176,420 186,330 C196,250 250,180 330,158 C380,145 460,145 512,160 C588,184 636,248 648,330 C660,420 664,600 662,722"/>
+    <path class="ink" d="M180,716 Q204,712 226,704 M662,722 Q642,716 622,704"/>
+    <!-- parting line where the hood folds over the face (upper left) -->
+    <path class="ink" d="M248,228 C274,238 298,252 318,270"/>
+    <!-- shine -->
+    <path d="M268,236 C300,200 352,182 410,178" fill="none" stroke="#FFFFFF" stroke-opacity=".55" stroke-width="13" stroke-linecap="round"/>
+    <!-- tiny sakura hairpin -->
+    <g id="hairpin" transform="translate(585 246) rotate(-12) scale(.5) translate(-50 -52)">
+      <g fill="var(--pin)" stroke="var(--ink)" stroke-width="8" stroke-linejoin="round">
+        <path id="petal" d="M50 52C34 36 32 14 43 4l7 8 7-8c11 10 9 32-7 48z"/>
+        <use href="#petal" transform="rotate(72 50 52)"/><use href="#petal" transform="rotate(144 50 52)"/>
+        <use href="#petal" transform="rotate(216 50 52)"/><use href="#petal" transform="rotate(288 50 52)"/>
+      </g>
+      <circle cx="50" cy="52" r="10" fill="var(--pin-center)"/>
+    </g>
+  </g>
+  <g id="torso">
+    <g id="neck">
+      <rect x="386" y="500" width="66" height="62" fill="var(--face)"/>
+      <path class="ink" d="M388,516 L388,556 M450,516 L450,556"/>
+    </g>
+    <path fill="var(--kimono)" d="M276,584 C296,566 340,556 380,554 L458,554 C498,556 542,566 562,584 C566,660 560,760 552,836 L286,836 C278,760 272,660 276,584 Z"/>
+    <path class="ink" d="M276,584 C296,566 340,556 380,554 L458,554 C498,556 542,566 562,584 M286,836 C278,760 272,660 276,584 M562,584 C566,660 560,760 552,836"/>
+    <!-- crossed collar -->
+    <path fill="var(--collar)" d="M362,554 L419,660 L476,554 L452,554 L419,622 L386,554 Z"/>
+    <path class="ink" d="M362,554 L419,660 L476,554 M386,554 L419,622"/>
+    <!-- obi with buckle -->
+    <path fill="var(--obi)" d="M292,694 C350,700 488,700 546,694 L546,744 C488,750 350,750 292,744 Z"/>
+    <path class="ink" d="M292,694 C350,700 488,700 546,694 M292,744 C350,750 488,750 546,744"/>
+    <rect x="394" y="686" width="50" height="66" rx="9" fill="var(--obi)"/><rect class="ink" x="394" y="686" width="50" height="66" rx="9"/>
+    <rect x="407" y="702" width="24" height="34" rx="4" fill="var(--kimono-light)" opacity=".55"/>
+    <!-- upper sleeves: down from the shoulders to the hands in the lap -->
+    <path fill="var(--kimono-light)" d="M276,584 C246,640 238,740 262,800 C282,846 340,852 396,826 L394,794 C350,784 314,744 300,690 C294,660 290,620 276,584 Z"/>
+    <path class="ink" d="M276,584 C246,640 238,740 262,800 C282,846 340,852 396,826 M394,794 C350,784 314,744 300,690"/>
+    <path fill="var(--kimono-light)" d="M562,584 C592,640 600,740 576,800 C556,846 498,852 442,826 L444,794 C488,784 524,744 538,690 C544,660 548,620 562,584 Z"/>
+    <path class="ink" d="M562,584 C592,640 600,740 576,800 C556,846 498,852 442,826 M444,794 C488,784 524,744 538,690"/>
+    <!-- hands resting in the lap -->
+    <circle cx="400" cy="818" r="20" fill="var(--face)"/><circle class="ink" cx="400" cy="818" r="20"/>
+    <circle cx="438" cy="818" r="20" fill="var(--face)"/><circle class="ink" cx="438" cy="818" r="20"/>
+  </g>
+  <g id="face">
+    <path fill="var(--face)" d="M330,264 C362,238 476,238 508,264 C548,292 568,332 574,382 C580,442 570,486 540,506 C510,526 462,528 419,528 C376,528 328,526 298,506 C268,486 258,442 264,382 C270,332 290,292 330,264 Z"/>
+    <path class="ink" d="M330,264 C362,238 476,238 508,264 C548,292 568,332 574,382 C580,442 570,486 540,506 C510,526 462,528 419,528 C376,528 328,526 298,506 C268,486 258,442 264,382 C270,332 290,292 330,264 Z"/>
+  </g>
+  <g id="blush">
+    <ellipse cx="326" cy="432" rx="28" ry="15" fill="var(--blush)" opacity=".9"/>
+    <ellipse cx="512" cy="432" rx="28" ry="15" fill="var(--blush)" opacity=".9"/>
+  </g>
+  <g id="eyes"><g transform="translate(0 27)"><path class="ink" d="M326,352 C338,361 362,361 374,352"/><path class="ink" d="M461,352 C473,361 497,361 509,352"/></g></g>
+  <g id="mouth"><g transform="translate(0 6)"><path class="ink" d="M396,404 C398,419 412,421 419,410 C426,421 440,419 442,404"/></g></g>
+  </g>
+</g>
+</svg>
